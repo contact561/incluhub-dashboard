@@ -54,3 +54,31 @@ export type AdminExternalMemberRow = {
   assignedProjectsCount: number;
   status: string;
 };
+
+export type AdminInstituteRow = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  status: string;
+  createdAt: string;
+};
+
+export type AdminInstitutesResult = {
+  institutes: AdminInstituteRow[];
+  error: string | null;
+};
+
+export type AdminProgramRow = {
+  id: string;
+  name: string;
+  institute: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: string;
+};
+
+export type AdminProgramsResult = {
+  programs: AdminProgramRow[];
+  error: string | null;
+};

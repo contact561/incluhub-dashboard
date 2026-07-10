@@ -1,29 +1,26 @@
 import Link from "next/link";
-import { CreateUserForm } from "@/components/forms/CreateUserForm";
+import { CreateInstituteForm } from "@/components/forms/CreateInstituteForm";
 import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
 import { buttonVariants } from "@/components/ui/button";
-import { getActiveInstituteOptions } from "@/lib/data/admin/institutes";
 import { cn } from "@/lib/utils";
 
-export default async function AdminCreateUserPage() {
-  const institutes = await getActiveInstituteOptions();
-
+export default function AdminCreateInstitutePage() {
   return (
     <div className="flex min-h-full flex-col">
       <RecordPageHeader
-        title="Create User"
-        description="Create a login account and matching profile / role records."
+        title="Create Institute"
+        description="Add an academy or institute that students and educators can belong to."
         actions={
           <Link
-            href="/admin/users"
+            href="/admin/institutes"
             className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
           >
-            Back to Users
+            Back to Institutes
           </Link>
         }
       />
       <div className="p-6">
-        <CreateUserForm institutes={institutes} />
+        <CreateInstituteForm />
       </div>
     </div>
   );

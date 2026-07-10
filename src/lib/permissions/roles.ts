@@ -22,6 +22,8 @@ export function canAccessRoleRoute(
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/admin/dashboard" },
   { label: "Users", href: "/admin/users" },
+  { label: "Institutes", href: "/admin/institutes" },
+  { label: "Programs", href: "/admin/programs" },
   { label: "Students", href: "/admin/students" },
   { label: "Educators", href: "/admin/educators" },
   { label: "External Members", href: "/admin/external-members" },
