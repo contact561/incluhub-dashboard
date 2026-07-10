@@ -1,12 +1,30 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { redirectToDashboardByRole } from "@/lib/auth/redirectToDashboardByRole";
+import type { Profile } from "@/types/database";
 
 export type LoginState = {
   error?: string;
 };
+
+async function getProfileForAuthUser(userId: string): Promise<Profile | null> {
+  // Use service role server-side only — password already verified by Supabase Auth.
+  // Avoids RLS/session timing issues immediately after signInWithPassword.
+  const admin = createAdminClient();
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error || !profile) {
+    return null;
+  }
+
+  return profile;
+}
 
 export async function loginAction(
   _prevState: LoginState,
@@ -20,7 +38,10 @@ export async function loginAction(
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
 
   if (error) {
     return {
@@ -29,7 +50,17 @@ export async function loginAction(
     };
   }
 
-  const profile = await getCurrentProfile();
+  const user = data.user;
+
+  if (!user) {
+    await supabase.auth.signOut();
+    return {
+      error:
+        "Your account is not fully set up. Please contact IncluHub Admin.",
+    };
+  }
+
+  const profile = await getProfileForAuthUser(user.id);
 
   if (!profile) {
     await supabase.auth.signOut();

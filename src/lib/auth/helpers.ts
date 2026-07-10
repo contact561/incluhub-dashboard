@@ -6,4 +6,4 @@ export {
 } from "@/lib/auth/getDashboardPathForRole";
 export { redirectToDashboardByRole } from "@/lib/auth/redirectToDashboardByRole";
 export { requireRole } from "@/lib/auth/requireRole";
-export * from "@/lib/auth/helpers";
+export { canAccessRoleRoute, getNavItemsForRole } from "@/lib/permissions/roles";

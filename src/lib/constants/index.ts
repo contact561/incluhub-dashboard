@@ -1,2 +1,8 @@
-// App-wide constants — role values, stage numbers, approval statuses
-// Populated in a later prompt
+export {
+  PAYMENT_STATUS_LABELS,
+  STUDENT_CATEGORY_LABELS,
+  EDUCATOR_TYPE_LABELS,
+  EXTERNAL_MEMBER_TYPE_LABELS,
+  USER_ROLE_LABELS,
+  formatEnumLabel,
+} from "@/lib/constants/labels";

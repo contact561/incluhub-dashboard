@@ -313,32 +313,133 @@ export interface ActivityLog {
 // Database shape (for Supabase generic client typing)
 // ---------------------------------------------------------------------------
 
-export interface Database {
+/** Mapped object type so Insert/Update satisfy Record<string, unknown>. */
+type AsRecord<T> = {
+  [K in keyof T]: T[K];
+};
+
+type Relationship = {
+  foreignKeyName: string;
+  columns: string[];
+  isOneToOne?: boolean;
+  referencedRelation: string;
+  referencedColumns: string[];
+};
+
+type TableDef<Row, Relationships extends Relationship[] = []> = {
+  Row: AsRecord<Row>;
+  Insert: Partial<AsRecord<Row>> & Record<string, unknown>;
+  Update: Partial<AsRecord<Row>> & Record<string, unknown>;
+  Relationships: Relationships;
+};
+
+export type Database = {
   public: {
     Tables: {
-      profiles: { Row: Profile; Insert: Partial<Profile>; Update: Partial<Profile> };
-      institutes: { Row: Institute; Insert: Partial<Institute>; Update: Partial<Institute> };
-      programs: { Row: Program; Insert: Partial<Program>; Update: Partial<Program> };
-      students: { Row: Student; Insert: Partial<Student>; Update: Partial<Student> };
-      educators: { Row: Educator; Insert: Partial<Educator>; Update: Partial<Educator> };
-      external_members: { Row: ExternalMember; Insert: Partial<ExternalMember>; Update: Partial<ExternalMember> };
-      teams: { Row: Team; Insert: Partial<Team>; Update: Partial<Team> };
-      team_members: { Row: TeamMember; Insert: Partial<TeamMember>; Update: Partial<TeamMember> };
-      team_educators: { Row: TeamEducator; Insert: Partial<TeamEducator>; Update: Partial<TeamEducator> };
-      stages: { Row: Stage; Insert: Partial<Stage>; Update: Partial<Stage> };
-      team_stage_progress: { Row: TeamStageProgress; Insert: Partial<TeamStageProgress>; Update: Partial<TeamStageProgress> };
-      portfolio_outputs: { Row: PortfolioOutput; Insert: Partial<PortfolioOutput>; Update: Partial<PortfolioOutput> };
-      portfolio_participants: { Row: PortfolioParticipant; Insert: Partial<PortfolioParticipant>; Update: Partial<PortfolioParticipant> };
-      portfolio_approvals: { Row: PortfolioApproval; Insert: Partial<PortfolioApproval>; Update: Partial<PortfolioApproval> };
-      projects: { Row: Project; Insert: Partial<Project>; Update: Partial<Project> };
-      project_assignments: { Row: ProjectAssignment; Insert: Partial<ProjectAssignment>; Update: Partial<ProjectAssignment> };
-      project_approvals: { Row: ProjectApproval; Insert: Partial<ProjectApproval>; Update: Partial<ProjectApproval> };
-      notifications: { Row: Notification; Insert: Partial<Notification>; Update: Partial<Notification> };
-      notification_recipients: { Row: NotificationRecipient; Insert: Partial<NotificationRecipient>; Update: Partial<NotificationRecipient> };
-      activity_logs: { Row: ActivityLog; Insert: Partial<ActivityLog>; Update: Partial<ActivityLog> };
+      profiles: TableDef<Profile>;
+      institutes: TableDef<Institute>;
+      programs: TableDef<
+        Program,
+        [
+          {
+            foreignKeyName: "programs_institute_id_fkey";
+            columns: ["institute_id"];
+            referencedRelation: "institutes";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      students: TableDef<
+        Student,
+        [
+          {
+            foreignKeyName: "students_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "students_institute_id_fkey";
+            columns: ["institute_id"];
+            referencedRelation: "institutes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "students_current_team_id_fkey";
+            columns: ["current_team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      educators: TableDef<
+        Educator,
+        [
+          {
+            foreignKeyName: "educators_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "educators_institute_id_fkey";
+            columns: ["institute_id"];
+            referencedRelation: "institutes";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      external_members: TableDef<
+        ExternalMember,
+        [
+          {
+            foreignKeyName: "external_members_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      teams: TableDef<
+        Team,
+        [
+          {
+            foreignKeyName: "teams_institute_id_fkey";
+            columns: ["institute_id"];
+            referencedRelation: "institutes";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "teams_program_id_fkey";
+            columns: ["program_id"];
+            referencedRelation: "programs";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      team_members: TableDef<TeamMember>;
+      team_educators: TableDef<TeamEducator>;
+      stages: TableDef<Stage>;
+      team_stage_progress: TableDef<TeamStageProgress>;
+      portfolio_outputs: TableDef<PortfolioOutput>;
+      portfolio_participants: TableDef<PortfolioParticipant>;
+      portfolio_approvals: TableDef<PortfolioApproval>;
+      projects: TableDef<Project>;
+      project_assignments: TableDef<ProjectAssignment>;
+      project_approvals: TableDef<ProjectApproval>;
+      notifications: TableDef<Notification>;
+      notification_recipients: TableDef<NotificationRecipient>;
+      activity_logs: TableDef<ActivityLog>;
     };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
     Enums: {
       user_role: UserRole;
       student_category: StudentCategory;
@@ -348,5 +449,8 @@ export interface Database {
       approval_status: ApprovalStatus;
       payment_status: PaymentStatus;
     };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
   };
-}
+};

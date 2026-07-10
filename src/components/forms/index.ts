@@ -1,2 +1,3 @@
-// Reusable form components — field wrappers, form sections
-// Populated in a later prompt
+export { CreateUserForm } from "@/components/forms/CreateUserForm";
+export { ForgotPasswordForm } from "@/components/forms/ForgotPasswordForm";
+export { LoginForm } from "@/components/forms/LoginForm";

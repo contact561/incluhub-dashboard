@@ -1,2 +1,2 @@
-// Layout components — sidebar, header, nav wrappers
-// Populated in a later prompt
+export { RoleLayout } from "@/components/layout/RoleLayout";
+export { Sidebar } from "@/components/layout/Sidebar";

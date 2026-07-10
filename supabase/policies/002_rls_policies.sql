@@ -108,6 +108,111 @@ as $$
   limit 1;
 $$;
 
+-- Cross-table helpers (security definer — avoid teams/projects/assignments recursion)
+create or replace function is_external_assigned_to_team(p_team_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from projects p
+    join project_assignments pa on pa.project_id = p.id
+    join external_members em on em.id = pa.external_member_id
+    where p.team_id = p_team_id
+      and em.user_id = auth.uid()
+      and em.status = 'active'
+      and pa.status = 'active'
+  );
+$$;
+
+create or replace function is_external_assigned_to_project(p_project_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from project_assignments pa
+    join external_members em on em.id = pa.external_member_id
+    where pa.project_id = p_project_id
+      and em.user_id = auth.uid()
+      and em.status = 'active'
+      and pa.status = 'active'
+  );
+$$;
+
+create or replace function project_team_id(p_project_id uuid)
+returns uuid
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select team_id from projects where id = p_project_id;
+$$;
+
+create or replace function is_educator_assigned_to_team(p_team_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from team_educators te
+    join educators e on e.id = te.educator_id
+    where te.team_id = p_team_id
+      and e.user_id = auth.uid()
+      and e.status = 'active'
+      and te.status = 'active'
+  );
+$$;
+
+create or replace function is_educator_assigned_to_project(p_project_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from projects p
+    join team_educators te on te.team_id = p.team_id
+    join educators e on e.id = te.educator_id
+    where p.id = p_project_id
+      and e.user_id = auth.uid()
+      and e.status = 'active'
+      and te.status = 'active'
+  );
+$$;
+
+create or replace function is_student_on_educator_team(p_student_id uuid)
+returns boolean
+language sql
+security definer
+stable
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from team_members tm
+    join team_educators te on te.team_id = tm.team_id
+    join educators e on e.id = te.educator_id
+    where tm.student_id = p_student_id
+      and tm.member_status = 'active'
+      and e.user_id = auth.uid()
+      and e.status = 'active'
+      and te.status = 'active'
+  );
+$$;
+
 
 -- ---------------------------------------------------------------------------
 -- Enable RLS on all tables
@@ -198,17 +303,7 @@ create policy "students_select_own"
 
 create policy "students_select_educator_assigned"
   on students for select
-  using (
-    exists (
-      select 1
-      from team_members tm
-      join team_educators te on te.team_id = tm.team_id
-      where tm.student_id = students.id
-        and tm.member_status = 'active'
-        and te.educator_id = my_educator_id()
-        and te.status = 'active'
-    )
-  );
+  using (is_student_on_educator_team(id));
 
 create policy "students_select_admin"
   on students for select
@@ -270,28 +365,11 @@ create policy "teams_select_student_own"
 
 create policy "teams_select_educator_assigned"
   on teams for select
-  using (
-    exists (
-      select 1
-      from team_educators te
-      where te.team_id = teams.id
-        and te.educator_id = my_educator_id()
-        and te.status = 'active'
-    )
-  );
+  using (is_educator_assigned_to_team(id));
 
 create policy "teams_select_external_assigned"
   on teams for select
-  using (
-    exists (
-      select 1
-      from projects p
-      join project_assignments pa on pa.project_id = p.id
-      where p.team_id = teams.id
-        and pa.external_member_id = my_external_member_id()
-        and pa.status = 'active'
-    )
-  );
+  using (is_external_assigned_to_team(id));
 
 create policy "teams_write_admin"
   on teams for all
@@ -313,28 +391,11 @@ create policy "team_members_select_student_own_team"
 
 create policy "team_members_select_educator_assigned"
   on team_members for select
-  using (
-    exists (
-      select 1
-      from team_educators te
-      where te.team_id = team_members.team_id
-        and te.educator_id = my_educator_id()
-        and te.status = 'active'
-    )
-  );
+  using (is_educator_assigned_to_team(team_id));
 
 create policy "team_members_select_external_assigned"
   on team_members for select
-  using (
-    exists (
-      select 1
-      from projects p
-      join project_assignments pa on pa.project_id = p.id
-      where p.team_id = team_members.team_id
-        and pa.external_member_id = my_external_member_id()
-        and pa.status = 'active'
-    )
-  );
+  using (is_external_assigned_to_team(team_id));
 
 create policy "team_members_write_admin"
   on team_members for all
@@ -392,15 +453,7 @@ create policy "team_stage_progress_select_student_own_team"
 
 create policy "team_stage_progress_select_educator_assigned"
   on team_stage_progress for select
-  using (
-    exists (
-      select 1
-      from team_educators te
-      where te.team_id = team_stage_progress.team_id
-        and te.educator_id = my_educator_id()
-        and te.status = 'active'
-    )
-  );
+  using (is_educator_assigned_to_team(team_id));
 
 create policy "team_stage_progress_write_admin"
   on team_stage_progress for all
@@ -579,27 +632,11 @@ create policy "projects_select_student_own_team"
 
 create policy "projects_select_educator_assigned"
   on projects for select
-  using (
-    exists (
-      select 1
-      from team_educators te
-      where te.team_id = projects.team_id
-        and te.educator_id = my_educator_id()
-        and te.status = 'active'
-    )
-  );
+  using (is_educator_assigned_to_team(team_id));
 
 create policy "projects_select_external_assigned"
   on projects for select
-  using (
-    exists (
-      select 1
-      from project_assignments pa
-      where pa.project_id = projects.id
-        and pa.external_member_id = my_external_member_id()
-        and pa.status = 'active'
-    )
-  );
+  using (is_external_assigned_to_project(id));
 
 create policy "projects_write_admin"
   on projects for all
@@ -621,27 +658,11 @@ create policy "project_assignments_select_external_own"
 
 create policy "project_assignments_select_student_own_team"
   on project_assignments for select
-  using (
-    exists (
-      select 1
-      from projects p
-      where p.id = project_assignments.project_id
-        and p.team_id = my_active_team_id()
-    )
-  );
+  using (project_team_id(project_id) = my_active_team_id());
 
 create policy "project_assignments_select_educator_assigned"
   on project_assignments for select
-  using (
-    exists (
-      select 1
-      from projects p
-      join team_educators te on te.team_id = p.team_id
-      where p.id = project_assignments.project_id
-        and te.educator_id = my_educator_id()
-        and te.status = 'active'
-    )
-  );
+  using (is_educator_assigned_to_project(project_id));
 
 create policy "project_assignments_write_admin"
   on project_assignments for all
@@ -663,29 +684,14 @@ create policy "project_approvals_select_educator_own"
 
 create policy "project_approvals_select_student_own_team"
   on project_approvals for select
-  using (
-    exists (
-      select 1
-      from projects p
-      where p.id = project_approvals.project_id
-        and p.team_id = my_active_team_id()
-    )
-  );
+  using (project_team_id(project_id) = my_active_team_id());
 
 create policy "project_approvals_insert_educator_own"
   on project_approvals for insert
   with check (
     approver_role = 'educator'
     and approver_user_id = get_my_profile_id()
-    and exists (
-      select 1
-      from projects p
-      join team_educators te on te.team_id = p.team_id
-      join educators e on e.id = te.educator_id
-      where p.id = project_approvals.project_id
-        and e.user_id = get_my_profile_id()
-        and te.status = 'active'
-    )
+    and is_educator_assigned_to_project(project_id)
   );
 
 create policy "project_approvals_update_educator_own"
