@@ -18,6 +18,7 @@ export default async function AdminStagesPage() {
         ) : data ? (
           <StageBoard
             awaitingAssignment={data.awaitingAssignment}
+            notEnrolledTeams={data.notEnrolledTeams}
             stage2Teams={data.stage2Teams}
             stage3Teams={data.stage3Teams}
             stage4Teams={data.stage4Teams}

@@ -112,41 +112,45 @@ export async function getTeamStageDetail(
     };
   }
 
-  const progressByStage = new Map(
-    (
-      (progressResult.data ?? []) as Array<{
+  const progressRows = (progressResult.data ?? []) as Array<{
         stage_number: number;
         status: StageStatus;
         started_at: string | null;
         completed_at: string | null;
         bms_session_date: string | null;
         bms_remarks: string | null;
-      }>
-    ).map((row) => [row.stage_number, row])
+      }>;
+
+  const journeyEnrolled = progressRows.length > 0;
+
+  const progressByStage = new Map(
+    progressRows.map((row) => [row.stage_number, row])
   );
 
-  const timeline: TeamStageTimelineEntry[] = (
-    (stagesResult.data ?? []) as Array<{
-      stage_number: number;
-      name: string;
-      description: string | null;
-    }>
-  ).map((stage) => {
-    const progress = progressByStage.get(stage.stage_number);
-    const status = progress?.status ?? "locked";
+  const timeline: TeamStageTimelineEntry[] = journeyEnrolled
+    ? (
+        (stagesResult.data ?? []) as Array<{
+          stage_number: number;
+          name: string;
+          description: string | null;
+        }>
+      ).map((stage) => {
+        const progress = progressByStage.get(stage.stage_number);
+        const status = progress?.status ?? "locked";
 
-    return {
-      stageNumber: stage.stage_number,
-      stageName: stage.name,
-      description: stage.description,
-      status,
-      startedAt: progress?.started_at ?? null,
-      completedAt: progress?.completed_at ?? null,
-      bmsSessionDate: progress?.bms_session_date ?? null,
-      bmsRemarks: progress?.bms_remarks ?? null,
-      lockedReason: lockedReasonForStage(stage.stage_number, status),
-    };
-  });
+        return {
+          stageNumber: stage.stage_number,
+          stageName: stage.name,
+          description: stage.description,
+          status,
+          startedAt: progress?.started_at ?? null,
+          completedAt: progress?.completed_at ?? null,
+          bmsSessionDate: progress?.bms_session_date ?? null,
+          bmsRemarks: progress?.bms_remarks ?? null,
+          lockedReason: lockedReasonForStage(stage.stage_number, status),
+        };
+      })
+    : [];
 
   const leaderNameByStudentId = new Map(
     (
@@ -193,6 +197,7 @@ export async function getTeamStageDetail(
       portfolios,
       stage2InProgress,
       bmsAlreadyCompleted,
+      journeyEnrolled,
     },
     error: null,
   };

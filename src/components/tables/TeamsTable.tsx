@@ -61,7 +61,11 @@ export function TeamsTable({ teams }: TeamsTableProps) {
                 team.hairstylist.institute
               )}
             </TableCell>
-            <TableCell>Stage {team.currentStageNumber}</TableCell>
+            <TableCell>
+              {team.currentStageNumber === null
+                ? "Not enrolled"
+                : `Stage ${team.currentStageNumber}`}
+            </TableCell>
             <TableCell>
               <StatusBadge status={team.status} />
             </TableCell>

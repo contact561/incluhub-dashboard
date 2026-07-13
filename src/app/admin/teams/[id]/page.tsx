@@ -2,7 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getAdminTeamById } from "@/lib/data/admin/teams";
 import { getTeamStageDetail } from "@/lib/data/admin/team-stage";
+import { assessTeamJourneyReadiness } from "@/lib/stages/teamJourneyReadiness";
 import { BmsCompletionForm } from "@/components/stages/BmsCompletionForm";
+import { StageJourneySection } from "@/components/stages/StageJourneySection";
 import { TeamStageTimeline } from "@/components/stages/TeamStageTimeline";
 import {
   EDUCATOR_TYPE_LABELS,
@@ -24,6 +26,13 @@ function formatCreatedAt(value: string): string {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function formatCurrentStage(stageNumber: number | null): string {
+  if (stageNumber === null) {
+    return "Not enrolled";
+  }
+  return `Stage ${stageNumber}`;
 }
 
 export default async function AdminTeamDetailPage({
@@ -59,7 +68,11 @@ export default async function AdminTeamDetailPage({
     notFound();
   }
 
+  const journeyEnrolled = stageDetail?.journeyEnrolled === true;
+  const journeyAssessment = assessTeamJourneyReadiness(team, journeyEnrolled);
+
   const showBmsForm =
+    journeyEnrolled &&
     team.currentStageNumber === 2 &&
     stageDetail?.stage2InProgress === true &&
     stageDetail?.bmsAlreadyCompleted !== true;
@@ -99,7 +112,7 @@ export default async function AdminTeamDetailPage({
               Current Stage
             </p>
             <p className="mt-1 text-sm text-zinc-900">
-              Stage {team.currentStageNumber}
+              {formatCurrentStage(team.currentStageNumber)}
             </p>
           </div>
           <div>
@@ -147,15 +160,24 @@ export default async function AdminTeamDetailPage({
 
         {stageError ? (
           <QueryErrorState message={stageError} />
-        ) : stageDetail ? (
+        ) : (
           <>
-            <TeamStageTimeline
-              timeline={stageDetail.timeline}
-              portfolios={stageDetail.portfolios}
+            <StageJourneySection
+              teamId={team.id}
+              assessment={journeyAssessment}
             />
-            {showBmsForm ? <BmsCompletionForm teamId={team.id} /> : null}
+
+            {journeyEnrolled && stageDetail ? (
+              <>
+                <TeamStageTimeline
+                  timeline={stageDetail.timeline}
+                  portfolios={stageDetail.portfolios}
+                />
+                {showBmsForm ? <BmsCompletionForm teamId={team.id} /> : null}
+              </>
+            ) : null}
           </>
-        ) : null}
+        )}
 
         <p className="text-xs text-zinc-400">
           Shared stage status: {formatEnumLabel(team.stageStatus)}. Educators do

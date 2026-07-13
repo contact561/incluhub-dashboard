@@ -56,7 +56,11 @@ function TeamStageCard({ team }: { team: StageBoardTeamCard }) {
         ))}
       </ul>
       <div className="mt-3 flex items-center justify-between gap-2 text-xs text-zinc-400">
-        <span>Stage {team.currentStageNumber}</span>
+        <span>
+          {team.currentStageNumber === null
+            ? "Not enrolled"
+            : `Stage ${team.currentStageNumber}`}
+        </span>
         <span>{formatUpdatedAt(team.updatedAt)}</span>
       </div>
       <Link
@@ -91,6 +95,7 @@ function AwaitingAssignmentCard({
 
 type StageBoardProps = {
   awaitingAssignment: AwaitingAssignmentStudent[];
+  notEnrolledTeams: StageBoardTeamCard[];
   stage2Teams: StageBoardTeamCard[];
   stage3Teams: StageBoardTeamCard[];
   stage4Teams: StageBoardTeamCard[];
@@ -99,6 +104,7 @@ type StageBoardProps = {
 
 export function StageBoard({
   awaitingAssignment,
+  notEnrolledTeams,
   stage2Teams,
   stage3Teams,
   stage4Teams,
@@ -134,6 +140,27 @@ export function StageBoard({
           ) : (
             awaitingAssignment.map((student) => (
               <AwaitingAssignmentCard key={student.id} student={student} />
+            ))
+          )}
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-zinc-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-zinc-900">Not Enrolled</h2>
+        <p className="mt-1 text-xs text-zinc-500">
+          Active teams created but not yet enrolled in the stage journey.
+        </p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {notEnrolledTeams.length === 0 ? (
+            <div className="col-span-full">
+              <EmptyState
+                title="All teams enrolled"
+                description="Every active team has started the stage journey."
+              />
+            </div>
+          ) : (
+            notEnrolledTeams.map((team) => (
+              <TeamStageCard key={team.id} team={team} />
             ))
           )}
         </div>

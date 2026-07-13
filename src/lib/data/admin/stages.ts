@@ -9,7 +9,7 @@ import type { StageStatus, StudentCategory } from "@/types/database";
 type TeamBoardQueryRow = {
   id: string;
   team_name: string;
-  current_stage_number: number;
+  current_stage_number: number | null;
   stage_status: StageStatus;
   updated_at: string;
   programs: { name: string } | null;
@@ -44,7 +44,7 @@ function mapTeamCard(row: TeamBoardQueryRow): StageBoardTeamCard {
 export async function getAdminStageBoard(): Promise<AdminStageBoardResult> {
   const supabase = await createClient();
 
-  const [enrollmentsResult, teamsResult] = await Promise.all([
+  const [enrollmentsResult, teamsResult, progressResult] = await Promise.all([
     supabase
       .from("program_enrollments")
       .select(
@@ -96,15 +96,25 @@ export async function getAdminStageBoard(): Promise<AdminStageBoardResult> {
       )
       .eq("status", "active")
       .order("updated_at", { ascending: false }),
+    supabase.from("team_stage_progress").select("team_id"),
   ]);
 
   const firstError =
-    enrollmentsResult.error?.message || teamsResult.error?.message || null;
+    enrollmentsResult.error?.message ||
+    teamsResult.error?.message ||
+    progressResult.error?.message ||
+    null;
 
   if (firstError) {
     console.error("[getAdminStageBoard]", firstError);
     return { data: null, error: firstError };
   }
+
+  const enrolledTeamIds = new Set(
+    ((progressResult.data ?? []) as Array<{ team_id: string }>).map(
+      (row) => row.team_id
+    )
+  );
 
   const awaitingAssignment = (
     (enrollmentsResult.data ?? []) as Array<{
@@ -141,12 +151,16 @@ export async function getAdminStageBoard(): Promise<AdminStageBoardResult> {
     mapTeamCard
   );
 
+  const enrolledTeams = teams.filter((team) => enrolledTeamIds.has(team.id));
+  const notEnrolledTeams = teams.filter((team) => !enrolledTeamIds.has(team.id));
+
   const data: AdminStageBoardData = {
     awaitingAssignment,
-    stage2Teams: teams.filter((team) => team.currentStageNumber === 2),
-    stage3Teams: teams.filter((team) => team.currentStageNumber === 3),
-    stage4Teams: teams.filter((team) => team.currentStageNumber === 4),
-    stage5Teams: teams.filter((team) => team.currentStageNumber === 5),
+    notEnrolledTeams,
+    stage2Teams: enrolledTeams.filter((team) => team.currentStageNumber === 2),
+    stage3Teams: enrolledTeams.filter((team) => team.currentStageNumber === 3),
+    stage4Teams: enrolledTeams.filter((team) => team.currentStageNumber === 4),
+    stage5Teams: enrolledTeams.filter((team) => team.currentStageNumber === 5),
   };
 
   return { data, error: null };

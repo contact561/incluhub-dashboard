@@ -18,7 +18,7 @@ export type StageBoardTeamCard = {
   id: string;
   teamName: string;
   program: string | null;
-  currentStageNumber: number;
+  currentStageNumber: number | null;
   stageStatus: StageStatus;
   updatedAt: string;
   students: Array<{
@@ -29,6 +29,7 @@ export type StageBoardTeamCard = {
 
 export type AdminStageBoardData = {
   awaitingAssignment: AwaitingAssignmentStudent[];
+  notEnrolledTeams: StageBoardTeamCard[];
   stage2Teams: StageBoardTeamCard[];
   stage3Teams: StageBoardTeamCard[];
   stage4Teams: StageBoardTeamCard[];
@@ -65,6 +66,7 @@ export type TeamStageDetail = {
   portfolios: TeamPortfolioSummary[];
   stage2InProgress: boolean;
   bmsAlreadyCompleted: boolean;
+  journeyEnrolled: boolean;
 };
 
 export type TeamStageDetailResult = {

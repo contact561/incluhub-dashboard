@@ -17,7 +17,7 @@ import type {
 type TeamListQueryRow = {
   id: string;
   team_name: string;
-  current_stage_number: number;
+  current_stage_number: number | null;
   status: string;
   programs: { name: string } | null;
   team_members: Array<{
@@ -163,7 +163,7 @@ export async function getAdminTeamById(
   const row = data as {
     id: string;
     team_name: string;
-    current_stage_number: number;
+    current_stage_number: number | null;
     stage_status: StageStatus;
     status: string;
     created_at: string;

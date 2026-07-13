@@ -29,6 +29,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "External Members", href: "/admin/external-members" },
   { label: "Teams", href: "/admin/teams" },
   { label: "Stages", href: "/admin/stages" },
+  { label: "Studio Schedule", href: "/admin/studio-schedule" },
   { label: "Portfolio Approvals", href: "/admin/portfolio-approvals" },
   { label: "Project Approvals", href: "/admin/project-approvals" },
   { label: "Notifications", href: "/admin/notifications" },
@@ -40,7 +41,6 @@ export const STUDENT_NAV_ITEMS: NavItem[] = [
   { label: "My Team", href: "/student/my-team" },
   { label: "My Stage", href: "/student/my-stage" },
   { label: "Portfolio", href: "/student/portfolio" },
-  { label: "Notifications", href: "/student/notifications" },
 ];
 
 export const EDUCATOR_NAV_ITEMS: NavItem[] = [

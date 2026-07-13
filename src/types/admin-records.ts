@@ -30,7 +30,7 @@ export type AdminStudentRow = {
   studentCategory: StudentCategory;
   institute: string | null;
   currentTeam: string | null;
-  currentStageNumber: number;
+  currentStageNumber: number | null;
   paymentStatus: PaymentStatus;
   status: string;
 };
@@ -128,7 +128,7 @@ export type AdminTeamRow = {
   makeupArtist: AdminTeamMemberSummary;
   photographer: AdminTeamMemberSummary;
   hairstylist: AdminTeamMemberSummary;
-  currentStageNumber: number;
+  currentStageNumber: number | null;
   status: string;
 };
 
@@ -156,7 +156,7 @@ export type AdminTeamDetail = {
   id: string;
   teamName: string;
   program: string | null;
-  currentStageNumber: number;
+  currentStageNumber: number | null;
   stageStatus: StageStatus;
   status: string;
   createdAt: string;

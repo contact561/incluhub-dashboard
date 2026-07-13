@@ -134,7 +134,7 @@ export interface Student {
   course_start_date: string | null;
   course_end_date: string | null;
   current_team_id: string | null;
-  current_stage_number: number;
+  current_stage_number: number | null;
   status: "active" | "inactive" | "suspended" | "completed";
   created_by: string;
   created_at: string;
@@ -168,7 +168,7 @@ export interface Team {
   institute_id: string | null;
   program_id: string;
   team_name: string;
-  current_stage_number: number;
+  current_stage_number: number | null;
   stage_status: StageStatus;
   status: "active" | "completed" | "paused";
   created_by: string;
@@ -252,6 +252,23 @@ export interface PortfolioParticipant {
   student_id: string;
   participation_role: "leader" | "assistant";
   created_at: string;
+}
+
+export interface StudioSlotOccupancy {
+  id: string;
+  booking_date: string;
+  slot_code: string;
+  created_at: string;
+}
+
+export interface StudioBooking {
+  id: string;
+  portfolio_output_id: string;
+  team_id: string;
+  leader_student_id: string;
+  occupancy_id: string;
+  created_by: string;
+  booked_at: string;
 }
 
 export interface PortfolioApproval {
@@ -549,6 +566,42 @@ export type Database = {
       >;
       portfolio_outputs: TableDef<PortfolioOutput>;
       portfolio_participants: TableDef<PortfolioParticipant>;
+      studio_slot_occupancy: TableDef<StudioSlotOccupancy>;
+      studio_bookings: TableDef<
+        StudioBooking,
+        [
+          {
+            foreignKeyName: "studio_bookings_portfolio_output_id_fkey";
+            columns: ["portfolio_output_id"];
+            referencedRelation: "portfolio_outputs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "studio_bookings_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "studio_bookings_leader_student_id_fkey";
+            columns: ["leader_student_id"];
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "studio_bookings_occupancy_id_fkey";
+            columns: ["occupancy_id"];
+            referencedRelation: "studio_slot_occupancy";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "studio_bookings_created_by_fkey";
+            columns: ["created_by"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
       portfolio_approvals: TableDef<PortfolioApproval>;
       projects: TableDef<Project>;
       project_assignments: TableDef<ProjectAssignment>;
@@ -592,6 +645,33 @@ export type Database = {
           p_remarks: string | null;
         };
         Returns: undefined;
+      };
+      start_team_stage_journey: {
+        Args: {
+          p_team_id: string;
+        };
+        Returns: undefined;
+      };
+      get_studio_slot_availability: {
+        Args: {
+          p_booking_date: string;
+        };
+        Returns: {
+          slot_code: string;
+          available: boolean;
+        }[];
+      };
+      book_studio_slot: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_booking_date: string;
+          p_slot_code: string;
+        };
+        Returns: {
+          booking_date: string;
+          slot_code: string;
+          booked_at: string;
+        }[];
       };
     };
     Enums: {
