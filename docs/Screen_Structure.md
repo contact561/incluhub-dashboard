@@ -299,13 +299,15 @@ The dashboard should make it easy for IncluHub Admin to answer these daily quest
 | Field                 | Required |
 | --------------------- | -------- |
 | Team Name             | Yes      |
-| Program               | Yes      |
+| Program / Batch       | Yes      |
 | Makeup Artist Student | Yes      |
 | Photographer Student  | Yes      |
 | Hairstylist Student   | Yes      |
-| Makeup Educator       | Yes      |
-| Photography Educator  | Yes      |
-| Hairstyling Educator  | Yes      |
+| Makeup Educator       | Yes (must match makeup student institute) |
+| Photography Educator  | Yes (must match photographer institute) |
+| Hairstyling Educator  | Yes (must match hairstylist institute) |
+
+Students may come from different institutes if they are enrolled in the selected Program / Batch.
 
 **Success State:** Team is created and all related students/educators receive notification.
 

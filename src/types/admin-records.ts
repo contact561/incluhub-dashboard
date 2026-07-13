@@ -2,6 +2,7 @@ import type {
   EducatorType,
   ExternalMemberType,
   PaymentStatus,
+  StageStatus,
   StudentCategory,
   UserRole,
 } from "@/types/database";
@@ -72,7 +73,7 @@ export type AdminInstitutesResult = {
 export type AdminProgramRow = {
   id: string;
   name: string;
-  institute: string | null;
+  institutes: string[];
   startDate: string | null;
   endDate: string | null;
   status: string;
@@ -80,5 +81,126 @@ export type AdminProgramRow = {
 
 export type AdminProgramsResult = {
   programs: AdminProgramRow[];
+  error: string | null;
+};
+
+export type AdminProgramEnrollmentRow = {
+  id: string;
+  studentId: string;
+  fullName: string;
+  email: string;
+  category: StudentCategory;
+  institute: string | null;
+  status: string;
+  enrolledAt: string;
+  currentTeamId: string | null;
+};
+
+export type AdminProgramDetail = {
+  id: string;
+  name: string;
+  description: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  status: string;
+  institutes: { id: string; name: string }[];
+  enrollments: AdminProgramEnrollmentRow[];
+};
+
+export type EnrollableStudentOption = {
+  id: string;
+  fullName: string;
+  email: string;
+  category: StudentCategory;
+  instituteId: string;
+  instituteName: string;
+};
+
+export type AdminTeamMemberSummary = {
+  fullName: string | null;
+  institute: string | null;
+};
+
+export type AdminTeamRow = {
+  id: string;
+  teamName: string;
+  program: string | null;
+  makeupArtist: AdminTeamMemberSummary;
+  photographer: AdminTeamMemberSummary;
+  hairstylist: AdminTeamMemberSummary;
+  currentStageNumber: number;
+  status: string;
+};
+
+export type AdminTeamsResult = {
+  teams: AdminTeamRow[];
+  error: string | null;
+};
+
+export type AdminTeamMemberDetail = {
+  id: string;
+  fullName: string;
+  email: string;
+  category: StudentCategory;
+  institute: string | null;
+  educator: {
+    id: string;
+    fullName: string;
+    email: string;
+    educatorType: EducatorType;
+    institute: string | null;
+  } | null;
+};
+
+export type AdminTeamDetail = {
+  id: string;
+  teamName: string;
+  program: string | null;
+  currentStageNumber: number;
+  stageStatus: StageStatus;
+  status: string;
+  createdAt: string;
+  students: AdminTeamMemberDetail[];
+};
+
+export type TeamCreateProgramOption = {
+  id: string;
+  name: string;
+};
+
+export type TeamCreateStudentOption = {
+  id: string;
+  fullName: string;
+  email: string;
+  instituteId: string;
+  instituteName: string;
+  category: StudentCategory;
+  programId: string;
+};
+
+export type TeamCreateEducatorOption = {
+  id: string;
+  fullName: string;
+  email: string;
+  instituteId: string;
+  instituteName: string;
+  educatorType: EducatorType;
+};
+
+export type TeamCreateProgramEnrollmentStats = {
+  programId: string;
+  availableCount: number;
+  alreadyOnTeamCount: number;
+};
+
+export type TeamCreateOptions = {
+  programs: TeamCreateProgramOption[];
+  students: TeamCreateStudentOption[];
+  educators: TeamCreateEducatorOption[];
+  enrollmentStats: TeamCreateProgramEnrollmentStats[];
+};
+
+export type TeamCreateOptionsResult = {
+  options: TeamCreateOptions;
   error: string | null;
 };

@@ -110,6 +110,11 @@ Each team should contain:
 - 1 photographer student
 - 1 hairstylist student
 
+These three students may come from different institutes.
+
+A team belongs to one IncluHub Program / Batch (not one shared institute).
+Each student keeps their own `institute_id` and is mapped to a matching educator from that same institute.
+
 A student can be in only one active team at a time in MVP.
 
 ---

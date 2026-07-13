@@ -12,7 +12,7 @@ export default async function AdminCreateProgramPage() {
     <div className="flex min-h-full flex-col">
       <RecordPageHeader
         title="Create Program"
-        description="Create a program and link it to an existing institute."
+        description="Create a Program / Batch and select one or more participating institutes."
         actions={
           <Link
             href="/admin/programs"

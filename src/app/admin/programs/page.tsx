@@ -14,7 +14,7 @@ export default async function AdminProgramsPage() {
     <div className="flex min-h-full flex-col">
       <RecordPageHeader
         title="Programs"
-        description="Manage post-academic programs linked to institutes."
+        description="Manage Program / Batch records that can include multiple institutes."
         count={error ? undefined : programs.length}
         actions={
           <Link

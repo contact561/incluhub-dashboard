@@ -44,35 +44,42 @@ export function CreateProgramForm({ institutes }: CreateProgramFormProps) {
   return (
     <form action={formAction} className="mx-auto max-w-xl space-y-5">
       <div className="space-y-2">
-        <Label htmlFor="institute_id">Institute</Label>
-        <select
-          id="institute_id"
-          name="institute_id"
-          required
-          disabled={isPending || !hasInstitutes}
-          className={selectClassName}
-          defaultValue=""
-        >
-          <option value="" disabled>
-            {hasInstitutes ? "Select institute" : "No institutes available"}
-          </option>
-          {institutes.map((institute) => (
-            <option key={institute.id} value={institute.id}>
-              {institute.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="name">Program name</Label>
+        <Label htmlFor="name">Program / Batch name</Label>
         <Input
           id="name"
           name="name"
           required
           disabled={isPending}
-          placeholder="Program name"
+          placeholder="Post-Academic Support 2026"
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label>Participating institutes</Label>
+        <div className="max-h-48 space-y-2 overflow-y-auto rounded-lg border border-zinc-200 p-3">
+          {hasInstitutes ? (
+            institutes.map((institute) => (
+              <label
+                key={institute.id}
+                className="flex items-center gap-2 text-sm text-zinc-800"
+              >
+                <input
+                  type="checkbox"
+                  name="institute_ids"
+                  value={institute.id}
+                  disabled={isPending}
+                  className="size-4 rounded border-input"
+                />
+                {institute.name}
+              </label>
+            ))
+          ) : (
+            <p className="text-sm text-zinc-500">No active institutes.</p>
+          )}
+        </div>
+        <p className="text-xs text-zinc-500">
+          Select one or more institutes that participate in this batch.
+        </p>
       </div>
 
       <div className="space-y-2">

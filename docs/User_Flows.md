@@ -261,14 +261,16 @@ Student becomes available for team creation
 
 ### Stage 1: Team Assignment
 
-**Purpose:** Create a creative team with one student from each category.
+**Purpose:** Create a creative team with one student from each category. Students may belong to different institutes as long as they are enrolled in the same Program / Batch.
 
 ```text
-Admin creates team
+Admin selects Program / Batch
 ↓
-Admin selects one student from each category
+Admin selects one enrolled student from each category
 ↓
-Team is created
+Admin maps each student to a matching educator from that student's institute
+↓
+Team is created and shares one stage workflow
 ↓
 Students receive team update
 ↓

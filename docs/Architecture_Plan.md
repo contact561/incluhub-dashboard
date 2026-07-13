@@ -29,7 +29,7 @@ System checks database role
 ↓
 User is redirected to correct dashboard
 ↓
-Admin creates teams
+Admin creates teams (Program / Batch scoped; students may span institutes)
 ↓
 Students move through locked stages
 ↓
@@ -647,7 +647,7 @@ Avoid for MVP:
 | Server actions check permissions             | Prevent frontend bypass            |
 | RLS enabled on sensitive tables              | Database-level security            |
 | Students read only own/team data             | Protect student privacy            |
-| Educators read only assigned teams           | Prevent cross-institute visibility |
+| Educators read only assigned teams           | Prevent unrelated team visibility  |
 | External members read only assigned projects | Protect internal data              |
 | Activity logs for major actions              | Traceability                       |
 

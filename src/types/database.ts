@@ -51,6 +51,15 @@ export type PaymentStatus =
   | "waived"
   | "not_required";
 
+export type PortfolioWorkflowStatus =
+  | "locked"
+  | "awaiting_booking"
+  | "awaiting_submission"
+  | "pending_educator"
+  | "pending_admin"
+  | "revision_required"
+  | "completed";
+
 // ---------------------------------------------------------------------------
 // Table row types
 // ---------------------------------------------------------------------------
@@ -83,13 +92,34 @@ export interface Institute {
 
 export interface Program {
   id: string;
-  institute_id: string;
+  institute_id: string | null;
   name: string;
   description: string | null;
   start_date: string | null;
   end_date: string | null;
   status: "active" | "completed" | "paused";
   created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProgramInstitute {
+  id: string;
+  program_id: string;
+  institute_id: string;
+  status: "active" | "inactive";
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ProgramEnrollment {
+  id: string;
+  program_id: string;
+  student_id: string;
+  status: "active" | "inactive" | "completed" | "removed";
+  enrolled_at: string;
+  created_by: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -135,7 +165,7 @@ export interface ExternalMember {
 
 export interface Team {
   id: string;
-  institute_id: string;
+  institute_id: string | null;
   program_id: string;
   team_name: string;
   current_stage_number: number;
@@ -161,6 +191,7 @@ export interface TeamMember {
 export interface TeamEducator {
   id: string;
   team_id: string;
+  student_id: string;
   educator_id: string;
   educator_type: EducatorType;
   status: "active" | "inactive";
@@ -187,6 +218,8 @@ export interface TeamStageProgress {
   status: StageStatus;
   started_at: string | null;
   completed_at: string | null;
+  bms_session_date: string | null;
+  bms_remarks: string | null;
   admin_approval_status: ApprovalStatus;
   admin_approved_by: string | null;
   admin_approved_at: string | null;
@@ -201,9 +234,11 @@ export interface PortfolioOutput {
   team_id: string;
   portfolio_type: StudentCategory;
   leader_student_id: string;
-  portfolio_title: string;
-  portfolio_link: string;
+  portfolio_title: string | null;
+  portfolio_link: string | null;
   notes: string | null;
+  sequence_order: number | null;
+  workflow_status: PortfolioWorkflowStatus | null;
   status: ApprovalStatus;
   submitted_at: string | null;
   created_by: string;
@@ -349,6 +384,40 @@ export type Database = {
           },
         ]
       >;
+      program_institutes: TableDef<
+        ProgramInstitute,
+        [
+          {
+            foreignKeyName: "program_institutes_program_id_fkey";
+            columns: ["program_id"];
+            referencedRelation: "programs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "program_institutes_institute_id_fkey";
+            columns: ["institute_id"];
+            referencedRelation: "institutes";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      program_enrollments: TableDef<
+        ProgramEnrollment,
+        [
+          {
+            foreignKeyName: "program_enrollments_program_id_fkey";
+            columns: ["program_id"];
+            referencedRelation: "programs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "program_enrollments_student_id_fkey";
+            columns: ["student_id"];
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
       students: TableDef<
         Student,
         [
@@ -420,10 +489,64 @@ export type Database = {
           },
         ]
       >;
-      team_members: TableDef<TeamMember>;
-      team_educators: TableDef<TeamEducator>;
+      team_members: TableDef<
+        TeamMember,
+        [
+          {
+            foreignKeyName: "team_members_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_members_student_id_fkey";
+            columns: ["student_id"];
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
+      team_educators: TableDef<
+        TeamEducator,
+        [
+          {
+            foreignKeyName: "team_educators_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_educators_educator_id_fkey";
+            columns: ["educator_id"];
+            referencedRelation: "educators";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_educators_student_id_fkey";
+            columns: ["student_id"];
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
       stages: TableDef<Stage>;
-      team_stage_progress: TableDef<TeamStageProgress>;
+      team_stage_progress: TableDef<
+        TeamStageProgress,
+        [
+          {
+            foreignKeyName: "team_stage_progress_team_id_fkey";
+            columns: ["team_id"];
+            referencedRelation: "teams";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "team_stage_progress_stage_id_fkey";
+            columns: ["stage_id"];
+            referencedRelation: "stages";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
       portfolio_outputs: TableDef<PortfolioOutput>;
       portfolio_participants: TableDef<PortfolioParticipant>;
       portfolio_approvals: TableDef<PortfolioApproval>;
@@ -438,7 +561,38 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      create_program_with_institutes: {
+        Args: {
+          p_name: string;
+          p_description: string | null;
+          p_start_date: string | null;
+          p_end_date: string | null;
+          p_status: string;
+          p_institute_ids: string[];
+        };
+        Returns: string;
+      };
+      create_balanced_team: {
+        Args: {
+          p_team_name: string;
+          p_program_id: string;
+          p_makeup_artist_student_id: string;
+          p_photographer_student_id: string;
+          p_hairstylist_student_id: string;
+          p_makeup_educator_id: string;
+          p_photography_educator_id: string;
+          p_hairstyling_educator_id: string;
+        };
+        Returns: string;
+      };
+      complete_bms_session: {
+        Args: {
+          p_team_id: string;
+          p_session_date: string;
+          p_remarks: string | null;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       user_role: UserRole;
@@ -448,6 +602,7 @@ export type Database = {
       stage_status: StageStatus;
       approval_status: ApprovalStatus;
       payment_status: PaymentStatus;
+      portfolio_workflow_status: PortfolioWorkflowStatus;
     };
     CompositeTypes: {
       [_ in never]: never;

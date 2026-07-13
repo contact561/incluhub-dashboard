@@ -224,20 +224,25 @@ This is only a manual admin record. No payment gateway in MVP.
 
 ### 6.3 programs
 
-**Purpose:** Stores the program/workflow a team is part of.
+**Purpose:** Stores the Program / Batch a team belongs to. A program can include multiple institutes via `program_institutes`.
 
-| Column       | Type      | Notes                   |
-| ------------ | --------- | ----------------------- |
-| id           | uuid      | Primary key             |
-| institute_id | uuid      | Linked institute        |
-| name         | text      | Program name            |
-| description  | text      | Optional                |
-| start_date   | date      | Optional                |
-| end_date     | date      | Optional                |
-| status       | text      | active/completed/paused |
-| created_by   | uuid      | Admin                   |
-| created_at   | timestamp | Auto                    |
-| updated_at   | timestamp | Auto                    |
+| Column       | Type      | Notes                                      |
+| ------------ | --------- | ------------------------------------------ |
+| id           | uuid      | Primary key                                |
+| institute_id | uuid      | Deprecated legacy column; nullable         |
+| name         | text      | Program / Batch name                       |
+| description  | text      | Optional                                   |
+| start_date   | date      | Optional                                   |
+| end_date     | date      | Optional                                   |
+| status       | text      | active/completed/paused                    |
+| created_by   | uuid      | Admin                                      |
+| created_at   | timestamp | Auto                                       |
+| updated_at   | timestamp | Auto                                       |
+
+**Related tables:**
+
+* `program_institutes` — which institutes participate in the Program / Batch
+* `program_enrollments` — which students are enrolled in the Program / Batch
 
 ---
 
@@ -304,22 +309,22 @@ This is only a manual admin record. No payment gateway in MVP.
 
 ### 6.7 teams
 
-**Purpose:** Stores creative teams. Each team should ideally have 1 Makeup Artist, 1 Photographer, and 1 Hairstylist.
+**Purpose:** Stores creative teams. Each team has 1 Makeup Artist, 1 Photographer, and 1 Hairstylist. Students may come from different institutes. The team is scoped to one Program / Batch.
 
-| Column               | Type         | Notes                   |
-| -------------------- | ------------ | ----------------------- |
-| id                   | uuid         | Primary key             |
-| institute_id         | uuid         | Linked institute        |
-| program_id           | uuid         | Linked program          |
-| team_name            | text         | Example: Team A         |
-| current_stage_number | integer      | 0 to 5                  |
-| stage_status         | stage_status | Current stage status    |
-| status               | text         | active/completed/paused |
-| created_by           | uuid         | Admin                   |
-| created_at           | timestamp    | Auto                    |
-| updated_at           | timestamp    | Auto                    |
+| Column               | Type         | Notes                                      |
+| -------------------- | ------------ | ------------------------------------------ |
+| id                   | uuid         | Primary key                                |
+| institute_id         | uuid         | Deprecated legacy column; nullable         |
+| program_id           | uuid         | Linked Program / Batch (source of truth)   |
+| team_name            | text         | Example: Team A                            |
+| current_stage_number | integer      | 0 to 5                                     |
+| stage_status         | stage_status | Current stage status                       |
+| status               | text         | active/completed/paused                    |
+| created_by           | uuid         | Admin                                      |
+| created_at           | timestamp    | Auto                                       |
+| updated_at           | timestamp    | Auto                                       |
 
-**Rule:** Only Admin can create/edit teams.
+**Rule:** Only Admin can create/edit teams. Team membership is not restricted to one institute.
 
 ---
 
@@ -345,20 +350,21 @@ This is only a manual admin record. No payment gateway in MVP.
 
 ### 6.9 team_educators
 
-**Purpose:** Connects educators to teams. Each team should have all three educator types assigned.
+**Purpose:** Maps each team student to their matching educator from the same institute.
 
-| Column        | Type          | Notes           |
-| ------------- | ------------- | --------------- |
-| id            | uuid          | Primary key     |
-| team_id       | uuid          | Linked team     |
-| educator_id   | uuid          | Linked educator |
-| educator_type | educator_type | Category        |
-| status        | text          | active/inactive |
-| created_by    | uuid          | Admin           |
-| created_at    | timestamp     | Auto            |
-| updated_at    | timestamp     | Auto            |
+| Column        | Type          | Notes                              |
+| ------------- | ------------- | ---------------------------------- |
+| id            | uuid          | Primary key                        |
+| team_id       | uuid          | Linked team                        |
+| student_id    | uuid          | Linked student on the team         |
+| educator_id   | uuid          | Linked educator                    |
+| educator_type | educator_type | Category                           |
+| status        | text          | active/inactive                    |
+| created_by    | uuid          | Admin                              |
+| created_at    | timestamp     | Auto                               |
+| updated_at    | timestamp     | Auto                               |
 
-**Rule:** Educator receives team assignment confirmation after Stage 1. No educator approval needed in Stage 1.
+**Rule:** Educator receives team assignment confirmation after Stage 1. No educator approval needed in Stage 1. Educator institute must match the mapped student’s institute.
 
 ---
 

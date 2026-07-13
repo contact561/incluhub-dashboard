@@ -239,6 +239,11 @@ One team should ideally contain:
 | Photographer  | 1     |
 | Hairstylist   | 1     |
 
+These three students may come from different institutes.
+
+The team belongs to one IncluHub Program / Batch and shares one Stage 0–5 workflow.
+Each student keeps their own institute and is mapped to a matching educator from that same institute.
+
 Team is created by IncluHub Admin.
 
 Team should have:
@@ -309,10 +314,11 @@ Educators do not approve Stage 1. They only receive confirmation that their stud
 
 ### Feature 4: Team Management
 
-* Create team
-* Add 1 makeup artist
-* Add 1 photographer
-* Add 1 hairstylist
+* Create team inside a Program / Batch
+* Add 1 makeup artist (any participating institute)
+* Add 1 photographer (any participating institute)
+* Add 1 hairstylist (any participating institute)
+* Map each student to their own institute’s matching educator
 * Assign educator
 * Assign program
 * View team progress
@@ -501,8 +507,9 @@ Every major table should include:
 
 Where needed:
 
-* institute_id
-* program_id
+* institute_id (on students/educators; not required as a single team-level institute)
+* program_id (team container / Program Batch)
+* program_institutes / program_enrollments
 * team_id
 * user_id
 
