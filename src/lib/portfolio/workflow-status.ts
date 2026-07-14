@@ -73,12 +73,14 @@ export function getPortfolioWorkflowPresentation(
       if (options.revisionReturnTo === "admin") {
         return {
           title: "Revision requested by Admin",
-          description: "Update and resubmit your portfolio when revision is available.",
+          description:
+            "Read the Admin feedback and resubmit a new portfolio version.",
         };
       }
       return {
         title: "Revision requested by Educator",
-        description: "Update and resubmit your portfolio when revision is available.",
+        description:
+          "Read the Educator feedback and resubmit a new portfolio version.",
       };
     case "completed":
       return {

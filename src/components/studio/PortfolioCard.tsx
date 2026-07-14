@@ -1,9 +1,13 @@
 import { ConfirmedBookingCard } from "@/components/studio/ConfirmedBookingCard";
+import { PortfolioResubmissionForm } from "@/components/studio/PortfolioResubmissionForm";
+import { PortfolioRevisionFeedbackCard } from "@/components/studio/PortfolioRevisionFeedbackCard";
 import { PortfolioSubmissionForm } from "@/components/studio/PortfolioSubmissionForm";
+import { PortfolioVersionHistory } from "@/components/studio/PortfolioVersionHistory";
 import { StudioBookingPanel } from "@/components/studio/StudioBookingPanel";
 import { SubmittedPortfolioCard } from "@/components/studio/SubmittedPortfolioCard";
 import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
 import {
+  getAssistantRevisionWaitingMessage,
   getAssistantSubmissionWaitingMessage,
   getAssistantWaitingMessage,
 } from "@/lib/data/student/portfolio";
@@ -11,20 +15,30 @@ import {
   getPortfolioWorkflowPresentation,
   shouldShowSubmittedPortfolioSummary,
 } from "@/lib/portfolio/workflow-status";
+import type {
+  PortfolioRevisionFeedback,
+  PortfolioSubmissionVersionView,
+} from "@/types/portfolio-submission";
 import type { StudentPortfolioCard } from "@/types/studio-booking";
 
 type PortfolioCardProps = {
   portfolio: StudentPortfolioCard;
   currentStudentId: string;
   emphasizeOwnPortfolio?: boolean;
+  revisionFeedback?: PortfolioRevisionFeedback | null;
+  submissionHistory?: PortfolioSubmissionVersionView[];
 };
 
 export function PortfolioCard({
   portfolio,
   currentStudentId,
   emphasizeOwnPortfolio = false,
+  revisionFeedback = null,
+  submissionHistory = [],
 }: PortfolioCardProps) {
   const isLeader = portfolio.leaderStudentId === currentStudentId;
+  const showRevisionPanel =
+    portfolio.workflowStatus === "revision_required" && isLeader;
   const assistants = portfolio.participants.filter(
     (participant) => participant.role === "assistant"
   );
@@ -124,7 +138,31 @@ export function PortfolioCard({
         </p>
       ) : null}
 
-      {portfolio.submission &&
+      {showRevisionPanel ? (
+        <div className="mt-4 space-y-4">
+          <PortfolioRevisionFeedbackCard
+            feedback={revisionFeedback}
+            previousSubmission={portfolio.submission}
+            revisionRoute={portfolio.revisionReturnTo}
+          />
+          <PortfolioResubmissionForm
+            portfolioOutputId={portfolio.id}
+            nextVersionNumber={(portfolio.submission?.versionNumber ?? 1) + 1}
+            previousTitle={portfolio.submission?.title ?? ""}
+            previousUrl={portfolio.submission?.portfolioUrl ?? ""}
+            previousNotes={portfolio.submission?.notes ?? null}
+          />
+        </div>
+      ) : null}
+
+      {portfolio.workflowStatus === "revision_required" && !isLeader ? (
+        <p className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+          {getAssistantRevisionWaitingMessage(portfolio.portfolioType)}
+        </p>
+      ) : null}
+
+      {!showRevisionPanel &&
+      portfolio.submission &&
       shouldShowSubmittedPortfolioSummary(portfolio.workflowStatus) ? (
         <div className="mt-4">
           <SubmittedPortfolioCard
@@ -133,6 +171,12 @@ export function PortfolioCard({
             portfolioType={portfolio.portfolioType}
             revisionReturnTo={portfolio.revisionReturnTo}
           />
+        </div>
+      ) : null}
+
+      {submissionHistory.length > 0 ? (
+        <div className="mt-4">
+          <PortfolioVersionHistory versions={submissionHistory} />
         </div>
       ) : null}
     </article>
