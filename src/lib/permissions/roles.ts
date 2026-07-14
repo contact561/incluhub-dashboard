@@ -45,11 +45,9 @@ export const STUDENT_NAV_ITEMS: NavItem[] = [
 
 export const EDUCATOR_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/educator/dashboard" },
-  { label: "My Students", href: "/educator/my-students" },
   { label: "My Teams", href: "/educator/my-teams" },
-  { label: "Portfolio Approvals", href: "/educator/portfolio-approvals" },
-  { label: "Project Approvals", href: "/educator/project-approvals" },
-  { label: "Notifications", href: "/educator/notifications" },
+  { label: "My Students", href: "/educator/my-students" },
+  { label: "Portfolio Reviews", href: "/educator/portfolio-reviews" },
 ];
 
 export const EXTERNAL_NAV_ITEMS: NavItem[] = [

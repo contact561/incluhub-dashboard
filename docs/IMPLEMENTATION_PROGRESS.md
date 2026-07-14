@@ -246,14 +246,185 @@ Pending local SQL apply. Manual checklist is in the Package C final report.
 
 ### Known limitations
 
-- Educator and Admin approval / revision (Package D) not started
-- Version 2+ submissions not created in Package C
-- Next portfolio unlock and Stage 3 completion not implemented
+- Educator and Admin approval / revision frontends are Package D2–D4 (not started)
+- Version 2+ submissions are created by Package D `resubmit_portfolio` (backend only in D1)
+- Next portfolio unlock and Stage 3→4 completion are Package D1 backend (frontend later)
 - Activity log write for `portfolio_submitted` deferred until shared logging exists
 
-### Package D
+### Package D0 — Audit
 
-**Not started.**
+**Status:** Complete (prep for D1).
+
+Confirmed before implementation:
+
+- Latest migration: `010_portfolio_submission.sql`
+- Latest policy: `005_portfolio_submission_rls.sql`
+- Package C ending state: Photography `pending_educator`, Makeup/Hair `locked`, one immutable submission, team Stage 3
+- `portfolio_approvals` is legacy and unused by Package D write path
+- Matching educator rule must use `team_educators.student_id = portfolio_outputs.leader_student_id`
+- Activity logging remains deferred
+
+---
+
+## Package D1 — Portfolio Review, Revision & Sequential Unlock (Backend)
+
+**Status:** Implemented in application repo (SQL + types + docs). **Not applied to Supabase.** Package D overall is **not complete** (D2–D4 frontends pending).
+
+**Date:** 2026-07-14
+
+### Scope delivered
+
+- Migration `011_portfolio_review_workflow.sql`
+- Policy `006_portfolio_review_rls.sql`
+- Immutable `portfolio_reviews` table
+- `portfolio_outputs.revision_return_to` + CHECK vs `revision_required`
+- RPCs: `review_portfolio_as_educator`, `review_portfolio_as_admin`, `resubmit_portfolio`
+- Helper `is_matching_portfolio_leader_educator`
+- Legacy `portfolio_approvals` write path revoked (SELECT retained; deprecated)
+- Static + RPC verification scripts
+- TypeScript database types for Package D enums, table, and RPCs
+
+### Scope excluded
+
+- D2 Educator review frontend — **not started**
+- D3 Admin review frontend — **not started**
+- D4 Student revision frontend — **not started**
+- Package E — **not started**
+- Notifications, email, WhatsApp, Storage, activity-log architecture, scoring
+
+### Files created
+
+| File | Purpose |
+|------|---------|
+| `supabase/migrations/011_portfolio_review_workflow.sql` | Enums, reviews table, revision routing, 3 RPCs, legacy deprecation |
+| `supabase/policies/006_portfolio_review_rls.sql` | SELECT-only RLS for `portfolio_reviews` |
+| `supabase/scripts/verify_package_d.sql` | Read-only static checks |
+| `supabase/scripts/verify_package_d_rpc.sql` | BEGIN/ROLLBACK simulated-auth RPC tests |
+
+### Files modified
+
+| File | Change |
+|------|--------|
+| `src/types/database.ts` | Package D enums, `PortfolioReview`, `revision_return_to`, RPC types |
+| `docs/IMPLEMENTATION_PROGRESS.md` | D0 / D1 progress notes |
+
+### Enums (`011`)
+
+| Enum | Values |
+|------|--------|
+| `portfolio_reviewer_stage` | `educator`, `admin` |
+| `portfolio_review_decision` | `approved`, `revision_required` |
+| `portfolio_revision_route` | `educator`, `admin` |
+
+### `portfolio_reviews`
+
+- Keyed to `portfolio_submission_id` (derive portfolio via submission)
+- Unique `(portfolio_submission_id, reviewer_stage)`
+- Immutable: no UPDATE/DELETE; writes only via SECURITY DEFINER RPCs
+- Comments required + non-empty when decision = `revision_required`; max 2000 chars
+
+### `revision_return_to`
+
+- On `portfolio_outputs`
+- CHECK: non-null iff `workflow_status = revision_required`
+- Migration aborts if inconsistent historical `revision_required` rows exist
+
+### Sequential unlock (Admin approval)
+
+1. Photography completed → Makeup `awaiting_booking`; Hair `locked`; team Stage 3
+2. Makeup completed → Hair `awaiting_booking`; team Stage 3
+3. Hairstyling completed → all three completed → Stage 3 progress completed → Stage 4 `in_progress` → team + active students `current_stage_number = 4`
+
+`uq_team_one_active_portfolio` retained.
+
+### Admin revision-chain
+
+Admin may review when either:
+
+- Current submission has Educator `approved`, or
+- Immediately previous version has Admin `revision_required` and current version = previous + 1
+
+Admin-route resubmit returns to `pending_admin` without requiring a new Educator approval on that version.
+
+### Legacy `portfolio_approvals`
+
+Deprecated for Package D+. Direct authenticated INSERT/UPDATE/DELETE privileges and mutation policies removed. SELECT preserved. Package D does not write this table.
+
+### Activity log
+
+Still deferred — no shared logging helper invented in D1.
+
+### Manual Supabase steps (do not run from this package commit workflow)
+
+1. Run `supabase/migrations/011_portfolio_review_workflow.sql`
+2. Run `supabase/policies/006_portfolio_review_rls.sql`
+3. Run `supabase/scripts/verify_package_d.sql`
+4. (Optional) Run `verify_package_d_rpc.sql` inside transaction
+
+Verification notes:
+
+- Static checks include `is_matching_portfolio_leader_educator` signature/grants/`SECURITY DEFINER`/search_path, and require all three review RPCs present for combined SECURITY DEFINER / search_path PASS.
+- Concurrent duplicate reviews use targeted `ON CONFLICT ON CONSTRAINT portfolio_reviews_submission_stage_key DO NOTHING` (no broad `unique_violation` catch).
+- RPC negative tests assert exact expected error messages; unrelated exceptions FAIL.
+- Duplicate educator review after a successful revision accepts either the duplicate-review guard or the portfolio-status guard (when the prior review already left `pending_educator`), and the notice documents which guard ran.
+- Matching-educator fixtures always use `team_educators.student_id = portfolio_outputs.leader_student_id`.
+
+### Package D2 / D3 / D4 / E
+
+| Package | Status |
+|---------|--------|
+| D2 Educator frontend | Implemented in application code (assigned teams/students, review queue/detail, approve/revision) |
+
+D2 loaders use stepwise Supabase queries (no nested `profiles` joins on students — educator RLS cannot read student profiles). Student display names use category labels until a future profile-read policy is added.
+| D3 Admin frontend | Not started |
+| D4 Student revision frontend | Not started |
+| Package E | Not started |
+
+### Development test reset (local only)
+
+Destructive utility for wiping and reseeding the **development** Supabase project with fixed test accounts.
+
+**Dry-run (default — no deletes):**
+
+```bash
+npm run test:reset
+```
+
+**Destructive reset + seed:**
+
+```bash
+npm run test:reset -- --confirm-reset
+```
+
+Required in `.env.local`:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `EXPECTED_SUPABASE_PROJECT_REF` (must match URL project ref)
+- `TEST_ACCOUNT_PASSWORD`
+- `ALLOW_DESTRUCTIVE_TEST_RESET=true`
+
+Safety guards: project-ref match, explicit `--confirm-reset`, no production URL patterns, secrets never printed.
+
+Fixture after seed:
+
+- 10 auth accounts (1 admin, 3 educators, 6 students)
+- 3 institutes, 1 cross-institute program, 2 teams (Alpha + Beta)
+- **Team Alpha:** Photography `pending_educator` (v1, no reviews); Makeup/Hair `locked`
+- **Team Beta:** Photography `completed`; Makeup `pending_educator`; Hair `locked`
+- Both teams remain Stage 3
+
+Generated locally (gitignored): `TEST_CREDENTIALS.local.md`, `tmp/test-reset-backups/<timestamp>.json`
+
+Date rules used by the seed workflow:
+
+- `complete_bms_session` → `bmsSessionDate` = **yesterday** in Asia/Kolkata (never future)
+- `book_studio_slot` → `studioBookingDate` = **today** in Asia/Kolkata (valid per booking rules)
+
+Reruns after partial failure: backup current state, wipe all app data + auth users, recreate fixture from zero (never resume mid-seed).
+
+Script: `scripts/reset-and-seed-test-environment.mjs`
 
 ---
 
