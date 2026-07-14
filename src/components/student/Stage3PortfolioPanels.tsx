@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { PortfolioCard } from "@/components/studio/PortfolioCard";
-import { EmptyState, QueryErrorState } from "@/components/status";
-import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
 import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
 import { getPortfolioWorkflowPresentation } from "@/lib/portfolio/workflow-status";
 import { buttonVariants } from "@/components/ui/button";
+import type {
+  PortfolioRevisionFeedback,
+  PortfolioSubmissionVersionView,
+} from "@/types/portfolio-submission";
 import type { StudentPortfolioCard } from "@/types/studio-booking";
 import { cn } from "@/lib/utils";
 
@@ -66,17 +68,23 @@ export function TeamPortfolioProgressList({
 type StudentOwnPortfolioPanelProps = {
   portfolio: StudentPortfolioCard;
   currentStudentId: string;
+  revisionFeedback?: PortfolioRevisionFeedback | null;
+  submissionHistory?: PortfolioSubmissionVersionView[];
 };
 
 export function StudentOwnPortfolioPanel({
   portfolio,
   currentStudentId,
+  revisionFeedback = null,
+  submissionHistory = [],
 }: StudentOwnPortfolioPanelProps) {
   return (
     <PortfolioCard
       portfolio={portfolio}
       currentStudentId={currentStudentId}
       emphasizeOwnPortfolio
+      revisionFeedback={revisionFeedback}
+      submissionHistory={submissionHistory}
     />
   );
 }
@@ -113,7 +121,9 @@ export function StudentDashboardOwnPortfolioSummary({
         href="/student/portfolio"
         className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-4")}
       >
-        Open portfolio actions
+        {portfolio.workflowStatus === "revision_required"
+          ? "Review feedback and resubmit"
+          : "Open portfolio actions"}
       </Link>
     </section>
   );

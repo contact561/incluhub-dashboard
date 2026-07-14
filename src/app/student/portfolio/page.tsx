@@ -69,6 +69,8 @@ export default async function StudentPortfolioPage() {
                     <StudentOwnPortfolioPanel
                       portfolio={data.ownPortfolioOutput}
                       currentStudentId={data.currentStudentId}
+                      revisionFeedback={data.ownPortfolioRevisionFeedback}
+                      submissionHistory={data.ownPortfolioSubmissionHistory}
                     />
                   </section>
                 ) : null}
@@ -88,16 +90,31 @@ export default async function StudentPortfolioPage() {
                   <h2 className="text-base font-semibold text-zinc-900">
                     Full portfolio details
                   </h2>
-                  {data.portfolios.map((portfolio) => (
-                    <PortfolioCard
-                      key={portfolio.id}
-                      portfolio={portfolio}
-                      currentStudentId={data.currentStudentId}
-                      emphasizeOwnPortfolio={
-                        portfolio.leaderStudentId === data.currentStudentId
-                      }
-                    />
-                  ))}
+                  {data.portfolios.map((portfolio) => {
+                    const isOwnPortfolio =
+                      portfolio.id === data.ownPortfolioOutput?.id;
+
+                    return (
+                      <PortfolioCard
+                        key={portfolio.id}
+                        portfolio={portfolio}
+                        currentStudentId={data.currentStudentId}
+                        emphasizeOwnPortfolio={
+                          portfolio.leaderStudentId === data.currentStudentId
+                        }
+                        revisionFeedback={
+                          isOwnPortfolio
+                            ? data.ownPortfolioRevisionFeedback
+                            : null
+                        }
+                        submissionHistory={
+                          isOwnPortfolio
+                            ? data.ownPortfolioSubmissionHistory
+                            : []
+                        }
+                      />
+                    );
+                  })}
                 </section>
               </>
             )}

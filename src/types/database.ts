@@ -60,6 +60,15 @@ export type PortfolioWorkflowStatus =
   | "revision_required"
   | "completed";
 
+/** Package D: who requested the current revision cycle. */
+export type PortfolioRevisionRoute = "educator" | "admin";
+
+/** Package D: reviewer stage written into immutable portfolio_reviews. */
+export type PortfolioReviewerStage = "educator" | "admin";
+
+/** Package D: immutable review decision. */
+export type PortfolioReviewDecision = "approved" | "revision_required";
+
 // ---------------------------------------------------------------------------
 // Table row types
 // ---------------------------------------------------------------------------
@@ -239,6 +248,8 @@ export interface PortfolioOutput {
   notes: string | null;
   sequence_order: number | null;
   workflow_status: PortfolioWorkflowStatus | null;
+  /** Non-null only when workflow_status = revision_required. */
+  revision_return_to: PortfolioRevisionRoute | null;
   status: ApprovalStatus;
   submitted_at: string | null;
   created_by: string;
@@ -291,6 +302,22 @@ export interface PortfolioSubmission {
   portfolio_url: string;
   notes: string | null;
   submitted_by_student_id: string;
+  created_by: string;
+  created_at: string;
+}
+
+/**
+ * Immutable Package D review row.
+ * Application code must not Insert/Update/Delete this table directly —
+ * use review_portfolio_as_educator / review_portfolio_as_admin RPCs.
+ */
+export interface PortfolioReview {
+  id: string;
+  portfolio_submission_id: string;
+  reviewer_stage: PortfolioReviewerStage;
+  reviewer_user_id: string;
+  decision: PortfolioReviewDecision;
+  comments: string | null;
   created_by: string;
   created_at: string;
 }
@@ -638,6 +665,29 @@ export type Database = {
         ]
       >;
       portfolio_approvals: TableDef<PortfolioApproval>;
+      portfolio_reviews: TableDef<
+        PortfolioReview,
+        [
+          {
+            foreignKeyName: "portfolio_reviews_portfolio_submission_id_fkey";
+            columns: ["portfolio_submission_id"];
+            referencedRelation: "portfolio_submissions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "portfolio_reviews_reviewer_user_id_fkey";
+            columns: ["reviewer_user_id"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "portfolio_reviews_created_by_fkey";
+            columns: ["created_by"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
       projects: TableDef<Project>;
       project_assignments: TableDef<ProjectAssignment>;
       project_approvals: TableDef<ProjectApproval>;
@@ -726,6 +776,62 @@ export type Database = {
           workflow_status: string;
         }[];
       };
+      review_portfolio_as_educator: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_submission_id: string;
+          p_decision: string;
+          p_comments: string | null;
+        };
+        Returns: {
+          portfolio_output_id: string;
+          submission_id: string;
+          review_id: string;
+          decision: string;
+          workflow_status: string;
+        }[];
+      };
+      review_portfolio_as_admin: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_submission_id: string;
+          p_decision: string;
+          p_comments: string | null;
+        };
+        Returns: {
+          portfolio_output_id: string;
+          submission_id: string;
+          review_id: string;
+          decision: string;
+          workflow_status: string;
+          next_portfolio_output_id: string | null;
+          team_stage_number: number;
+        }[];
+      };
+      resubmit_portfolio: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_title: string;
+          p_portfolio_url: string;
+          p_notes: string | null;
+        };
+        Returns: {
+          submission_id: string;
+          portfolio_output_id: string;
+          version_number: number;
+          title: string;
+          portfolio_url: string;
+          notes: string | null;
+          submitted_at: string;
+          workflow_status: string;
+        }[];
+      };
+      is_matching_portfolio_leader_educator: {
+        Args: {
+          p_portfolio_output_id: string;
+        };
+        Returns: boolean;
+      };
     };
     Enums: {
       user_role: UserRole;
@@ -736,6 +842,9 @@ export type Database = {
       approval_status: ApprovalStatus;
       payment_status: PaymentStatus;
       portfolio_workflow_status: PortfolioWorkflowStatus;
+      portfolio_reviewer_stage: PortfolioReviewerStage;
+      portfolio_review_decision: PortfolioReviewDecision;
+      portfolio_revision_route: PortfolioRevisionRoute;
     };
     CompositeTypes: {
       [_ in never]: never;

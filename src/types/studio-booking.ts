@@ -1,5 +1,9 @@
 import type { StudioSlotCode } from "@/lib/constants/studioSlots";
-import type { PortfolioSubmissionView } from "@/types/portfolio-submission";
+import type {
+  PortfolioRevisionFeedback,
+  PortfolioSubmissionVersionView,
+  PortfolioSubmissionView,
+} from "@/types/portfolio-submission";
 import type {
   PortfolioRevisionRoute,
   PortfolioWorkflowStatus,
@@ -50,6 +54,8 @@ export type StudentPortfolioPageData = {
   teamPortfolioProgress: StudentPortfolioCard[];
   activeTeamPortfolio: StudentPortfolioCard | null;
   portfolios: StudentPortfolioCard[];
+  ownPortfolioSubmissionHistory: PortfolioSubmissionVersionView[];
+  ownPortfolioRevisionFeedback: PortfolioRevisionFeedback | null;
 };
 
 export type StudentPortfolioResult = {

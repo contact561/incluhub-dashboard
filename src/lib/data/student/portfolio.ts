@@ -9,8 +9,15 @@ import type {
   StudentPortfolioCard,
   StudentPortfolioResult,
 } from "@/types/studio-booking";
-import type { PortfolioSubmissionView } from "@/types/portfolio-submission";
 import type {
+  PortfolioRevisionFeedback,
+  PortfolioReviewView,
+  PortfolioSubmissionVersionView,
+  PortfolioSubmissionView,
+} from "@/types/portfolio-submission";
+import type {
+  PortfolioReviewDecision,
+  PortfolioReviewerStage,
   PortfolioRevisionRoute,
   PortfolioWorkflowStatus,
   StudentCategory,
@@ -47,6 +54,12 @@ export function getAssistantSubmissionWaitingMessage(
   portfolioType: StudentCategory
 ): string {
   return `Waiting for the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader to submit the portfolio.`;
+}
+
+export function getAssistantRevisionWaitingMessage(
+  portfolioType: StudentCategory
+): string {
+  return `Revision was requested. Waiting for the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader to resubmit the portfolio.`;
 }
 
 export async function getStudentStage3PortfolioContext(): Promise<{
@@ -311,8 +324,7 @@ export async function getStudentStage3PortfolioContext(): Promise<{
       ])
   );
 
-  const submissionByPortfolio = new Map<string, PortfolioSubmissionView>();
-  for (const row of (submissionsData ?? []) as Array<{
+  const submissionRows = (submissionsData ?? []) as Array<{
     id: string;
     portfolio_output_id: string;
     version_number: number;
@@ -324,25 +336,32 @@ export async function getStudentStage3PortfolioContext(): Promise<{
     students: {
       profiles: { full_name: string } | null;
     } | null;
-  }>) {
+  }>;
+
+  const toSubmissionView = (
+    row: (typeof submissionRows)[number]
+  ): PortfolioSubmissionView => ({
+    id: row.id,
+    versionNumber: row.version_number,
+    title: row.title,
+    portfolioUrl: row.portfolio_url,
+    notes: row.notes,
+    submittedAt: row.created_at,
+    submittedByStudentId: row.submitted_by_student_id,
+    submittedByName:
+      row.students?.profiles?.full_name ??
+      memberNameById.get(row.submitted_by_student_id)?.name ??
+      "—",
+  });
+
+  const submissionByPortfolio = new Map<string, PortfolioSubmissionView>();
+  for (const row of submissionRows) {
     const existing = submissionByPortfolio.get(row.portfolio_output_id);
     if (existing && existing.versionNumber > row.version_number) {
       continue;
     }
 
-    submissionByPortfolio.set(row.portfolio_output_id, {
-      id: row.id,
-      versionNumber: row.version_number,
-      title: row.title,
-      portfolioUrl: row.portfolio_url,
-      notes: row.notes,
-      submittedAt: row.created_at,
-      submittedByStudentId: row.submitted_by_student_id,
-      submittedByName:
-        row.students?.profiles?.full_name ??
-        memberNameById.get(row.submitted_by_student_id)?.name ??
-        "—",
-    });
+    submissionByPortfolio.set(row.portfolio_output_id, toSubmissionView(row));
   }
 
   const teamPortfolioProgress: StudentPortfolioCard[] = portfolioRows
@@ -376,6 +395,127 @@ export async function getStudentStage3PortfolioContext(): Promise<{
 
   const activeTeamPortfolio = findActiveTeamPortfolio(teamPortfolioProgress);
 
+  // ---------------------------------------------------------------------
+  // Package D4: own-portfolio submission history and revision feedback.
+  // Scoped strictly to the portfolio led by the logged-in student.
+  // ---------------------------------------------------------------------
+  let ownPortfolioSubmissionHistory: PortfolioSubmissionVersionView[] = [];
+  let ownPortfolioRevisionFeedback: PortfolioRevisionFeedback | null = null;
+
+  if (ownPortfolioOutput) {
+    const ownSubmissionRows = submissionRows.filter(
+      (row) => row.portfolio_output_id === ownPortfolioOutput.id
+    );
+    const ownSubmissionIds = ownSubmissionRows.map((row) => row.id);
+
+    type ReviewRow = {
+      portfolio_submission_id: string;
+      reviewer_stage: PortfolioReviewerStage;
+      reviewer_user_id: string;
+      decision: PortfolioReviewDecision;
+      comments: string | null;
+      created_at: string;
+    };
+
+    let reviewRows: ReviewRow[] = [];
+
+    if (ownSubmissionIds.length > 0) {
+      const { data: reviewsData, error: reviewsError } = await supabase
+        .from("portfolio_reviews")
+        .select(
+          "portfolio_submission_id, reviewer_stage, reviewer_user_id, decision, comments, created_at"
+        )
+        .in("portfolio_submission_id", ownSubmissionIds)
+        .order("created_at", { ascending: true });
+
+      if (reviewsError) {
+        console.error(`[${LOADER}] reviews`, reviewsError.message);
+        return { data: null, error: reviewsError.message };
+      }
+
+      reviewRows = (reviewsData ?? []) as ReviewRow[];
+    }
+
+    const reviewerIds = Array.from(
+      new Set(reviewRows.map((row) => row.reviewer_user_id))
+    );
+
+    const reviewerNameById = new Map<string, string>();
+    if (reviewerIds.length > 0) {
+      const { data: reviewerProfiles, error: reviewerError } = await supabase
+        .from("profiles")
+        .select("id, full_name")
+        .in("id", reviewerIds);
+
+      if (reviewerError) {
+        console.error(`[${LOADER}] reviewer profiles`, reviewerError.message);
+        return { data: null, error: reviewerError.message };
+      }
+
+      for (const reviewer of (reviewerProfiles ?? []) as Array<{
+        id: string;
+        full_name: string;
+      }>) {
+        reviewerNameById.set(reviewer.id, reviewer.full_name);
+      }
+    }
+
+    const toReviewView = (row: ReviewRow): PortfolioReviewView => ({
+      reviewerStage: row.reviewer_stage,
+      decision: row.decision,
+      comments: row.comments,
+      reviewerName: reviewerNameById.get(row.reviewer_user_id) ?? null,
+      reviewedAt: row.created_at,
+    });
+
+    // Latest review per submission per stage (reviews are ordered ascending).
+    const latestReviewBySubmissionStage = new Map<string, ReviewRow>();
+    for (const row of reviewRows) {
+      latestReviewBySubmissionStage.set(
+        `${row.portfolio_submission_id}:${row.reviewer_stage}`,
+        row
+      );
+    }
+
+    ownPortfolioSubmissionHistory = ownSubmissionRows
+      .slice()
+      .sort((a, b) => b.version_number - a.version_number)
+      .map((row) => {
+        const educatorRow = latestReviewBySubmissionStage.get(
+          `${row.id}:educator`
+        );
+        const adminRow = latestReviewBySubmissionStage.get(`${row.id}:admin`);
+        return {
+          ...toSubmissionView(row),
+          educatorReview: educatorRow ? toReviewView(educatorRow) : null,
+          adminReview: adminRow ? toReviewView(adminRow) : null,
+        };
+      });
+
+    if (
+      ownPortfolioOutput.workflowStatus === "revision_required" &&
+      ownPortfolioOutput.revisionReturnTo
+    ) {
+      const returnTo = ownPortfolioOutput.revisionReturnTo;
+      for (const version of ownPortfolioSubmissionHistory) {
+        const review =
+          returnTo === "educator"
+            ? version.educatorReview
+            : version.adminReview;
+        if (review && review.decision === "revision_required") {
+          ownPortfolioRevisionFeedback = {
+            reviewerStage: returnTo,
+            reviewerName: review.reviewerName,
+            comments: review.comments,
+            reviewedAt: review.reviewedAt,
+            versionNumber: version.versionNumber,
+          };
+          break;
+        }
+      }
+    }
+  }
+
   return {
     data: {
       teamId: team.id,
@@ -387,6 +527,8 @@ export async function getStudentStage3PortfolioContext(): Promise<{
       ownPortfolioOutput,
       teamPortfolioProgress,
       activeTeamPortfolio,
+      ownPortfolioSubmissionHistory,
+      ownPortfolioRevisionFeedback,
     },
     error: null,
   };
@@ -410,6 +552,8 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
       teamPortfolioProgress: data.teamPortfolioProgress,
       activeTeamPortfolio: data.activeTeamPortfolio,
       portfolios: data.teamPortfolioProgress,
+      ownPortfolioSubmissionHistory: data.ownPortfolioSubmissionHistory,
+      ownPortfolioRevisionFeedback: data.ownPortfolioRevisionFeedback,
     },
     error: null,
   };

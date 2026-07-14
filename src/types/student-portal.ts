@@ -1,6 +1,10 @@
 import type { TeamStageTimelineEntry, TeamPortfolioSummary } from "@/types/stage-management";
 import type { StudentPortfolioCard } from "@/types/studio-booking";
 import type {
+  PortfolioRevisionFeedback,
+  PortfolioSubmissionVersionView,
+} from "@/types/portfolio-submission";
+import type {
   EducatorType,
   StageStatus,
   StudentCategory,
@@ -61,6 +65,8 @@ export type StudentStage3PortfolioContext = {
   ownPortfolioOutput: StudentPortfolioCard | null;
   teamPortfolioProgress: StudentPortfolioCard[];
   activeTeamPortfolio: StudentPortfolioCard | null;
+  ownPortfolioSubmissionHistory: PortfolioSubmissionVersionView[];
+  ownPortfolioRevisionFeedback: PortfolioRevisionFeedback | null;
 };
 
 export type StudentDashboardData = {
