@@ -376,6 +376,8 @@ Verification notes:
 | D2 Educator frontend | Implemented in application code (assigned teams/students, review queue/detail, approve/revision) |
 
 D2 loaders use stepwise Supabase queries (no nested `profiles` joins on students — educator RLS cannot read student profiles). Student display names use category labels until a future profile-read policy is added.
+
+| D3 Admin portfolio approval frontend | Implemented (queue, detail, approve/revision via `review_portfolio_as_admin`, dashboard pending count) |
 | D3 Admin frontend | Not started |
 | D4 Student revision frontend | Not started |
 | Package E | Not started |
