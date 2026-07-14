@@ -170,19 +170,40 @@ WHERE NOT EXISTS (
   WHERE sb.portfolio_output_id = ps.portfolio_output_id
 );
 
--- 17. Non-contiguous submission version numbers per portfolio
-SELECT 'non_contiguous_versions' AS violation, ps.portfolio_output_id,
-       t.team_name,
-       array_agg(ps.version_number ORDER BY ps.version_number) AS versions
-FROM portfolio_submissions ps
-JOIN portfolio_outputs po ON po.id = ps.portfolio_output_id
-JOIN teams t ON t.id = po.team_id
-GROUP BY ps.portfolio_output_id, t.team_name
-HAVING array_agg(ps.version_number ORDER BY ps.version_number)
-       <> (
-         SELECT array_agg(g ORDER BY g)
-         FROM generate_series(1, COUNT(*)::int) g
-       );
+--- 17. Non-contiguous submission version numbers per portfolio
+WITH submission_version_sets AS (
+  SELECT
+    ps.portfolio_output_id,
+    array_agg(
+      ps.version_number::integer
+      ORDER BY ps.version_number
+    ) AS actual_versions,
+    count(*)::integer AS version_count
+  FROM portfolio_submissions ps
+  GROUP BY ps.portfolio_output_id
+),
+submission_version_checks AS (
+  SELECT
+    svs.portfolio_output_id,
+    svs.actual_versions,
+    ARRAY(
+      SELECT generate_series(1, svs.version_count)
+    )::integer[] AS expected_versions
+  FROM submission_version_sets svs
+)
+SELECT
+  'non_contiguous_versions' AS violation,
+  svc.portfolio_output_id,
+  t.team_name,
+  svc.actual_versions,
+  svc.expected_versions
+FROM submission_version_checks svc
+JOIN portfolio_outputs po
+  ON po.id = svc.portfolio_output_id
+JOIN teams t
+  ON t.id = po.team_id
+WHERE svc.actual_versions IS DISTINCT FROM svc.expected_versions
+ORDER BY t.team_name, po.sequence_order;
 
 -- 18. Review linked to a missing submission row
 SELECT 'review_orphan_submission' AS violation, pr.id AS review_id,
