@@ -32,7 +32,10 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
     initialState
   );
 
-  const { slots, loading, error } = useStudioAvailability(bookingDate);
+  const { slots, loading, error } = useStudioAvailability(
+    bookingDate,
+    portfolioOutputId
+  );
 
   useEffect(() => {
     if (state.success) {
@@ -46,11 +49,9 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
     }
   };
 
-  useEffect(() => {
-    if (!isPending) {
-      setPendingSlot(null);
-    }
-  }, [isPending]);
+  // Derived instead of reset-in-effect: the pending highlight is only
+  // meaningful while the booking action is in flight.
+  const activePendingSlot = isPending ? pendingSlot : null;
 
   return (
     <section className="rounded-lg border border-zinc-200 p-4">
@@ -81,7 +82,7 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
           <StudioSlotGrid
             slots={slots}
             selectedSlot={selectedSlot}
-            pendingSlot={pendingSlot}
+            pendingSlot={activePendingSlot}
             loading={loading}
             disabled={isPending}
             onSelect={setSelectedSlot}

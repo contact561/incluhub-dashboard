@@ -1,7 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/getCurrentProfile";
 import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
+import { findActiveTeamPortfolio } from "@/lib/portfolio/workflow-status";
 import { isStudioSlotCode, type StudioSlotCode } from "@/lib/constants/studioSlots";
+import type { StudentStage3PortfolioContext } from "@/types/student-portal";
 import type {
   PortfolioParticipantView,
   StudentPortfolioCard,
@@ -9,9 +11,12 @@ import type {
 } from "@/types/studio-booking";
 import type { PortfolioSubmissionView } from "@/types/portfolio-submission";
 import type {
+  PortfolioRevisionRoute,
   PortfolioWorkflowStatus,
   StudentCategory,
 } from "@/types/database";
+
+const LOADER = "getStudentStage3PortfolioContext";
 
 function lockedReasonForPortfolio(
   workflowStatus: PortfolioWorkflowStatus,
@@ -32,14 +37,10 @@ function lockedReasonForPortfolio(
   );
 }
 
-function waitingMessageForPortfolio(portfolioType: StudentCategory): string {
-  return `Waiting for the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader to book the studio.`;
-}
-
 export function getAssistantWaitingMessage(
   portfolioType: StudentCategory
 ): string {
-  return waitingMessageForPortfolio(portfolioType);
+  return `Waiting for the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader to book the studio.`;
 }
 
 export function getAssistantSubmissionWaitingMessage(
@@ -48,7 +49,10 @@ export function getAssistantSubmissionWaitingMessage(
   return `Waiting for the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader to submit the portfolio.`;
 }
 
-export async function getStudentPortfolioPageData(): Promise<StudentPortfolioResult> {
+export async function getStudentStage3PortfolioContext(): Promise<{
+  data: StudentStage3PortfolioContext | null;
+  error: string | null;
+}> {
   const profile = await getCurrentProfile();
 
   if (!profile || profile.role !== "student" || profile.status !== "active") {
@@ -76,7 +80,7 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
     .maybeSingle();
 
   if (studentError) {
-    console.error("[getStudentPortfolioPageData] student", studentError.message);
+    console.error(`[${LOADER}] student`, studentError.message);
     return { data: null, error: studentError.message };
   }
 
@@ -92,7 +96,7 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
   const currentStudentName =
     (studentRow.profiles as { full_name: string } | null)?.full_name ?? "—";
 
-  const [teamResult, portfoliosResult, bookingsResult, membersResult, submissionsResult] =
+  const [teamResult, portfoliosResult, bookingsResult, membersResult] =
     await Promise.all([
       supabase
         .from("teams")
@@ -116,7 +120,8 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
           sequence_order,
           portfolio_type,
           workflow_status,
-          leader_student_id
+          leader_student_id,
+          revision_return_to
         `
         )
         .eq("team_id", teamId)
@@ -153,26 +158,6 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
         )
         .eq("team_id", teamId)
         .eq("member_status", "active"),
-      supabase
-        .from("portfolio_submissions")
-        .select(
-          `
-          id,
-          portfolio_output_id,
-          version_number,
-          title,
-          portfolio_url,
-          notes,
-          created_at,
-          submitted_by_student_id,
-          students!submitted_by_student_id (
-            profiles!user_id (
-              full_name
-            )
-          )
-        `
-        )
-        .order("version_number", { ascending: true }),
     ]);
 
   const firstError =
@@ -180,7 +165,6 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
     portfoliosResult.error?.message ||
     bookingsResult.error?.message ||
     membersResult.error?.message ||
-    submissionsResult.error?.message ||
     null;
 
   if (firstError) {
@@ -189,6 +173,7 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
         firstError
       );
 
+    console.error(`[${LOADER}]`, firstError);
     return {
       data: null,
       error: migrationHint
@@ -207,6 +192,47 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
     current_stage_number: number;
     programs: { name: string } | null;
   };
+
+  const portfolioRows = (portfoliosResult.data ?? []) as Array<{
+    id: string;
+    sequence_order: number | null;
+    portfolio_type: StudentCategory;
+    workflow_status: PortfolioWorkflowStatus | null;
+    leader_student_id: string;
+    revision_return_to: PortfolioRevisionRoute | null;
+  }>;
+
+  const portfolioIds = portfolioRows.map((row) => row.id);
+
+  const { data: submissionsData, error: submissionsError } =
+    portfolioIds.length > 0
+      ? await supabase
+          .from("portfolio_submissions")
+          .select(
+            `
+          id,
+          portfolio_output_id,
+          version_number,
+          title,
+          portfolio_url,
+          notes,
+          created_at,
+          submitted_by_student_id,
+          students!submitted_by_student_id (
+            profiles!user_id (
+              full_name
+            )
+          )
+        `
+          )
+          .in("portfolio_output_id", portfolioIds)
+          .order("version_number", { ascending: true })
+      : { data: [], error: null };
+
+  if (submissionsError) {
+    console.error(`[${LOADER}] submissions`, submissionsError.message);
+    return { data: null, error: submissionsError.message };
+  }
 
   const memberNameById = new Map<string, { name: string; category: StudentCategory }>(
     (
@@ -228,15 +254,16 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
     ])
   );
 
-  const { data: participantsData, error: participantsError } = await supabase
-    .from("portfolio_participants")
-    .select("portfolio_output_id, student_id, participation_role")
-    .in(
-      "portfolio_output_id",
-      ((portfoliosResult.data ?? []) as Array<{ id: string }>).map((row) => row.id)
-    );
+  const { data: participantsData, error: participantsError } =
+    portfolioIds.length > 0
+      ? await supabase
+          .from("portfolio_participants")
+          .select("portfolio_output_id, student_id, participation_role")
+          .in("portfolio_output_id", portfolioIds)
+      : { data: [], error: null };
 
   if (participantsError) {
+    console.error(`[${LOADER}] participants`, participantsError.message);
     return { data: null, error: participantsError.message };
   }
 
@@ -285,7 +312,7 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
   );
 
   const submissionByPortfolio = new Map<string, PortfolioSubmissionView>();
-  for (const row of (submissionsResult.data ?? []) as Array<{
+  for (const row of (submissionsData ?? []) as Array<{
     id: string;
     portfolio_output_id: string;
     version_number: number;
@@ -298,7 +325,6 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
       profiles: { full_name: string } | null;
     } | null;
   }>) {
-    // Prefer the latest version when multiple exist (Package D revisions later).
     const existing = submissionByPortfolio.get(row.portfolio_output_id);
     if (existing && existing.versionNumber > row.version_number) {
       continue;
@@ -319,15 +345,7 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
     });
   }
 
-  const portfolios: StudentPortfolioCard[] = (
-    (portfoliosResult.data ?? []) as Array<{
-      id: string;
-      sequence_order: number | null;
-      portfolio_type: StudentCategory;
-      workflow_status: PortfolioWorkflowStatus | null;
-      leader_student_id: string;
-    }>
-  )
+  const teamPortfolioProgress: StudentPortfolioCard[] = portfolioRows
     .filter(
       (row) => row.sequence_order !== null && row.workflow_status !== null
     )
@@ -347,8 +365,16 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
           row.workflow_status as PortfolioWorkflowStatus,
           row.sequence_order as number
         ),
+        revisionReturnTo: row.revision_return_to,
       };
     });
+
+  const ownPortfolioOutput =
+    teamPortfolioProgress.find(
+      (portfolio) => portfolio.leaderStudentId === currentStudentId
+    ) ?? null;
+
+  const activeTeamPortfolio = findActiveTeamPortfolio(teamPortfolioProgress);
 
   return {
     data: {
@@ -358,7 +384,32 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
       currentStageNumber: team.current_stage_number,
       currentStudentId,
       currentStudentName,
-      portfolios,
+      ownPortfolioOutput,
+      teamPortfolioProgress,
+      activeTeamPortfolio,
+    },
+    error: null,
+  };
+}
+
+export async function getStudentPortfolioPageData(): Promise<StudentPortfolioResult> {
+  const { data, error } = await getStudentStage3PortfolioContext();
+  if (error || !data) {
+    return { data: null, error };
+  }
+
+  return {
+    data: {
+      teamId: data.teamId,
+      teamName: data.teamName,
+      programName: data.programName,
+      currentStageNumber: data.currentStageNumber,
+      currentStudentId: data.currentStudentId,
+      currentStudentName: data.currentStudentName,
+      ownPortfolioOutput: data.ownPortfolioOutput,
+      teamPortfolioProgress: data.teamPortfolioProgress,
+      activeTeamPortfolio: data.activeTeamPortfolio,
+      portfolios: data.teamPortfolioProgress,
     },
     error: null,
   };

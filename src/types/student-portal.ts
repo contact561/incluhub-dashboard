@@ -1,4 +1,5 @@
 import type { TeamStageTimelineEntry, TeamPortfolioSummary } from "@/types/stage-management";
+import type { StudentPortfolioCard } from "@/types/studio-booking";
 import type {
   EducatorType,
   StageStatus,
@@ -47,5 +48,32 @@ export type StudentMyStageData = {
 
 export type StudentMyStageResult = {
   data: StudentMyStageData | null;
+  error: string | null;
+};
+
+export type StudentStage3PortfolioContext = {
+  teamId: string;
+  teamName: string;
+  programName: string | null;
+  currentStageNumber: number;
+  currentStudentId: string;
+  currentStudentName: string;
+  ownPortfolioOutput: StudentPortfolioCard | null;
+  teamPortfolioProgress: StudentPortfolioCard[];
+  activeTeamPortfolio: StudentPortfolioCard | null;
+};
+
+export type StudentDashboardData = {
+  teamName: string;
+  programName: string | null;
+  currentStageNumber: number;
+  currentStudentId: string;
+  ownPortfolioOutput: StudentPortfolioCard | null;
+  activeTeamPortfolio: StudentPortfolioCard | null;
+  teamPortfolioProgress: StudentPortfolioCard[];
+};
+
+export type StudentDashboardResult = {
+  data: StudentDashboardData | null;
   error: string | null;
 };

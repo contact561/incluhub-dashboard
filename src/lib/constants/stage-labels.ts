@@ -1,16 +1,30 @@
 import type { PortfolioWorkflowStatus } from "@/types/database";
+import { getPortfolioWorkflowPresentation } from "@/lib/portfolio/workflow-status";
 
 export const PORTFOLIO_WORKFLOW_STATUS_LABELS: Record<
   PortfolioWorkflowStatus,
   string
 > = {
-  locked: "Locked",
-  awaiting_booking: "Awaiting Booking",
-  awaiting_submission: "Awaiting Submission",
-  pending_educator: "Pending Educator",
-  pending_admin: "Pending Admin",
-  revision_required: "Revision Required",
-  completed: "Completed",
+  locked: getPortfolioWorkflowPresentation("locked", "photographer").title,
+  awaiting_booking: getPortfolioWorkflowPresentation(
+    "awaiting_booking",
+    "photographer"
+  ).title,
+  awaiting_submission: getPortfolioWorkflowPresentation(
+    "awaiting_submission",
+    "photographer"
+  ).title,
+  pending_educator: getPortfolioWorkflowPresentation(
+    "pending_educator",
+    "photographer"
+  ).title,
+  pending_admin: getPortfolioWorkflowPresentation("pending_admin", "photographer")
+    .title,
+  revision_required: getPortfolioWorkflowPresentation(
+    "revision_required",
+    "photographer"
+  ).title,
+  completed: getPortfolioWorkflowPresentation("completed", "photographer").title,
 };
 
 export const STAGE_COLUMN_LABELS = {

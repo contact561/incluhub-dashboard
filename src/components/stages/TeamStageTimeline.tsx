@@ -1,4 +1,5 @@
 import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
+import { getPortfolioWorkflowPresentation } from "@/lib/portfolio/workflow-status";
 import { StatusBadge } from "@/components/status/StatusBadge";
 import type {
   TeamPortfolioSummary,
@@ -130,13 +131,17 @@ export function TeamStageTimeline({
                           >
                             {portfolio.submissionUrl}
                           </a>
-                          {portfolio.workflowStatus === "pending_educator" ? (
-                            <p className="mt-1 text-amber-800">
-                              Pending Educator Review
-                            </p>
-                          ) : null}
                         </div>
                       ) : null}
+                      <p className="text-zinc-600">
+                        {
+                          getPortfolioWorkflowPresentation(
+                            portfolio.workflowStatus,
+                            portfolio.portfolioType,
+                            { sequenceOrder: portfolio.sequenceOrder }
+                          ).title
+                        }
+                      </p>
                     </li>
                   ))}
                 </ol>

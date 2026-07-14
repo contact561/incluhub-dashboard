@@ -1,3 +1,7 @@
+import {
+  StudentOwnPortfolioPanel,
+  TeamPortfolioProgressList,
+} from "@/components/student/Stage3PortfolioPanels";
 import { PortfolioCard } from "@/components/studio/PortfolioCard";
 import { EmptyState, QueryErrorState } from "@/components/status";
 import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
@@ -55,17 +59,48 @@ export default async function StudentPortfolioPage() {
               <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
                 Studio booking is available when your team reaches Stage 3.
               </p>
-            ) : null}
+            ) : (
+              <>
+                {data.ownPortfolioOutput ? (
+                  <section className="space-y-3">
+                    <h2 className="text-base font-semibold text-zinc-900">
+                      Your portfolio
+                    </h2>
+                    <StudentOwnPortfolioPanel
+                      portfolio={data.ownPortfolioOutput}
+                      currentStudentId={data.currentStudentId}
+                    />
+                  </section>
+                ) : null}
 
-            <div className="space-y-4">
-              {data.portfolios.map((portfolio) => (
-                <PortfolioCard
-                  key={portfolio.id}
-                  portfolio={portfolio}
-                  currentStudentId={data.currentStudentId}
-                />
-              ))}
-            </div>
+                <section className="space-y-3">
+                  <h2 className="text-base font-semibold text-zinc-900">
+                    Team portfolio sequence
+                  </h2>
+                  <TeamPortfolioProgressList
+                    portfolios={data.teamPortfolioProgress}
+                    currentStudentId={data.currentStudentId}
+                    activeTeamPortfolioId={data.activeTeamPortfolio?.id ?? null}
+                  />
+                </section>
+
+                <section className="space-y-4">
+                  <h2 className="text-base font-semibold text-zinc-900">
+                    Full portfolio details
+                  </h2>
+                  {data.portfolios.map((portfolio) => (
+                    <PortfolioCard
+                      key={portfolio.id}
+                      portfolio={portfolio}
+                      currentStudentId={data.currentStudentId}
+                      emphasizeOwnPortfolio={
+                        portfolio.leaderStudentId === data.currentStudentId
+                      }
+                    />
+                  ))}
+                </section>
+              </>
+            )}
           </>
         ) : null}
       </div>

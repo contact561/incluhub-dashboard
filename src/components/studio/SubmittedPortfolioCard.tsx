@@ -1,7 +1,19 @@
+import {
+  getPortfolioWorkflowPresentation,
+  shouldShowSubmittedPortfolioSummary,
+} from "@/lib/portfolio/workflow-status";
 import type { PortfolioSubmissionView } from "@/types/portfolio-submission";
+import type {
+  PortfolioRevisionRoute,
+  PortfolioWorkflowStatus,
+  StudentCategory,
+} from "@/types/database";
 
 type SubmittedPortfolioCardProps = {
   submission: PortfolioSubmissionView;
+  workflowStatus: PortfolioWorkflowStatus;
+  portfolioType: StudentCategory;
+  revisionReturnTo?: PortfolioRevisionRoute | null;
 };
 
 function formatSubmittedAt(value: string): string {
@@ -13,15 +25,28 @@ function formatSubmittedAt(value: string): string {
 
 export function SubmittedPortfolioCard({
   submission,
+  workflowStatus,
+  portfolioType,
+  revisionReturnTo = null,
 }: SubmittedPortfolioCardProps) {
+  if (!shouldShowSubmittedPortfolioSummary(workflowStatus)) {
+    return null;
+  }
+
+  const statusPresentation = getPortfolioWorkflowPresentation(
+    workflowStatus,
+    portfolioType,
+    { revisionReturnTo, sequenceOrder: undefined }
+  );
+
   return (
     <section className="rounded-lg border border-zinc-200 bg-zinc-50/60 p-4">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <h3 className="text-sm font-semibold text-zinc-900">
-          Submitted portfolio
+          Submitted portfolio · v{submission.versionNumber}
         </h3>
-        <p className="text-xs font-medium text-amber-800">
-          Pending Educator Review
+        <p className="text-xs font-medium text-zinc-700">
+          {statusPresentation.title}
         </p>
       </div>
 
@@ -75,10 +100,7 @@ export function SubmittedPortfolioCard({
         </div>
       </dl>
 
-      <p className="mt-3 text-xs text-zinc-500">
-        This submission is read-only. Editing and resubmission open only after a
-        formal revision request in a future workflow.
-      </p>
+      <p className="mt-3 text-xs text-zinc-500">{statusPresentation.description}</p>
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import type { StudioSlotCode } from "@/lib/constants/studioSlots";
 import type { PortfolioSubmissionView } from "@/types/portfolio-submission";
 import type {
+  PortfolioRevisionRoute,
   PortfolioWorkflowStatus,
   StudentCategory,
 } from "@/types/database";
@@ -35,6 +36,7 @@ export type StudentPortfolioCard = {
   booking: ConfirmedStudioBooking | null;
   submission: PortfolioSubmissionView | null;
   lockedReason: string | null;
+  revisionReturnTo: PortfolioRevisionRoute | null;
 };
 
 export type StudentPortfolioPageData = {
@@ -44,6 +46,9 @@ export type StudentPortfolioPageData = {
   currentStageNumber: number;
   currentStudentId: string;
   currentStudentName: string;
+  ownPortfolioOutput: StudentPortfolioCard | null;
+  teamPortfolioProgress: StudentPortfolioCard[];
+  activeTeamPortfolio: StudentPortfolioCard | null;
   portfolios: StudentPortfolioCard[];
 };
 
