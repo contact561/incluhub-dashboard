@@ -68,7 +68,12 @@ export async function getTeamStageDetail(
         sequence_order,
         portfolio_type,
         workflow_status,
-        leader_student_id
+        leader_student_id,
+        portfolio_submissions (
+          title,
+          portfolio_url,
+          version_number
+        )
       `
       )
       .eq("team_id", teamId)
@@ -100,7 +105,7 @@ export async function getTeamStageDetail(
     console.error("[getTeamStageDetail]", firstError);
 
     const migrationHint =
-      /workflow_status|bms_session_date|portfolio_workflow_status/i.test(
+      /workflow_status|bms_session_date|portfolio_workflow_status|portfolio_submissions/i.test(
         firstError
       );
 
@@ -176,16 +181,31 @@ export async function getTeamStageDetail(
       portfolio_type: StudentCategory;
       workflow_status: PortfolioWorkflowStatus | null;
       leader_student_id: string;
+      portfolio_submissions:
+        | Array<{
+            title: string;
+            portfolio_url: string;
+            version_number: number;
+          }>
+        | null;
     }>
   )
     .filter((row) => row.sequence_order !== null && row.workflow_status !== null)
-    .map((row) => ({
-      id: row.id,
-      sequenceOrder: row.sequence_order as number,
-      portfolioType: row.portfolio_type,
-      workflowStatus: row.workflow_status as PortfolioWorkflowStatus,
-      leaderName: leaderNameByStudentId.get(row.leader_student_id) ?? "—",
-    }));
+    .map((row) => {
+      const latestSubmission = (row.portfolio_submissions ?? [])
+        .slice()
+        .sort((a, b) => b.version_number - a.version_number)[0];
+
+      return {
+        id: row.id,
+        sequenceOrder: row.sequence_order as number,
+        portfolioType: row.portfolio_type,
+        workflowStatus: row.workflow_status as PortfolioWorkflowStatus,
+        leaderName: leaderNameByStudentId.get(row.leader_student_id) ?? "—",
+        submissionTitle: latestSubmission?.title ?? null,
+        submissionUrl: latestSubmission?.portfolio_url ?? null,
+      };
+    });
 
   const stage2 = progressByStage.get(2);
   const stage2InProgress = stage2?.status === "in_progress";

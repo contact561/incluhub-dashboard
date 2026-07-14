@@ -283,6 +283,18 @@ export interface PortfolioApproval {
   updated_at: string;
 }
 
+export interface PortfolioSubmission {
+  id: string;
+  portfolio_output_id: string;
+  version_number: number;
+  title: string;
+  portfolio_url: string;
+  notes: string | null;
+  submitted_by_student_id: string;
+  created_by: string;
+  created_at: string;
+}
+
 export interface Project {
   id: string;
   team_id: string;
@@ -566,6 +578,29 @@ export type Database = {
       >;
       portfolio_outputs: TableDef<PortfolioOutput>;
       portfolio_participants: TableDef<PortfolioParticipant>;
+      portfolio_submissions: TableDef<
+        PortfolioSubmission,
+        [
+          {
+            foreignKeyName: "portfolio_submissions_portfolio_output_id_fkey";
+            columns: ["portfolio_output_id"];
+            referencedRelation: "portfolio_outputs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "portfolio_submissions_submitted_by_student_id_fkey";
+            columns: ["submitted_by_student_id"];
+            referencedRelation: "students";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "portfolio_submissions_created_by_fkey";
+            columns: ["created_by"];
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ]
+      >;
       studio_slot_occupancy: TableDef<StudioSlotOccupancy>;
       studio_bookings: TableDef<
         StudioBooking,
@@ -671,6 +706,24 @@ export type Database = {
           booking_date: string;
           slot_code: string;
           booked_at: string;
+        }[];
+      };
+      submit_portfolio: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_title: string;
+          p_portfolio_url: string;
+          p_notes: string | null;
+        };
+        Returns: {
+          submission_id: string;
+          portfolio_output_id: string;
+          version_number: number;
+          title: string;
+          portfolio_url: string;
+          notes: string | null;
+          submitted_at: string;
+          workflow_status: string;
         }[];
       };
     };

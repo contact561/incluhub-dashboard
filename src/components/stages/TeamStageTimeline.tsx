@@ -100,21 +100,43 @@ export function TeamStageTimeline({
                 <p className="text-xs font-medium text-zinc-700">
                   Portfolio sequence
                 </p>
-                <ol className="mt-2 space-y-2">
+                <ol className="mt-2 space-y-3">
                   {portfolios.map((portfolio) => (
-                    <li
-                      key={portfolio.id}
-                      className="flex flex-wrap items-center justify-between gap-2 text-xs"
-                    >
-                      <span className="text-zinc-700">
-                        {portfolio.sequenceOrder}.{" "}
-                        {STUDENT_CATEGORY_LABELS[portfolio.portfolioType]} —{" "}
-                        {portfolio.leaderName}
-                      </span>
-                      <StatusBadge
-                        status={portfolio.workflowStatus}
-                        className="shrink-0"
-                      />
+                    <li key={portfolio.id} className="space-y-1 text-xs">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <span className="text-zinc-700">
+                          {portfolio.sequenceOrder}.{" "}
+                          {STUDENT_CATEGORY_LABELS[portfolio.portfolioType]} —{" "}
+                          {portfolio.leaderName}
+                        </span>
+                        <StatusBadge
+                          status={portfolio.workflowStatus}
+                          className="shrink-0"
+                        />
+                      </div>
+                      {portfolio.submissionTitle && portfolio.submissionUrl ? (
+                        <div className="rounded border border-zinc-100 bg-zinc-50 px-2 py-1.5 text-zinc-600">
+                          <p>
+                            Submitted:{" "}
+                            <span className="font-medium text-zinc-800">
+                              {portfolio.submissionTitle}
+                            </span>
+                          </p>
+                          <a
+                            href={portfolio.submissionUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-0.5 inline-block break-all underline underline-offset-2"
+                          >
+                            {portfolio.submissionUrl}
+                          </a>
+                          {portfolio.workflowStatus === "pending_educator" ? (
+                            <p className="mt-1 text-amber-800">
+                              Pending Educator Review
+                            </p>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </li>
                   ))}
                 </ol>

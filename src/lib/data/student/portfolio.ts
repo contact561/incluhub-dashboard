@@ -7,6 +7,7 @@ import type {
   StudentPortfolioCard,
   StudentPortfolioResult,
 } from "@/types/studio-booking";
+import type { PortfolioSubmissionView } from "@/types/portfolio-submission";
 import type {
   PortfolioWorkflowStatus,
   StudentCategory,
@@ -39,6 +40,12 @@ export function getAssistantWaitingMessage(
   portfolioType: StudentCategory
 ): string {
   return waitingMessageForPortfolio(portfolioType);
+}
+
+export function getAssistantSubmissionWaitingMessage(
+  portfolioType: StudentCategory
+): string {
+  return `Waiting for the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader to submit the portfolio.`;
 }
 
 export async function getStudentPortfolioPageData(): Promise<StudentPortfolioResult> {
@@ -85,7 +92,7 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
   const currentStudentName =
     (studentRow.profiles as { full_name: string } | null)?.full_name ?? "—";
 
-  const [teamResult, portfoliosResult, bookingsResult, membersResult] =
+  const [teamResult, portfoliosResult, bookingsResult, membersResult, submissionsResult] =
     await Promise.all([
       supabase
         .from("teams")
@@ -146,6 +153,26 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
         )
         .eq("team_id", teamId)
         .eq("member_status", "active"),
+      supabase
+        .from("portfolio_submissions")
+        .select(
+          `
+          id,
+          portfolio_output_id,
+          version_number,
+          title,
+          portfolio_url,
+          notes,
+          created_at,
+          submitted_by_student_id,
+          students!submitted_by_student_id (
+            profiles!user_id (
+              full_name
+            )
+          )
+        `
+        )
+        .order("version_number", { ascending: true }),
     ]);
 
   const firstError =
@@ -153,11 +180,12 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
     portfoliosResult.error?.message ||
     bookingsResult.error?.message ||
     membersResult.error?.message ||
+    submissionsResult.error?.message ||
     null;
 
   if (firstError) {
     const migrationHint =
-      /studio_bookings|studio_slot_occupancy|get_studio_slot_availability/i.test(
+      /studio_bookings|studio_slot_occupancy|get_studio_slot_availability|portfolio_submissions|submit_portfolio/i.test(
         firstError
       );
 
@@ -256,6 +284,41 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
       ])
   );
 
+  const submissionByPortfolio = new Map<string, PortfolioSubmissionView>();
+  for (const row of (submissionsResult.data ?? []) as Array<{
+    id: string;
+    portfolio_output_id: string;
+    version_number: number;
+    title: string;
+    portfolio_url: string;
+    notes: string | null;
+    created_at: string;
+    submitted_by_student_id: string;
+    students: {
+      profiles: { full_name: string } | null;
+    } | null;
+  }>) {
+    // Prefer the latest version when multiple exist (Package D revisions later).
+    const existing = submissionByPortfolio.get(row.portfolio_output_id);
+    if (existing && existing.versionNumber > row.version_number) {
+      continue;
+    }
+
+    submissionByPortfolio.set(row.portfolio_output_id, {
+      id: row.id,
+      versionNumber: row.version_number,
+      title: row.title,
+      portfolioUrl: row.portfolio_url,
+      notes: row.notes,
+      submittedAt: row.created_at,
+      submittedByStudentId: row.submitted_by_student_id,
+      submittedByName:
+        row.students?.profiles?.full_name ??
+        memberNameById.get(row.submitted_by_student_id)?.name ??
+        "—",
+    });
+  }
+
   const portfolios: StudentPortfolioCard[] = (
     (portfoliosResult.data ?? []) as Array<{
       id: string;
@@ -279,6 +342,7 @@ export async function getStudentPortfolioPageData(): Promise<StudentPortfolioRes
         leaderName: leader?.name ?? "—",
         participants: participantsByPortfolio.get(row.id) ?? [],
         booking: bookingByPortfolio.get(row.id) ?? null,
+        submission: submissionByPortfolio.get(row.id) ?? null,
         lockedReason: lockedReasonForPortfolio(
           row.workflow_status as PortfolioWorkflowStatus,
           row.sequence_order as number

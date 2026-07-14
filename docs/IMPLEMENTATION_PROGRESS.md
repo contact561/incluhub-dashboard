@@ -114,10 +114,144 @@ No INSERT/UPDATE/DELETE policies — all writes via `book_studio_slot`.
 ### Known limitations
 
 - Educator UI screen not built (loader only)
-- Portfolio submission, unlocking, Stage 3 completion not implemented (Package C+)
+- Educator/Admin approval and revision workflows not implemented (Package D+)
+- Stage 3 completion / next-portfolio unlock not implemented (Package D+)
 - Admin schedule date filter applied in application layer after fetch
 
 ### Package C
+
+See Package C section below.
+
+---
+
+## Package C — Link-Only Portfolio Submission
+
+**Status:** Implemented (application code). Apply migration `010_portfolio_submission.sql` and policy `005_portfolio_submission_rls.sql` in Supabase before browser testing.
+
+**Date:** 2026-07-14
+
+### Scope delivered
+
+- Migration `010_portfolio_submission.sql`
+- Policy `005_portfolio_submission_rls.sql`
+- Immutable `portfolio_submissions` table (versioned; Package C creates version 1 only)
+- `submit_portfolio` SECURITY DEFINER RPC (student leader only)
+- Student portfolio submission form on `/student/portfolio` when `awaiting_submission`
+- Read-only submitted portfolio card after `pending_educator`
+- My Stage / admin team timeline shows submitted title + link when available
+- Verification SQL scripts
+- No educator/Admin approval actions (Package D)
+
+### Files created
+
+| File | Purpose |
+|------|---------|
+| `supabase/migrations/010_portfolio_submission.sql` | Table + `submit_portfolio` RPC |
+| `supabase/policies/005_portfolio_submission_rls.sql` | SELECT-only RLS |
+| `supabase/scripts/verify_package_c.sql` | Read-only static checks |
+| `supabase/scripts/verify_package_c_rpc.sql` | RPC integration (BEGIN/ROLLBACK) |
+| `src/types/portfolio-submission.ts` | Submission view types |
+| `src/actions/portfolio/submitPortfolio.ts` | Controlled server action |
+| `src/components/studio/PortfolioSubmissionForm.tsx` | Leader submission form |
+| `src/components/studio/SubmittedPortfolioCard.tsx` | Read-only submitted card |
+
+### Files modified
+
+| File | Change |
+|------|--------|
+| `src/types/database.ts` | `PortfolioSubmission` + RPC typing |
+| `src/types/studio-booking.ts` | `submission` on portfolio card |
+| `src/types/stage-management.ts` | Submission title/URL on portfolio summary |
+| `src/lib/data/student/portfolio.ts` | Load submissions + waiting copy |
+| `src/lib/data/admin/team-stage.ts` | Nested submission fields for timeline |
+| `src/components/studio/PortfolioCard.tsx` | Form / waiting / submitted states |
+| `src/components/stages/TeamStageTimeline.tsx` | Show submitted title/link + pending educator |
+| `docs/IMPLEMENTATION_PROGRESS.md` | Package C documentation |
+
+### Migration summary (`010`)
+
+- `portfolio_submissions` — **authoritative immutable submission history** (`version_number`, title, URL, optional notes, submitter, creator)
+- `portfolio_outputs` — **latest-submission snapshot only** for dashboard display (`portfolio_title`, `portfolio_link`, `notes`, `submitted_at`, `workflow_status`)
+- Unique `(portfolio_output_id, version_number)` (not a sole unique on `portfolio_output_id`)
+- CHECK: `version_number >= 1`, non-blank title/URL
+- `submit_portfolio(...)` — one targeted insert (`ON CONFLICT … DO NOTHING` on the version unique constraint) + one snapshot update → `pending_educator`
+- Future Package D revisions must insert a new version and update the snapshot atomically
+- No Storage buckets, no file columns, no approval rows
+
+### Source of truth
+
+| Store | Role |
+|-------|------|
+| `portfolio_submissions` | Authoritative immutable history (Package C writes version 1 only) |
+| `portfolio_outputs` title/link/notes/`submitted_at` | Denormalized latest-submission snapshot for dashboards |
+
+### RPC summary
+
+`submit_portfolio(p_portfolio_output_id, p_title, p_portfolio_url, p_notes)`
+
+- Authenticated active student leader only
+- Requires Stage 3, `awaiting_submission`, confirmed studio booking, sole active portfolio
+- Title 3–150 chars; absolute HTTP/HTTPS URL; notes optional ≤ 2000
+- Concurrent duplicates blocked via row locks + targeted `ON CONFLICT` on `(portfolio_output_id, version_number)` only
+- Does not unlock Makeup/Hairstyling, does not change team stage
+
+### RLS rules
+
+| Table | Admin | Student | Educator | External |
+|-------|-------|---------|----------|----------|
+| `portfolio_submissions` | SELECT (active admin + `is_admin()`) | SELECT own team (active student) | SELECT assigned teams (active educator) | no access |
+
+No INSERT / UPDATE / DELETE policies — writes only via `submit_portfolio`.
+
+### Student UI
+
+- Leader (`awaiting_submission`): title, URL, optional notes, Submit Portfolio
+- Assistant (`awaiting_submission`): waiting message, no form
+- After submit (`pending_educator`): read-only card for all team members (title, link, notes, submitted by/at)
+- No edit / delete / resubmit / approve controls
+
+### My Stage
+
+- Stage 3 portfolio sequence shows Photography / Makeup / Hairstyling statuses
+- Submitted title + clickable URL when available
+- “Pending Educator Review” label when status is `pending_educator`
+- No review or stage-progression controls
+
+### Educator / Admin visibility
+
+- RLS permits assigned educators and admins to read submissions
+- Existing Stage timeline surfaces title/link read-only when loaded
+- **Review / approve / revision actions remain Package D**
+
+### Activity log
+
+`activity_logs` table exists, but no shared `logActivity` helper or established Package B logging pattern. Package C does **not** invent a new logging architecture. `portfolio_submitted` activity recording is pending MVP infrastructure work.
+
+### Manual Supabase steps
+
+1. Run `supabase/migrations/010_portfolio_submission.sql`
+2. Run `supabase/policies/005_portfolio_submission_rls.sql`
+3. Run `supabase/scripts/verify_package_c.sql`
+4. (Optional) Run `verify_package_c_rpc.sql` inside transaction (requires a portfolio in `awaiting_submission` with booking)
+
+### Tests run
+
+- `git diff --check` — see final report
+- `npx tsc --noEmit` — see final report
+- `npm run build` — see final report
+
+### Browser testing status
+
+Pending local SQL apply. Manual checklist is in the Package C final report.
+
+### Known limitations
+
+- Educator and Admin approval / revision (Package D) not started
+- Version 2+ submissions not created in Package C
+- Next portfolio unlock and Stage 3 completion not implemented
+- Activity log write for `portfolio_submitted` deferred until shared logging exists
+
+### Package D
 
 **Not started.**
 

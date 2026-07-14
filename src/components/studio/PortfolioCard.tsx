@@ -1,8 +1,13 @@
 import { ConfirmedBookingCard } from "@/components/studio/ConfirmedBookingCard";
+import { PortfolioSubmissionForm } from "@/components/studio/PortfolioSubmissionForm";
 import { StudioBookingPanel } from "@/components/studio/StudioBookingPanel";
+import { SubmittedPortfolioCard } from "@/components/studio/SubmittedPortfolioCard";
 import { StatusBadge } from "@/components/status/StatusBadge";
 import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
-import { getAssistantWaitingMessage } from "@/lib/data/student/portfolio";
+import {
+  getAssistantSubmissionWaitingMessage,
+  getAssistantWaitingMessage,
+} from "@/lib/data/student/portfolio";
 import type { StudentPortfolioCard } from "@/types/studio-booking";
 
 type PortfolioCardProps = {
@@ -59,7 +64,9 @@ export function PortfolioCard({ portfolio, currentStudentId }: PortfolioCardProp
         <div className="mt-4">
           <ConfirmedBookingCard
             booking={portfolio.booking}
-            showSubmissionHint={portfolio.workflowStatus === "awaiting_submission"}
+            showSubmissionHint={
+              portfolio.workflowStatus === "awaiting_submission" && isLeader
+            }
           />
         </div>
       ) : null}
@@ -74,6 +81,28 @@ export function PortfolioCard({ portfolio, currentStudentId }: PortfolioCardProp
         <p className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
           {getAssistantWaitingMessage(portfolio.portfolioType)}
         </p>
+      ) : null}
+
+      {portfolio.workflowStatus === "awaiting_submission" && isLeader ? (
+        <div className="mt-4">
+          <PortfolioSubmissionForm portfolioOutputId={portfolio.id} />
+        </div>
+      ) : null}
+
+      {portfolio.workflowStatus === "awaiting_submission" && !isLeader ? (
+        <p className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
+          {getAssistantSubmissionWaitingMessage(portfolio.portfolioType)}
+        </p>
+      ) : null}
+
+      {portfolio.submission &&
+      (portfolio.workflowStatus === "pending_educator" ||
+        portfolio.workflowStatus === "pending_admin" ||
+        portfolio.workflowStatus === "revision_required" ||
+        portfolio.workflowStatus === "completed") ? (
+        <div className="mt-4">
+          <SubmittedPortfolioCard submission={portfolio.submission} />
+        </div>
       ) : null}
     </article>
   );

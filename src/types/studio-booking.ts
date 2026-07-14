@@ -1,4 +1,5 @@
 import type { StudioSlotCode } from "@/lib/constants/studioSlots";
+import type { PortfolioSubmissionView } from "@/types/portfolio-submission";
 import type {
   PortfolioWorkflowStatus,
   StudentCategory,
@@ -32,6 +33,7 @@ export type StudentPortfolioCard = {
   leaderName: string;
   participants: PortfolioParticipantView[];
   booking: ConfirmedStudioBooking | null;
+  submission: PortfolioSubmissionView | null;
   lockedReason: string | null;
 };
 

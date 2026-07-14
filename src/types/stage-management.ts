@@ -59,6 +59,8 @@ export type TeamPortfolioSummary = {
   portfolioType: StudentCategory;
   workflowStatus: PortfolioWorkflowStatus;
   leaderName: string;
+  submissionTitle: string | null;
+  submissionUrl: string | null;
 };
 
 export type TeamStageDetail = {
