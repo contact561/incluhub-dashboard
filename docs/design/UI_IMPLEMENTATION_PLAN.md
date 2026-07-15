@@ -29,7 +29,8 @@
 | **UI-1A** | Done | Brand tokens + typography in `globals.css` |
 | **UI-1B1** | Done | Desktop shell, official logo in sidebar, tokenized nav, admin “Coming later” badges, broken External links hidden |
 | **UI-1B2** | **Done** | Mobile header + Dialog drawer, responsive shell (`md` breakpoint), login branding. **UI-1B complete.** |
-| Status system / shared empty-error-loading (**UI-1C**) | Pending | Next UI-1 slice |
+| **UI-1C1** | **Done** | StatusBadge repaired; PortfolioWorkflowBadge + StatusPanel created; workflow labels backend-driven |
+| **UI-1C2** | Pending | Loading / empty / error / page-header shared states |
 
 **UI-1B1 as-built (2026-07-15):**
 
@@ -50,6 +51,18 @@
 - Skip-to-content link on `AppShell` → `#main-content`
 - Shell overflow: `min-w-0 overflow-x-hidden`; mobile content padding `p-4` / desktop `md:p-6`
 - **UI-1B complete.** Next: **UI-1C** (status system / shared empty-error-loading primitives)
+
+**UI-1C1 as-built (2026-07-15):**
+
+- Canonical portfolio workflow values (repo source of truth): `locked`, `awaiting_booking`, `awaiting_submission`, `pending_educator`, `pending_admin`, `revision_required`, `completed`
+- Labels remain from `PORTFOLIO_WORKFLOW_STATUS_LABELS` / `getPortfolioWorkflowPresentation` — not redesigned
+- `StatusBadge` repaired: semantic UI-1A status tokens + icon; still used for generic record/stage statuses; wording via existing underscore title-case
+- `PortfolioWorkflowBadge` created for typed workflow statuses + canonical labels
+- `StatusPanel` created (`information` | `success` | `warning` | `danger` | `neutral`) — tokenized callout primitive
+- Shared intent helpers: `src/lib/status/status-intent.ts`
+- **Page-level adoption deferred** to UI-2 / UI-3 / UI-4 (studio/educator/admin amber/green panels and StatusBadge-on-workflow still present)
+- **Next: UI-1C2** (LoadingSkeleton, EmptyState/ErrorState token repair, PageHeader)
+
 ### Goals
 
 - Design tokens in CSS + Tailwind

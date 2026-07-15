@@ -3,10 +3,19 @@ import type {
   PortfolioWorkflowStatus,
   StudentCategory,
 } from "@/types/database";
+import {
+  getPortfolioWorkflowSemanticIntent,
+  isPortfolioWorkflowStatus,
+} from "@/lib/status/status-intent";
 
 export type PortfolioWorkflowPresentation = {
   title: string;
   description: string;
+};
+
+export {
+  getPortfolioWorkflowSemanticIntent,
+  isPortfolioWorkflowStatus,
 };
 
 function educatorLabelForPortfolioType(
