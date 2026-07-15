@@ -32,6 +32,7 @@
 | **UI-1C1** | Done | StatusBadge repaired; PortfolioWorkflowBadge + StatusPanel created; workflow labels backend-driven |
 | **UI-1C2A** | **Done** | LoadingSkeleton created; EmptyState tokenized; QueryErrorState parameterized with optional retry |
 | **UI-1C2B** | **Done** | PageHeader / SectionHeader / DashboardMetricCard; RecordPageHeader wraps PageHeader. **UI-1C complete.** |
+| **UI-1D** | **Done** | Foundation verification + controlled repairs. See `docs/design/UI_1_FOUNDATION_VERIFICATION.md`. **UI-1 complete.** |
 
 **UI-1B1 as-built (2026-07-15):**
 
@@ -82,6 +83,14 @@
 - Exports: `@/components/layout` (`PageHeader`, `SectionHeader`, `DashboardMetricCard`); RecordPageHeader remains via `@/components/tables`
 - **Role-page adoption deferred** (UI-2 / UI-3 / UI-4): Student dashboard / my-stage / portfolio; Educator dashboard / portfolio review list+detail; Admin dashboard / users / stage board / portfolio approvals
 - **UI-1C complete.** **Next: UI-1D** (foundation verification / QA — do not start role redesigns)
+
+**UI-1D as-built (2026-07-15):**
+
+- Verification report: `docs/design/UI_1_FOUNDATION_VERIFICATION.md`
+- Brand / shell / nav / status / shared states / headers verified against UI-1 acceptance questions
+- Controlled repairs only: fixed circular `@theme` radius token self-references in `globals.css`; `StatusPanel` danger uses `role="alert"`
+- Role-page zinc / duplicate padding / metric adoption **deferred** to UI-2 / UI-3 / UI-4
+- **UI-1 complete.** **UI-2 (Student portal) is safe to start** — do not change loaders/actions/routes/workflows
 
 ### Goals
 

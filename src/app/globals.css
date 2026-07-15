@@ -98,9 +98,10 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  --radius-card: var(--radius-card);
-  --radius-control: var(--radius-control);
-  --radius-dialog: var(--radius-dialog);
+  /* Concrete values — avoid circular var(--radius-card) self-reference (UI-1D) */
+  --radius-card: 0.625rem;
+  --radius-control: 0.5rem;
+  --radius-dialog: 0.75rem;
 
   /* Elevation (defined only — not applied broadly in UI-1A) */
   --shadow-none: var(--elevation-none);

@@ -76,10 +76,12 @@ export function StatusPanel({
 }: StatusPanelProps) {
   const intent = variantToIntent(variant);
   const styles = STATUS_INTENT_CLASSES[intent];
+  /** Danger callouts announce immediately; other variants use polite status. */
+  const liveRole = variant === "danger" ? "alert" : "status";
 
   return (
     <section
-      role="status"
+      role={liveRole}
       className={cn(
         "rounded-[var(--radius-card)] border p-4",
         styles.panel,
