@@ -1,4 +1,5 @@
 export { EmptyState } from "@/components/status/EmptyState";
+export { LoadingSkeleton } from "@/components/status/LoadingSkeleton";
 export { PortfolioWorkflowBadge } from "@/components/status/PortfolioWorkflowBadge";
 export { QueryErrorState } from "@/components/status/QueryErrorState";
 export {

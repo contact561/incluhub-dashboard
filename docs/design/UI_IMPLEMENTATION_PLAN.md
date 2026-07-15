@@ -29,8 +29,9 @@
 | **UI-1A** | Done | Brand tokens + typography in `globals.css` |
 | **UI-1B1** | Done | Desktop shell, official logo in sidebar, tokenized nav, admin “Coming later” badges, broken External links hidden |
 | **UI-1B2** | **Done** | Mobile header + Dialog drawer, responsive shell (`md` breakpoint), login branding. **UI-1B complete.** |
-| **UI-1C1** | **Done** | StatusBadge repaired; PortfolioWorkflowBadge + StatusPanel created; workflow labels backend-driven |
-| **UI-1C2** | Pending | Loading / empty / error / page-header shared states |
+| **UI-1C1** | Done | StatusBadge repaired; PortfolioWorkflowBadge + StatusPanel created; workflow labels backend-driven |
+| **UI-1C2A** | **Done** | LoadingSkeleton created; EmptyState tokenized; QueryErrorState parameterized with optional retry |
+| **UI-1C2B** | Pending | PageHeader / SectionHeader / DashboardMetricCard |
 
 **UI-1B1 as-built (2026-07-15):**
 
@@ -62,6 +63,15 @@
 - Shared intent helpers: `src/lib/status/status-intent.ts`
 - **Page-level adoption deferred** to UI-2 / UI-3 / UI-4 (studio/educator/admin amber/green panels and StatusBadge-on-workflow still present)
 - **Next: UI-1C2** (LoadingSkeleton, EmptyState/ErrorState token repair, PageHeader)
+
+**UI-1C2A as-built (2026-07-15):**
+
+- `LoadingSkeleton` created (`page` | `cards` | `table` | `list` | `form`) — tokenized pulse bones, `role="status"`, reduced-motion aware; no shadcn Skeleton package present
+- `EmptyState` repaired — semantic tokens; optional icon / action / secondaryAction / compact; callers still supply contextual title + description
+- `QueryErrorState` repaired — parameterized `title` (fallback “Something went wrong”); `description` + legacy `message` alias; optional manual `retry` (node or `{ label, onClick, href }`); semantic danger tokens; `role="alert"`
+- No automatic retries; no permanent loading routes; no role-page mass adoption
+- **Deferred adoption:** Student portfolio/workflow, Educator review queue, Admin users list, Admin stage board (UI-2 / UI-3 / UI-4)
+- **Next: UI-1C2B** (PageHeader / SectionHeader / DashboardMetricCard)
 
 ### Goals
 
