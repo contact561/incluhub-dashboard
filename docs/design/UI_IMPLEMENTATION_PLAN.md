@@ -259,7 +259,7 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 | Slice | Status | Notes |
 |---|---|---|
 | **UI-3A** | **Done** | Full Educator portal visual redesign — dashboard, lists, review queue + detail |
-| **UI-3B** | Pending | Educator portal QA / verification pass |
+| **UI-3B** | **Done** | Disposable Stage 3 fixture QA + revision/approval verification. See `docs/design/UI_3_EDUCATOR_PORTAL_QA.md`. **UI-3 complete.** |
 
 **UI-3A as-built (2026-07-15):**
 
@@ -269,7 +269,15 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 - Review detail converted into structured workspace — `ProfileSummary`, current submission, shared `Timeline` via `ReviewHistory`, single `ActionPanel` (sticky desktop) wrapping existing review form
 - Timeline adoption — educator history maps into shared `Timeline` (order/fields preserved; no invented events)
 - Workflow logic / loaders / server actions / RPCs / permissions / routes — **unchanged**
-- **Next: UI-3B** (Educator portal QA)
+
+**UI-3B as-built (2026-07-15):**
+
+- Disposable Stage 3 fixture: `UI3 QA TEAM` via `scripts/ui3-qa-fixture-setup.mjs` / cleanup via `scripts/ui3-qa-fixture-cleanup.mjs` (Alpha/Beta never modified)
+- Workflow verified: awaiting_submission → submit → pending_educator → revision_required → resubmit → pending_educator → approve → pending_admin
+- Dashboard count/queue/ReviewCard/detail ActionPanel, Timeline history, unrelated-educator 404, and Admin-RPC denial verified
+- No presentation repairs required beyond UI-3A
+- QA report: `docs/design/UI_3_EDUCATOR_PORTAL_QA.md`
+- **UI-3 complete.** Next portal package: **UI-4 Admin**
 
 ### Goals
 
@@ -277,12 +285,15 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 - Shared review components with admin
 - Dashboard token polish
 
-### Files affected (UI-3A)
+### Files affected (UI-3A / UI-3B)
 
 ```
 src/app/educator/**
 src/components/educator/*
-  ReviewCard.tsx, ProfileSummary.tsx, ActionPanel.tsx (new)
+  ReviewCard.tsx, ProfileSummary.tsx, ActionPanel.tsx (UI-3A)
+scripts/ui3-qa-fixture-setup.mjs
+scripts/ui3-qa-fixture-cleanup.mjs
+docs/design/UI_3_EDUCATOR_PORTAL_QA.md
 ```
 
 ### Components created
@@ -312,17 +323,17 @@ src/components/educator/*
 
 ### Testing checklist (UI-3B)
 
-- [ ] Review queue list with empty state
-- [ ] Review detail: all workflow statuses display correctly
-- [ ] Review form preserves data on validation error
-- [ ] ActionPanel visible without excessive scroll (desktop)
-- [ ] History matches admin/student timeline pattern
-- [ ] Approve / revision actions remain functional
+- [x] Review queue list with empty state
+- [x] Review detail: pending / revision / resubmit / pending_admin display correctly
+- [x] Review form preserves data on validation error
+- [x] ActionPanel visible without excessive scroll (desktop)
+- [x] History matches shared Timeline pattern
+- [x] Approve / revision actions remain functional
 
 ### Recommended commit boundary
 
 ```
-feat(ui-3a): educator portal visual redesign
+test(ui-3b): verify Educator revision and approval workflow
 ```
 
 ---
