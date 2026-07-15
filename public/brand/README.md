@@ -1,7 +1,7 @@
 # IncluHub brand assets
 
 Intake date: 2026-07-15
-Status: Assets ingested for reference / future **UI-1B** integration. **Not wired into layouts yet.**
+Status: Assets ingested. **Desktop sidebar integration complete (UI-1B1).** Mobile header / drawer pending UI-1B2. Favicon deferred.
 
 ---
 

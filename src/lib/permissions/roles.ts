@@ -3,6 +3,10 @@ import type { UserRole } from "@/types/database";
 export type NavItem = {
   label: string;
   href: string;
+  /** Visual-only badge (e.g. "Coming later"). Does not change permissions. */
+  badge?: string;
+  /** When true, Sidebar hides the link. Routes/permissions remain unchanged. */
+  hidden?: boolean;
 };
 
 export const ROLE_LABELS: Record<UserRole, string> = {
@@ -31,9 +35,21 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Stages", href: "/admin/stages" },
   { label: "Studio Schedule", href: "/admin/studio-schedule" },
   { label: "Portfolio Approvals", href: "/admin/portfolio-approvals" },
-  { label: "Project Approvals", href: "/admin/project-approvals" },
-  { label: "Notifications", href: "/admin/notifications" },
-  { label: "Activity Logs", href: "/admin/activity-logs" },
+  {
+    label: "Project Approvals",
+    href: "/admin/project-approvals",
+    badge: "Coming later",
+  },
+  {
+    label: "Notifications",
+    href: "/admin/notifications",
+    badge: "Coming later",
+  },
+  {
+    label: "Activity Logs",
+    href: "/admin/activity-logs",
+    badge: "Coming later",
+  },
 ];
 
 export const STUDENT_NAV_ITEMS: NavItem[] = [
@@ -52,9 +68,21 @@ export const EDUCATOR_NAV_ITEMS: NavItem[] = [
 
 export const EXTERNAL_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/external/dashboard" },
-  { label: "Assigned Team", href: "/external/assigned-team" },
-  { label: "Project Details", href: "/external/project-details" },
-  { label: "Notifications", href: "/external/notifications" },
+  {
+    label: "Assigned Team",
+    href: "/external/assigned-team",
+    hidden: true,
+  },
+  {
+    label: "Project Details",
+    href: "/external/project-details",
+    hidden: true,
+  },
+  {
+    label: "Notifications",
+    href: "/external/notifications",
+    hidden: true,
+  },
 ];
 
 export function getNavItemsForRole(role: UserRole): NavItem[] {
