@@ -185,7 +185,7 @@ Single commit or split:
 | Slice | Status | Notes |
 |---|---|---|
 | **UI-2A** | **Done** | Full Student portal visual redesign — pages + student-facing studio UI |
-| **UI-2B** | Pending | Student portal QA / verification pass |
+| **UI-2B** | **Done** | Stage 3 disposable fixture QA + controlled repair. See `docs/design/UI_2_STUDENT_PORTAL_QA.md`. **UI-2 complete.** |
 
 **UI-2A as-built (2026-07-15):**
 
@@ -197,7 +197,15 @@ Single commit or split:
 - Revision/resubmission visually updated — warning `StatusPanel` + tokenized forms; fields/actions unchanged
 - Timeline — `src/components/status/Timeline.tsx`; `PortfolioVersionHistory` adopts it
 - Workflow values/transitions, loaders, server actions, RPCs, booking rules — **unchanged**
-- **Next: UI-2B** (Student portal QA)
+
+**UI-2B as-built (2026-07-15):**
+
+- Disposable Stage 3 fixture: `UI2 QA TEAM` via `scripts/ui2-qa-fixture-setup.mjs` / cleanup via `scripts/ui2-qa-fixture-cleanup.mjs` (Alpha/Beta never modified)
+- Full status matrix exercised: locked → awaiting_booking → awaiting_submission → pending_educator → revision_required → resubmit → pending_educator → pending_admin → completed
+- Student screens, booking/submission/revision/Timeline, 375px overflow, and keyboard sampling verified
+- Controlled repair: `SectionHeader` explicit `h2`/`h3` (hydration risk)
+- QA report: `docs/design/UI_2_STUDENT_PORTAL_QA.md`
+- **UI-2 complete.** Next portal package: **UI-3 Educator**
 
 ### Goals
 
@@ -206,13 +214,17 @@ Single commit or split:
 - Booking/resubmit mobile-friendly
 - Version history via shared Timeline
 
-### Files affected (UI-2A)
+### Files affected (UI-2A / UI-2B)
 
 ```
 src/app/student/**
 src/components/student/*
 src/components/studio/* (student-facing visual only)
 src/components/status/Timeline.tsx
+src/components/layout/SectionHeader.tsx (UI-2B hydration repair)
+scripts/ui2-qa-fixture-setup.mjs
+scripts/ui2-qa-fixture-cleanup.mjs
+docs/design/UI_2_STUDENT_PORTAL_QA.md
 ```
 
 ### What NOT to change
@@ -224,18 +236,18 @@ src/components/status/Timeline.tsx
 
 ### Testing checklist (UI-2B)
 
-- [ ] Portfolio page: booking → submit → review → revision → resubmit flow
-- [ ] Booking grid usable at 375px width
-- [ ] Version history readable and ordered
-- [ ] One primary action visible per portfolio state
-- [ ] Empty/error states distinct
-- [ ] Dashboard CTA not duplicated unnecessarily
-- [ ] Keyboard: slot selection and form submit
+- [x] Portfolio page: booking → submit → review → revision → resubmit flow
+- [x] Booking grid usable at 375px width
+- [x] Version history readable and ordered
+- [x] One primary action visible per portfolio state
+- [x] Empty/error states distinct
+- [x] Dashboard CTA not duplicated unnecessarily
+- [x] Keyboard: slot selection and form submit (sampled)
 
 ### Recommended commit boundary
 
 ```
-feat(ui-2a): student portal visual redesign
+test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 ```
 
 ---

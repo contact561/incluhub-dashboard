@@ -1,4 +1,4 @@
-import type { ElementType, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 type SectionHeaderProps = {
@@ -28,7 +28,10 @@ export function SectionHeader({
   compact = false,
   className,
 }: SectionHeaderProps) {
-  const Heading = as as ElementType;
+  const headingClass = cn(
+    "font-semibold text-text-primary",
+    as === "h2" ? "text-base" : "text-sm"
+  );
 
   return (
     <div
@@ -40,14 +43,11 @@ export function SectionHeader({
     >
       <div className="min-w-0 flex-1 space-y-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <Heading
-            className={cn(
-              "font-semibold text-text-primary",
-              as === "h2" ? "text-base" : "text-sm"
-            )}
-          >
-            {title}
-          </Heading>
+          {as === "h3" ? (
+            <h3 className={headingClass}>{title}</h3>
+          ) : (
+            <h2 className={headingClass}>{title}</h2>
+          )}
           {count !== undefined ? (
             <span className="text-xs font-medium text-text-subtle">
               {count} {count === 1 ? "item" : "items"}
