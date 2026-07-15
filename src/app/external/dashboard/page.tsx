@@ -1,13 +1,17 @@
+import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState } from "@/components/status";
+
 export default function ExternalDashboardPage() {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">
-        External Member Dashboard
-      </h1>
-      <p className="mt-1 text-sm text-zinc-500">
-        View your assigned project and team details.
-      </p>
-      {/* Dashboard content — added in a later prompt */}
+    <div className="space-y-6">
+      <PageHeader
+        title="External Member Dashboard"
+        description="View your assigned project and team details."
+      />
+      <EmptyState
+        title="No project assigned yet"
+        description="When you are assigned to a team project, details will appear here."
+      />
     </div>
   );
 }

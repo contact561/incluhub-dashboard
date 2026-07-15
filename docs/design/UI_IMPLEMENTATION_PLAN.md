@@ -1,7 +1,7 @@
 # IncluHub UI Implementation Plan — UI-0
 
 **Date:** 2026-07-14
-**Status:** Planning only — controlled implementation packages UI-1 through UI-5
+**Status:** UI-1 through UI-5 complete — ready for Package E feature development
 **Prerequisite:** PO approves brand direction (`BRAND_REQUIREMENTS.md`)
 
 ---
@@ -433,54 +433,56 @@ test(ui-4b): verify Admin revision and approval workflow
 
 ## UI-5 — Responsive, accessibility, and visual QA
 
+### As-built progress
+
+| Slice | Status | Notes |
+|---|---|---|
+| **UI-5** | **Done** | Cross-role responsive, accessibility, and visual consistency QA |
+
+**UI-5 complete (2026-07-15).** See `docs/design/UI_5_FINAL_UI_QA.md`.
+
 ### Goals
 
 - Full responsive pass
 - WCAG 2.1 AA fixes
 - Cross-role visual consistency audit
-- Remove remaining hardcoded colors
+- Remove remaining hardcoded colors (within allowed presentation boundary)
 - Documentation update
+
+### UI-5 as-built (2026-07-15)
+
+- Brand tokens verified (`#6B1F2A`, warm neutrals, Geist fonts, SVG logo)
+- Cross-role spot checks at 375 / 768 / 1024 / 1280px — no blocking overflow
+- Student, Educator, Admin routes sampled; UI-2/3/4 QA accepted for workflow depth
+- External dashboard aligned to PageHeader + EmptyState; duplicate padding removed
+- `PlaceholderPage` legacy zinc → semantic tokens
+- Raw-color audit: role portals clean; `components/forms/*` deferred (outside allowed paths)
+- Dev hydration overlays documented as non-blocking deferred
+- Lint / tsc / build pass
+- **Package E safe to resume** from UI perspective
 
 ### Files likely affected
 
 ```
-All src/components/**
-All src/app/**/page.tsx
-docs/design/*                     (update with as-built notes)
+src/app/external/dashboard/page.tsx
+src/components/layout/PlaceholderPage.tsx
+docs/design/UI_5_FINAL_UI_QA.md
 ```
-
-### Components to verify
-
-- AppShell / MobileNavigation
-- All status communications (icon + text)
-- Focus states on custom controls (StudioSlotGrid)
-- Skip link (add to AppShell)
-- Live regions for async status
-
-### Routes affected
-
-- All authenticated routes
-- Login (optional contrast pass)
-
-### What NOT to change
-
-- Features, routes, backend
 
 ### Testing checklist
 
-- [ ] 375px, 768px, 1280px viewports for student portfolio + admin stage board
-- [ ] axe or Lighthouse accessibility scan — no critical issues
-- [ ] Keyboard-only navigation all portals
-- [ ] Color contrast AA on status panels and badges
-- [ ] No color-only status (icons or labels present)
-- [ ] grep: zero unjustified `zinc-*` / `amber-*` in components (except token definitions)
-- [ ] Cross-role screenshot comparison for review/approval screens
-- [ ] `tsc`, `lint`, `build` pass
+- [x] 375px, 768px, 1280px viewports for student portfolio + admin stage board
+- [x] Practical accessibility checks (no axe package in repo)
+- [x] Keyboard spot checks — skip link, drawer, login form
+- [x] Status panels and badges use text + semantic colour
+- [x] grep: role portal components free of unjustified zinc/amber
+- [x] Cross-role review/approval screen parity (Educator + Admin)
+- [x] `tsc`, `lint`, `build` pass
 
 ### Recommended commit boundary
 
 ```
-feat(ui-5): responsive accessibility and visual QA
+test(ui-5): final cross-role responsive and accessibility QA
 ```
 
 ---

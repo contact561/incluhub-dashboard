@@ -5,10 +5,9 @@ type PlaceholderPageProps = {
 
 export function PlaceholderPage({ title, description }: PlaceholderPageProps) {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">{title}</h1>
-      <p className="mt-1 text-sm text-zinc-500">{description}</p>
-      {/* Page content — added in a later prompt */}
+    <div className="space-y-2">
+      <h1 className="text-page-title font-semibold text-text-primary">{title}</h1>
+      <p className="text-sm text-text-muted">{description}</p>
     </div>
   );
 }
