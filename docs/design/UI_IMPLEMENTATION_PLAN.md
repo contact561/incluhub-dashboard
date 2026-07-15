@@ -31,7 +31,7 @@
 | **UI-1B2** | **Done** | Mobile header + Dialog drawer, responsive shell (`md` breakpoint), login branding. **UI-1B complete.** |
 | **UI-1C1** | Done | StatusBadge repaired; PortfolioWorkflowBadge + StatusPanel created; workflow labels backend-driven |
 | **UI-1C2A** | **Done** | LoadingSkeleton created; EmptyState tokenized; QueryErrorState parameterized with optional retry |
-| **UI-1C2B** | Pending | PageHeader / SectionHeader / DashboardMetricCard |
+| **UI-1C2B** | **Done** | PageHeader / SectionHeader / DashboardMetricCard; RecordPageHeader wraps PageHeader. **UI-1C complete.** |
 
 **UI-1B1 as-built (2026-07-15):**
 
@@ -72,6 +72,16 @@
 - No automatic retries; no permanent loading routes; no role-page mass adoption
 - **Deferred adoption:** Student portfolio/workflow, Educator review queue, Admin users list, Admin stage board (UI-2 / UI-3 / UI-4)
 - **Next: UI-1C2B** (PageHeader / SectionHeader / DashboardMetricCard)
+
+**UI-1C2B as-built (2026-07-15):**
+
+- `PageHeader` created (`src/components/layout/PageHeader.tsx`) — title (single h1), optional description / eyebrow / metadata / primaryAction / secondaryActions; `bordered` chrome for list pages; tokenized typography + surfaces; responsive action stacking
+- `SectionHeader` created — title (h2/h3), optional description / action / count / metadata; compact mode; no h1
+- `DashboardMetricCard` created — label / value / description / decorative icon / supportingText / optional href / optional statusIntent accent / loading / compact; linked cards are a single focusable control with brand focus ring
+- `RecordPageHeader` converted to a thin compatibility wrapper over `PageHeader` (same props: title, description, count, actions) — existing `@/components/tables/RecordPageHeader` imports unchanged
+- Exports: `@/components/layout` (`PageHeader`, `SectionHeader`, `DashboardMetricCard`); RecordPageHeader remains via `@/components/tables`
+- **Role-page adoption deferred** (UI-2 / UI-3 / UI-4): Student dashboard / my-stage / portfolio; Educator dashboard / portfolio review list+detail; Admin dashboard / users / stage board / portfolio approvals
+- **UI-1C complete.** **Next: UI-1D** (foundation verification / QA — do not start role redesigns)
 
 ### Goals
 
