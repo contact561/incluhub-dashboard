@@ -254,41 +254,55 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 
 ## UI-3 — Educator portal
 
+### As-built progress
+
+| Slice | Status | Notes |
+|---|---|---|
+| **UI-3A** | **Done** | Full Educator portal visual redesign — dashboard, lists, review queue + detail |
+| **UI-3B** | Pending | Educator portal QA / verification pass |
+
+**UI-3A as-built (2026-07-15):**
+
+- Educator dashboard redesigned — `PageHeader`, `DashboardMetricCard` summary, pending-review `StatusPanel` (one primary reviews CTA), preview cards via `ReviewCard`, secondary My Teams / My Students links; duplicate `p-6` removed
+- My Teams and My Students standardized — tokenized cards/table; mobile student cards + desktop table; contextual empty/error titles; `PortfolioWorkflowBadge` for workflow
+- Review queue redesigned — `ReviewCard` with Student/team/discipline/version/date + workflow badge + Open Review
+- Review detail converted into structured workspace — `ProfileSummary`, current submission, shared `Timeline` via `ReviewHistory`, single `ActionPanel` (sticky desktop) wrapping existing review form
+- Timeline adoption — educator history maps into shared `Timeline` (order/fields preserved; no invented events)
+- Workflow logic / loaders / server actions / RPCs / permissions / routes — **unchanged**
+- **Next: UI-3B** (Educator portal QA)
+
 ### Goals
 
 - Review detail as structured workspace
 - Shared review components with admin
 - Dashboard token polish
 
-### Files likely affected
+### Files affected (UI-3A)
 
 ```
-src/app/educator/dashboard/page.tsx
-src/app/educator/my-teams/page.tsx
-src/app/educator/my-students/page.tsx
-src/app/educator/portfolio-reviews/page.tsx
-src/app/educator/portfolio-reviews/[portfolio-id]/page.tsx
+src/app/educator/**
 src/components/educator/*
+  ReviewCard.tsx, ProfileSummary.tsx, ActionPanel.tsx (new)
 ```
 
-### Components to create
+### Components created
 
 | Component | Purpose |
 |---|---|
-| `ReviewCard` | Submission summary for queue |
-| `ActionPanel` | Sticky review actions (approve/revise/reject) |
+| `ReviewCard` | Submission summary for queue / dashboard previews |
+| `ActionPanel` | Sticky review actions (approve/revise) |
 | `ProfileSummary` | Student/team compact header |
 
-### Components to replace
+### Components replaced
 
 | Current | Action |
 |---|---|
-| `ReviewHistory` | Merge into shared `Timeline` |
+| `ReviewHistory` | Maps into shared `Timeline` |
 | Educator metric cards | Use `DashboardMetricCard` |
 
 ### Routes affected
 
-- `/educator/*` (all four nav routes)
+- `/educator/*` (all four nav routes + review detail)
 
 ### What NOT to change
 
@@ -296,18 +310,19 @@ src/components/educator/*
 - Educator permission checks
 - Portfolio review loader filters
 
-### Testing checklist
+### Testing checklist (UI-3B)
 
 - [ ] Review queue list with empty state
 - [ ] Review detail: all workflow statuses display correctly
 - [ ] Review form preserves data on validation error
 - [ ] ActionPanel visible without excessive scroll (desktop)
 - [ ] History matches admin/student timeline pattern
+- [ ] Approve / revision actions remain functional
 
 ### Recommended commit boundary
 
 ```
-feat(ui-3): educator portal visual system
+feat(ui-3a): educator portal visual redesign
 ```
 
 ---

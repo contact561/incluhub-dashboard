@@ -1,35 +1,39 @@
+import { DashboardMetricCard } from "@/components/layout/DashboardMetricCard";
 import type { EducatorDashboardSummary } from "@/types/educator-portfolio";
 
 type EducatorSummaryCardsProps = {
   summary: EducatorDashboardSummary;
 };
 
-const CARDS: Array<{
-  key: keyof EducatorDashboardSummary;
-  label: string;
-}> = [
-  { key: "assignedTeamsCount", label: "Assigned Teams" },
-  { key: "assignedStudentsCount", label: "Assigned Students" },
-  { key: "awaitingReviewCount", label: "Portfolios Awaiting Review" },
-  { key: "reviewsCompletedCount", label: "Reviews Completed" },
-];
-
 export function EducatorSummaryCards({ summary }: EducatorSummaryCardsProps) {
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {CARDS.map((card) => (
-        <div
-          key={card.key}
-          className="rounded-xl border border-zinc-200 bg-white px-4 py-4"
-        >
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-            {card.label}
-          </p>
-          <p className="mt-2 text-2xl font-semibold text-zinc-900">
-            {summary[card.key]}
-          </p>
-        </div>
-      ))}
+    <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <DashboardMetricCard
+        label="Assigned teams"
+        value={summary.assignedTeamsCount}
+        href="/educator/my-teams"
+        compact
+      />
+      <DashboardMetricCard
+        label="Assigned students"
+        value={summary.assignedStudentsCount}
+        href="/educator/my-students"
+        compact
+      />
+      <DashboardMetricCard
+        label="Awaiting review"
+        value={summary.awaitingReviewCount}
+        href="/educator/portfolio-reviews"
+        statusIntent={
+          summary.awaitingReviewCount > 0 ? "warning" : "neutral"
+        }
+        compact
+      />
+      <DashboardMetricCard
+        label="Reviews completed"
+        value={summary.reviewsCompletedCount}
+        compact
+      />
     </section>
   );
 }

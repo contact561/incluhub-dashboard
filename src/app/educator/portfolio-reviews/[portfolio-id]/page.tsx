@@ -1,8 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PortfolioReviewDetailView } from "@/components/educator/PortfolioReviewDetail";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { QueryErrorState } from "@/components/status";
-import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
 import { getEducatorReviewDetail } from "@/lib/data/educator/portfolio-reviews";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -28,11 +28,11 @@ export default async function EducatorPortfolioReviewDetailPage({
   }
 
   return (
-    <div className="flex min-h-full flex-col">
-      <RecordPageHeader
+    <div className="space-y-6">
+      <PageHeader
         title="Portfolio Review"
         description="Review the latest submission and record your educator decision."
-        actions={
+        secondaryActions={
           <Link
             href="/educator/portfolio-reviews"
             className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
@@ -41,10 +41,11 @@ export default async function EducatorPortfolioReviewDetailPage({
           </Link>
         }
       />
-      <div className="space-y-4 p-6">
-        {error ? <QueryErrorState message={error} /> : null}
-        {!error && detail ? <PortfolioReviewDetailView detail={detail} /> : null}
-      </div>
+
+      {error ? (
+        <QueryErrorState title="Could not load review" message={error} />
+      ) : null}
+      {!error && detail ? <PortfolioReviewDetailView detail={detail} /> : null}
     </div>
   );
 }

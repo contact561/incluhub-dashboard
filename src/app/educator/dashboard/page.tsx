@@ -1,88 +1,115 @@
 import Link from "next/link";
-import { EmptyState, QueryErrorState } from "@/components/status";
 import { EducatorSummaryCards } from "@/components/educator/EducatorSummaryCards";
-import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
-import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
+import { ReviewCard } from "@/components/educator/ReviewCard";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { EmptyState, QueryErrorState, StatusPanel } from "@/components/status";
 import { getEducatorDashboardData } from "@/lib/data/educator/dashboard";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-function formatSubmittedAt(value: string): string {
-  return new Intl.DateTimeFormat("en-IN", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
-}
 
 export default async function EducatorDashboardPage() {
   const { data, error } = await getEducatorDashboardData();
 
   return (
-    <div className="flex min-h-full flex-col">
-      <RecordPageHeader
-        title="Educator Dashboard"
+    <div className="space-y-6">
+      <PageHeader
+        title="Dashboard"
         description="Review assigned teams, students, and portfolios waiting for your decision."
       />
-      <div className="space-y-6 p-6">
-        {error ? <QueryErrorState message={error} /> : null}
 
-        {!error && data ? (
-          <>
-            <EducatorSummaryCards summary={data.summary} />
+      {error ? <QueryErrorState message={error} /> : null}
 
-            <section className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-base font-semibold text-zinc-900">
-                  Awaiting Your Review
-                </h2>
+      {!error && data ? (
+        <>
+          <EducatorSummaryCards summary={data.summary} />
+
+          {data.summary.awaitingReviewCount > 0 ? (
+            <StatusPanel
+              variant="warning"
+              title={`${data.summary.awaitingReviewCount} portfolio${data.summary.awaitingReviewCount === 1 ? "" : "s"} awaiting your review`}
+              description="Open the review queue to approve or request revision on pending submissions."
+              action={
+                <Link
+                  href="/educator/portfolio-reviews"
+                  className={cn(buttonVariants({ size: "sm" }))}
+                >
+                  Open portfolio reviews
+                </Link>
+              }
+            />
+          ) : (
+            <StatusPanel
+              variant="information"
+              title="No portfolios awaiting review"
+              description="When a mapped student submits a portfolio, it will appear in your review queue."
+              action={
                 <Link
                   href="/educator/portfolio-reviews"
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
                 >
+                  View review queue
+                </Link>
+              }
+            />
+          )}
+
+          <section>
+            <SectionHeader
+              title="Awaiting your review"
+              description="Recent submissions ready for educator decision."
+              count={data.pendingPreviews.length}
+              action={
+                <Link
+                  href="/educator/portfolio-reviews"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" })
+                  )}
+                >
                   View all
                 </Link>
-              </div>
+              }
+            />
 
-              {data.pendingPreviews.length === 0 ? (
-                <EmptyState
-                  title="No portfolios awaiting review"
-                  description="When a mapped student submits a portfolio, it will appear here for educator review."
-                />
-              ) : (
-                <div className="space-y-3">
-                  {data.pendingPreviews.map((item) => (
-                    <article
-                      key={item.portfolioId}
-                      className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between"
-                    >
-                      <div className="min-w-0">
-                        <p className="truncate font-medium text-zinc-900">
-                          {item.title}
-                        </p>
-                        <p className="mt-1 text-sm text-zinc-500">
-                          {STUDENT_CATEGORY_LABELS[item.portfolioType]} ·{" "}
-                          {item.teamName} · {item.leaderName} · v
-                          {item.versionNumber} ·{" "}
-                          {formatSubmittedAt(item.submittedAt)}
-                        </p>
-                      </div>
-                      <Link
-                        href={`/educator/portfolio-reviews/${item.portfolioId}`}
-                        className={cn(
-                          buttonVariants({ size: "sm" }),
-                          "shrink-0"
-                        )}
-                      >
-                        Open Review
-                      </Link>
-                    </article>
-                  ))}
-                </div>
-              )}
-            </section>
-          </>
-        ) : null}
-      </div>
+            {data.pendingPreviews.length === 0 ? (
+              <EmptyState
+                title="Queue is clear"
+                description="There are no portfolio previews to show right now."
+              />
+            ) : (
+              <div className="space-y-3">
+                {data.pendingPreviews.map((item) => (
+                  <ReviewCard
+                    key={item.portfolioId}
+                    portfolioId={item.portfolioId}
+                    title={item.title}
+                    portfolioType={item.portfolioType}
+                    teamName={item.teamName}
+                    leaderName={item.leaderName}
+                    versionNumber={item.versionNumber}
+                    submittedAt={item.submittedAt}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="flex flex-wrap gap-2">
+            <Link
+              href="/educator/my-teams"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              My Teams
+            </Link>
+            <Link
+              href="/educator/my-students"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              My Students
+            </Link>
+          </section>
+        </>
+      ) : null}
     </div>
   );
 }
