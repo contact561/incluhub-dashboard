@@ -27,9 +27,9 @@
 | Slice | Status | Notes |
 |---|---|---|
 | **UI-1A** | Done | Brand tokens + typography in `globals.css` |
-| **UI-1B1** | **Done** | Desktop shell, official logo in sidebar, tokenized nav, admin “Coming later” badges, broken External links hidden. Mobile drawer **not** included. |
-| **UI-1B2** | Pending | Mobile navigation drawer / responsive shell |
-| Status system / shared empty-error-loading | Pending | Later UI-1 or UI-2+ |
+| **UI-1B1** | Done | Desktop shell, official logo in sidebar, tokenized nav, admin “Coming later” badges, broken External links hidden |
+| **UI-1B2** | **Done** | Mobile header + Dialog drawer, responsive shell (`md` breakpoint), login branding. **UI-1B complete.** |
+| Status system / shared empty-error-loading (**UI-1C**) | Pending | Next UI-1 slice |
 
 **UI-1B1 as-built (2026-07-15):**
 
@@ -39,8 +39,17 @@
 - Admin placeholders (Project Approvals, Notifications, Activity Logs): visible with **Coming later** badge — visual only
 - External Assigned Team / Project Details / Notifications: `hidden` from sidebar until Package E — routes/permissions unchanged
 - Duplicate page `p-6` still present on role dashboards and other pages — cleanup deferred to UI-2 / UI-3 / UI-4
-- Mobile navigation: **still pending in UI-1B2**
 
+**UI-1B2 as-built (2026-07-15):**
+
+- Breakpoint: **`md` (768px)** — desktop sidebar `hidden md:flex`; mobile header `md:hidden`
+- Mobile header: logo (~32px) + IncluHub + portal role + menu trigger (`aria-label`)
+- Mobile nav: shadcn/Base UI **Dialog** styled as left drawer (no Sheet package); shared `PortalNavList` / same `NavItem` metadata as desktop
+- Drawer: focus trap / Escape / backdrop via Dialog; close control; closes on route select; ~44px touch targets; Sign out in footer
+- Login: official SVG (~56px) + “IncluHub” + “Education Management System” above existing form — auth logic unchanged
+- Skip-to-content link on `AppShell` → `#main-content`
+- Shell overflow: `min-w-0 overflow-x-hidden`; mobile content padding `p-4` / desktop `md:p-6`
+- **UI-1B complete.** Next: **UI-1C** (status system / shared empty-error-loading primitives)
 ### Goals
 
 - Design tokens in CSS + Tailwind

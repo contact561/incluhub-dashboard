@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { LoginForm } from "@/components/forms/LoginForm";
 
 const LOGIN_ERRORS: Record<string, string> = {
@@ -18,12 +19,27 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const queryError = params.error ? LOGIN_ERRORS[params.error] : undefined;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4">
-      <div className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-2xl font-semibold text-zinc-900">
-          IncluHub Login
-        </h1>
-        <p className="mb-6 text-sm text-zinc-500">
+    <div className="flex min-h-screen items-center justify-center bg-surface-page px-4">
+      <div className="w-full max-w-sm rounded-lg border border-border-default bg-surface-card p-8 shadow-sm">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <Image
+            src="/brand/incluhub-logo.svg"
+            alt="IncluHub"
+            width={56}
+            height={56}
+            className="h-14 w-14 object-contain"
+            priority
+            unoptimized
+          />
+          <h1 className="mt-3 text-xl font-semibold text-text-primary">
+            IncluHub
+          </h1>
+          <p className="mt-1 text-sm text-text-muted">
+            Education Management System
+          </p>
+        </div>
+
+        <p className="mb-6 text-center text-sm text-text-muted">
           Sign in to access your dashboard.
         </p>
 
@@ -35,7 +51,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
         <LoginForm />
 
-        <p className="mt-6 text-center text-sm text-zinc-500">
+        <p className="mt-6 text-center text-sm text-text-muted">
           Don&apos;t have an account? Please contact your IncluHub
           Administrator.
         </p>
