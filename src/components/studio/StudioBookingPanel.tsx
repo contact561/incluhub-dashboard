@@ -7,6 +7,7 @@ import {
   type BookStudioSlotState,
 } from "@/actions/studio/bookStudioSlot";
 import { StudioSlotGrid } from "@/components/studio/StudioSlotGrid";
+import { StatusPanel } from "@/components/status/StatusPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -49,14 +50,12 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
     }
   };
 
-  // Derived instead of reset-in-effect: the pending highlight is only
-  // meaningful while the booking action is in flight.
   const activePendingSlot = isPending ? pendingSlot : null;
 
   return (
-    <section className="rounded-lg border border-zinc-200 p-4">
-      <h3 className="text-sm font-semibold text-zinc-900">Book studio slot</h3>
-      <p className="mt-1 text-xs text-zinc-500">
+    <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-muted/40 p-4">
+      <h3 className="text-sm font-semibold text-text-primary">Book studio slot</h3>
+      <p className="mt-1 text-sm text-text-muted">
         Select a date and one of five daily IncluHub studio slots. Bookings are
         free, final, and cannot be changed after confirmation.
       </p>
@@ -74,6 +73,7 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
               setSelectedSlot(null);
             }}
             disabled={isPending}
+            className="min-h-11 w-full max-w-full sm:max-w-xs"
           />
         </div>
 
@@ -102,16 +102,19 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
         ) : null}
 
         {state.success ? (
-          <p className="text-sm text-green-700" role="status">
-            {state.success}
-          </p>
+          <StatusPanel
+            variant="success"
+            title="Booking confirmed"
+            description={state.success}
+          />
         ) : null}
 
         {selectedSlot ? (
-          <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-            Final booking warning: once confirmed, this studio slot cannot be
-            cancelled, edited, or rescheduled.
-          </p>
+          <StatusPanel
+            variant="warning"
+            title="Final booking warning"
+            description="Once confirmed, this studio slot cannot be cancelled, edited, or rescheduled."
+          />
         ) : null}
 
         <form action={formAction} onSubmit={handleSubmit}>
@@ -121,6 +124,7 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
 
           <Button
             type="submit"
+            className="min-h-11 w-full sm:w-auto"
             disabled={isPending || !selectedSlot || loading}
           >
             {isPending ? "Booking…" : "Confirm Booking"}

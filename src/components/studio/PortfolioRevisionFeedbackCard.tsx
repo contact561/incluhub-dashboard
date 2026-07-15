@@ -1,3 +1,4 @@
+import { StatusPanel } from "@/components/status/StatusPanel";
 import type {
   PortfolioRevisionFeedback,
   PortfolioSubmissionView,
@@ -28,25 +29,25 @@ export function PortfolioRevisionFeedbackCard({
       : "Educator";
 
   return (
-    <section className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-      <h3 className="text-sm font-semibold text-amber-900">
-        Revision requested by {requestedBy}
-      </h3>
-
-      <dl className="mt-3 space-y-3 text-sm">
+    <StatusPanel
+      variant="warning"
+      title={`Revision requested by ${requestedBy}`}
+      description="Read the feedback below, then resubmit a new portfolio version."
+    >
+      <dl className="space-y-3 text-sm">
         <div>
-          <dt className="text-xs font-medium uppercase tracking-wide text-amber-700/70">
+          <dt className="text-xs font-medium uppercase tracking-wide text-text-subtle">
             Reviewer
           </dt>
-          <dd className="mt-1 text-amber-950">
+          <dd className="mt-1 text-text-primary">
             {feedback?.reviewerName ?? requestedBy}
           </dd>
         </div>
         <div>
-          <dt className="text-xs font-medium uppercase tracking-wide text-amber-700/70">
+          <dt className="text-xs font-medium uppercase tracking-wide text-text-subtle">
             Revision comments
           </dt>
-          <dd className="mt-1 whitespace-pre-wrap text-amber-950">
+          <dd className="mt-1 whitespace-pre-wrap text-text-primary">
             {feedback?.comments?.trim()
               ? feedback.comments
               : "No revision comments were provided."}
@@ -54,10 +55,10 @@ export function PortfolioRevisionFeedbackCard({
         </div>
         {feedback ? (
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-amber-700/70">
+            <dt className="text-xs font-medium uppercase tracking-wide text-text-subtle">
               Requested on
             </dt>
-            <dd className="mt-1 text-amber-950">
+            <dd className="mt-1 text-text-primary">
               {formatDateTime(feedback.reviewedAt)}
             </dd>
           </div>
@@ -65,21 +66,21 @@ export function PortfolioRevisionFeedbackCard({
       </dl>
 
       {previousSubmission ? (
-        <div className="mt-4 rounded-md border border-amber-200 bg-white p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+        <div className="mt-3 rounded-[var(--radius-control)] border border-border-default bg-surface-card p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
             Submission under revision · Version {previousSubmission.versionNumber}
           </p>
           <dl className="mt-2 space-y-2 text-sm">
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <dt className="text-xs font-medium uppercase tracking-wide text-text-muted">
                 Title
               </dt>
-              <dd className="mt-0.5 text-zinc-900">
+              <dd className="mt-0.5 text-text-primary">
                 {previousSubmission.title}
               </dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <dt className="text-xs font-medium uppercase tracking-wide text-text-muted">
                 Portfolio link
               </dt>
               <dd className="mt-0.5">
@@ -87,7 +88,7 @@ export function PortfolioRevisionFeedbackCard({
                   href={previousSubmission.portfolioUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="break-all text-zinc-900 underline underline-offset-2"
+                  className="break-all text-text-primary underline underline-offset-2"
                 >
                   {previousSubmission.portfolioUrl}
                 </a>
@@ -95,25 +96,25 @@ export function PortfolioRevisionFeedbackCard({
             </div>
             {previousSubmission.notes ? (
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+                <dt className="text-xs font-medium uppercase tracking-wide text-text-muted">
                   Notes
                 </dt>
-                <dd className="mt-0.5 whitespace-pre-wrap text-zinc-700">
+                <dd className="mt-0.5 whitespace-pre-wrap text-text-muted">
                   {previousSubmission.notes}
                 </dd>
               </div>
             ) : null}
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+              <dt className="text-xs font-medium uppercase tracking-wide text-text-muted">
                 Submitted on
               </dt>
-              <dd className="mt-0.5 text-zinc-900">
+              <dd className="mt-0.5 text-text-primary">
                 {formatDateTime(previousSubmission.submittedAt)}
               </dd>
             </div>
           </dl>
         </div>
       ) : null}
-    </section>
+    </StatusPanel>
   );
 }

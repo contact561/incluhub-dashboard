@@ -10,3 +10,4 @@ export {
   StatusPanel,
   type StatusPanelVariant,
 } from "@/components/status/StatusPanel";
+export { Timeline, type TimelineItem } from "@/components/status/Timeline";

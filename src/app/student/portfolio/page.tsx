@@ -2,125 +2,134 @@ import {
   StudentOwnPortfolioPanel,
   TeamPortfolioProgressList,
 } from "@/components/student/Stage3PortfolioPanels";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import {
+  EmptyState,
+  QueryErrorState,
+  StatusPanel,
+} from "@/components/status";
 import { PortfolioCard } from "@/components/studio/PortfolioCard";
-import { EmptyState, QueryErrorState } from "@/components/status";
-import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
 import { getStudentPortfolioPageData } from "@/lib/data/student/portfolio";
 
 export default async function StudentPortfolioPage() {
   const { data, error } = await getStudentPortfolioPageData();
 
   return (
-    <div className="flex min-h-full flex-col">
-      <RecordPageHeader
+    <div className="space-y-6">
+      <PageHeader
         title="Portfolio"
-        description="View your team's Stage 3 portfolio sequence and studio booking status."
+        description="Studio booking, submission, revision, and version history for Stage 3."
       />
-      <div className="space-y-6 p-6">
-        {error ? <QueryErrorState message={error} /> : null}
 
-        {!error && !data ? (
-          <EmptyState
-            title="No portfolio data"
-            description="You need an active team in Stage 3 to view portfolio outputs."
-          />
-        ) : null}
+      {error ? <QueryErrorState message={error} /> : null}
 
-        {data ? (
-          <>
-            <section className="grid gap-4 sm:grid-cols-3">
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-                  Team
-                </p>
-                <p className="mt-1 text-sm text-zinc-900">{data.teamName}</p>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-                  Program
-                </p>
-                <p className="mt-1 text-sm text-zinc-900">
-                  {data.programName ?? "—"}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
-                  Current stage
-                </p>
-                <p className="mt-1 text-sm text-zinc-900">
-                  {data.currentStageNumber === 3
-                    ? "Stage 3"
-                    : `Stage ${data.currentStageNumber}`}
-                </p>
-              </div>
-            </section>
+      {!error && !data ? (
+        <EmptyState
+          title="No portfolio data"
+          description="You need an active team in Stage 3 to view portfolio outputs."
+        />
+      ) : null}
 
-            {data.currentStageNumber !== 3 ? (
-              <p className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-                Studio booking is available when your team reaches Stage 3.
+      {data ? (
+        <>
+          <section className="grid gap-4 rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:grid-cols-3">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
+                Team
               </p>
-            ) : (
-              <>
-                {data.ownPortfolioOutput ? (
-                  <section className="space-y-3">
-                    <h2 className="text-base font-semibold text-zinc-900">
-                      Your portfolio
-                    </h2>
-                    <StudentOwnPortfolioPanel
-                      portfolio={data.ownPortfolioOutput}
-                      currentStudentId={data.currentStudentId}
-                      revisionFeedback={data.ownPortfolioRevisionFeedback}
-                      submissionHistory={data.ownPortfolioSubmissionHistory}
-                    />
-                  </section>
-                ) : null}
+              <p className="mt-1 text-sm font-medium text-text-primary">
+                {data.teamName}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
+                Program
+              </p>
+              <p className="mt-1 text-sm text-text-primary">
+                {data.programName ?? "—"}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
+                Current stage
+              </p>
+              <p className="mt-1 text-sm text-text-primary">
+                {data.currentStageNumber === 3
+                  ? "Stage 3"
+                  : `Stage ${data.currentStageNumber}`}
+              </p>
+            </div>
+          </section>
 
+          {data.currentStageNumber !== 3 ? (
+            <StatusPanel
+              variant={data.currentStageNumber > 3 ? "success" : "information"}
+              title={
+                data.currentStageNumber > 3
+                  ? "Stage 3 portfolio period complete"
+                  : "Studio booking unavailable"
+              }
+              description={
+                data.currentStageNumber > 3
+                  ? "Your team has progressed past Stage 3. Active studio booking is no longer required on this page."
+                  : "Studio booking and portfolio submission open when your team reaches Stage 3."
+              }
+            />
+          ) : (
+            <>
+              {data.ownPortfolioOutput ? (
                 <section className="space-y-3">
-                  <h2 className="text-base font-semibold text-zinc-900">
-                    Team portfolio sequence
-                  </h2>
-                  <TeamPortfolioProgressList
-                    portfolios={data.teamPortfolioProgress}
+                  <SectionHeader
+                    title="Your portfolio workspace"
+                    description="Primary actions for your assigned portfolio output."
+                  />
+                  <StudentOwnPortfolioPanel
+                    portfolio={data.ownPortfolioOutput}
                     currentStudentId={data.currentStudentId}
-                    activeTeamPortfolioId={data.activeTeamPortfolio?.id ?? null}
+                    revisionFeedback={data.ownPortfolioRevisionFeedback}
+                    submissionHistory={data.ownPortfolioSubmissionHistory}
                   />
                 </section>
+              ) : null}
 
-                <section className="space-y-4">
-                  <h2 className="text-base font-semibold text-zinc-900">
-                    Full portfolio details
-                  </h2>
-                  {data.portfolios.map((portfolio) => {
-                    const isOwnPortfolio =
-                      portfolio.id === data.ownPortfolioOutput?.id;
+              <section>
+                <SectionHeader
+                  title="Team portfolio sequence"
+                  description="Shared order and status across the team."
+                />
+                <TeamPortfolioProgressList
+                  portfolios={data.teamPortfolioProgress}
+                  currentStudentId={data.currentStudentId}
+                  activeTeamPortfolioId={data.activeTeamPortfolio?.id ?? null}
+                />
+              </section>
 
-                    return (
+              {data.portfolios.some(
+                (portfolio) => portfolio.id !== data.ownPortfolioOutput?.id
+              ) ? (
+                <section className="space-y-3">
+                  <SectionHeader
+                    title="Other team portfolios"
+                    description="Read-only status for teammates' portfolio outputs."
+                  />
+                  {data.portfolios
+                    .filter(
+                      (portfolio) => portfolio.id !== data.ownPortfolioOutput?.id
+                    )
+                    .map((portfolio) => (
                       <PortfolioCard
                         key={portfolio.id}
                         portfolio={portfolio}
                         currentStudentId={data.currentStudentId}
-                        emphasizeOwnPortfolio={
-                          portfolio.leaderStudentId === data.currentStudentId
-                        }
-                        revisionFeedback={
-                          isOwnPortfolio
-                            ? data.ownPortfolioRevisionFeedback
-                            : null
-                        }
-                        submissionHistory={
-                          isOwnPortfolio
-                            ? data.ownPortfolioSubmissionHistory
-                            : []
-                        }
                       />
-                    );
-                  })}
+                    ))}
                 </section>
-              </>
-            )}
-          </>
-        ) : null}
-      </div>
+              ) : null}
+            </>
+          )}
+        </>
+      ) : null}
     </div>
   );
 }

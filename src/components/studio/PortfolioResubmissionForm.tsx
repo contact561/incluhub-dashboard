@@ -6,6 +6,7 @@ import {
   resubmitPortfolioAction,
   type ResubmitPortfolioState,
 } from "@/actions/portfolio/resubmitPortfolio";
+import { StatusPanel } from "@/components/status/StatusPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,16 +41,14 @@ export function PortfolioResubmissionForm({
     }
   }, [state.success, router]);
 
-  // Blocks a duplicate resubmission while the request is pending or after
-  // success (until the refreshed status removes this form).
   const isBlocked = isPending || Boolean(state.success);
 
   return (
-    <section className="rounded-lg border border-zinc-200 p-4">
-      <h3 className="text-sm font-semibold text-zinc-900">
+    <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-muted/40 p-4">
+      <h3 className="text-sm font-semibold text-text-primary">
         Resubmit portfolio · Version {nextVersionNumber}
       </h3>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="mt-1 text-sm text-text-muted">
         Submitting creates a new version. Earlier versions are kept unchanged
         and the portfolio returns to the reviewer who requested the revision.
       </p>
@@ -75,6 +74,7 @@ export function PortfolioResubmissionForm({
             defaultValue={previousTitle}
             placeholder="e.g. Editorial Beauty Series"
             disabled={isBlocked}
+            className="min-h-11 w-full"
           />
         </div>
 
@@ -90,8 +90,9 @@ export function PortfolioResubmissionForm({
             defaultValue={previousUrl}
             placeholder="https://"
             disabled={isBlocked}
+            className="min-h-11 w-full"
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-muted">
             Use a public HTTP or HTTPS link (Google Drive, Behance, Dropbox,
             OneDrive, or your portfolio site).
           </p>
@@ -109,6 +110,7 @@ export function PortfolioResubmissionForm({
             defaultValue={previousNotes ?? ""}
             placeholder="Describe what changed in this version"
             disabled={isBlocked}
+            className="w-full"
           />
         </div>
 
@@ -119,12 +121,18 @@ export function PortfolioResubmissionForm({
         ) : null}
 
         {state.success ? (
-          <p className="text-sm text-green-700" role="status">
-            {state.success}
-          </p>
+          <StatusPanel
+            variant="success"
+            title="Portfolio resubmitted"
+            description={state.success}
+          />
         ) : null}
 
-        <Button type="submit" disabled={isBlocked}>
+        <Button
+          type="submit"
+          className="min-h-11 w-full sm:w-auto"
+          disabled={isBlocked}
+        >
           {isPending ? "Resubmitting…" : "Resubmit Portfolio"}
         </Button>
       </form>

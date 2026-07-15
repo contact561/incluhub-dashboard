@@ -52,11 +52,13 @@ export function StudioSlotGrid({
             type="button"
             disabled={isDisabled}
             onClick={() => onSelect(slotCode)}
+            aria-pressed={isSelected}
             className={cn(
-              "rounded-lg border px-3 py-3 text-left text-sm transition-colors",
+              "min-h-11 rounded-[var(--radius-control)] border px-3 py-3 text-left text-sm transition-colors",
+              "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface-page",
               isSelected
-                ? "border-zinc-900 bg-zinc-900 text-white"
-                : "border-zinc-200 bg-white text-zinc-900 hover:border-zinc-300",
+                ? "border-brand-primary bg-brand-primary text-brand-primary-foreground"
+                : "border-border-default bg-surface-card text-text-primary hover:border-border-strong hover:bg-surface-muted/60",
               isOccupied && !isSelected && "cursor-not-allowed opacity-50",
               isPending && "cursor-wait opacity-70"
             )}
@@ -65,7 +67,9 @@ export function StudioSlotGrid({
             <span
               className={cn(
                 "mt-1 block text-xs",
-                isSelected ? "text-zinc-200" : "text-zinc-500"
+                isSelected
+                  ? "text-brand-primary-foreground/80"
+                  : "text-text-muted"
               )}
             >
               {loading

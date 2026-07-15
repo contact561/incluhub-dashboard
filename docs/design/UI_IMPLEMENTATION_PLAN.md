@@ -180,6 +180,25 @@ Single commit or split:
 
 ## UI-2 — Student portal
 
+### As-built progress
+
+| Slice | Status | Notes |
+|---|---|---|
+| **UI-2A** | **Done** | Full Student portal visual redesign — pages + student-facing studio UI |
+| **UI-2B** | Pending | Student portal QA / verification pass |
+
+**UI-2A as-built (2026-07-15):**
+
+- Student dashboard redesigned — `PageHeader`, `DashboardMetricCard`, one primary next-action `StatusPanel`, team sequence, secondary links; duplicate padding removed
+- My Team redesigned — tokenized summary + member cards; incomplete-team `StatusPanel`
+- My Stage redesigned — `StudentStageJourney` + shared `StepProgress` (complete/current/upcoming/locked with icon + text); Admin `TeamStageTimeline` untouched
+- Portfolio workflow unified — own workspace once; team sequence; other portfolios without duplicating own card
+- Booking visually updated — brand slot selection, ~44px targets, `StatusPanel` warnings/success; actions/slot logic unchanged
+- Revision/resubmission visually updated — warning `StatusPanel` + tokenized forms; fields/actions unchanged
+- Timeline — `src/components/status/Timeline.tsx`; `PortfolioVersionHistory` adopts it
+- Workflow values/transitions, loaders, server actions, RPCs, booking rules — **unchanged**
+- **Next: UI-2B** (Student portal QA)
+
 ### Goals
 
 - Portfolio page unified layout (highest priority)
@@ -187,46 +206,14 @@ Single commit or split:
 - Booking/resubmit mobile-friendly
 - Version history via shared Timeline
 
-### Files likely affected
+### Files affected (UI-2A)
 
 ```
-src/app/student/dashboard/page.tsx
-src/app/student/my-team/page.tsx
-src/app/student/my-stage/page.tsx
-src/app/student/portfolio/page.tsx
+src/app/student/**
 src/components/student/*
-src/components/studio/PortfolioCard.tsx
-src/components/studio/PortfolioRevisionFeedbackCard.tsx
-src/components/studio/PortfolioResubmissionForm.tsx
-src/components/studio/PortfolioVersionHistory.tsx
-src/components/studio/StudioBookingPanel.tsx
-src/components/studio/StudioSlotGrid.tsx
+src/components/studio/* (student-facing visual only)
+src/components/status/Timeline.tsx
 ```
-
-### Components to create
-
-| Component | Purpose |
-|---|---|
-| `PortfolioStatusPanel` | Status + next action for portfolio |
-| `StepProgress` | Stage 3 step indicator |
-| `Timeline` | Shared version/review history |
-| `FormSection` | Grouped form with legend |
-| `ConfirmationDialog` | Cancel booking, destructive confirms |
-
-### Components to replace
-
-| Current | Action |
-|---|---|
-| `PortfolioVersionHistory` | Refactor to use `Timeline` |
-| Amber/blue/green inline panels in studio/* | Use `StatusPanel` |
-| Duplicate portfolio sections on portfolio page | Consolidate layout |
-
-### Routes affected
-
-- `/student/dashboard`
-- `/student/my-team`
-- `/student/my-stage`
-- `/student/portfolio`
 
 ### What NOT to change
 
@@ -235,20 +222,20 @@ src/components/studio/StudioSlotGrid.tsx
 - Portfolio loader query shape
 - Stage gating logic
 
-### Testing checklist
+### Testing checklist (UI-2B)
 
-- [ ] Portfolio page: draft → submit → review → revision → resubmit flow (Team Beta fixture)
+- [ ] Portfolio page: booking → submit → review → revision → resubmit flow
 - [ ] Booking grid usable at 375px width
 - [ ] Version history readable and ordered
 - [ ] One primary action visible per portfolio state
-- [ ] Empty/error/loading states distinct
+- [ ] Empty/error states distinct
 - [ ] Dashboard CTA not duplicated unnecessarily
 - [ ] Keyboard: slot selection and form submit
 
 ### Recommended commit boundary
 
 ```
-feat(ui-2): student portal visual system
+feat(ui-2a): student portal visual redesign
 ```
 
 ---

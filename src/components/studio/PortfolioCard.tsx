@@ -5,6 +5,8 @@ import { PortfolioSubmissionForm } from "@/components/studio/PortfolioSubmission
 import { PortfolioVersionHistory } from "@/components/studio/PortfolioVersionHistory";
 import { StudioBookingPanel } from "@/components/studio/StudioBookingPanel";
 import { SubmittedPortfolioCard } from "@/components/studio/SubmittedPortfolioCard";
+import { PortfolioWorkflowBadge } from "@/components/status";
+import { StatusPanel } from "@/components/status/StatusPanel";
 import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
 import {
   getAssistantRevisionWaitingMessage,
@@ -20,6 +22,7 @@ import type {
   PortfolioSubmissionVersionView,
 } from "@/types/portfolio-submission";
 import type { StudentPortfolioCard } from "@/types/studio-booking";
+import { cn } from "@/lib/utils";
 
 type PortfolioCardProps = {
   portfolio: StudentPortfolioCard;
@@ -51,45 +54,57 @@ export function PortfolioCard({
     }
   );
 
+  const statusVariant =
+    portfolio.workflowStatus === "revision_required"
+      ? "warning"
+      : portfolio.workflowStatus === "completed"
+        ? "success"
+        : portfolio.workflowStatus === "locked"
+          ? "neutral"
+          : "information";
+
   return (
     <article
-      className={
+      className={cn(
+        "rounded-[var(--radius-card)] border bg-surface-card p-4 sm:p-5",
         emphasizeOwnPortfolio && isLeader
-          ? "rounded-lg border-2 border-zinc-300 bg-white p-4"
-          : "rounded-lg border border-zinc-200 p-4"
-      }
+          ? "border-brand-primary/35 shadow-sm"
+          : "border-border-default"
+      )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+        <div className="min-w-0">
+          <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
             Portfolio {portfolio.sequenceOrder}
             {isLeader ? " · Your portfolio" : ""}
           </p>
-          <h2 className="mt-1 text-lg font-semibold text-zinc-900">
+          <h2 className="mt-1 text-lg font-semibold text-text-primary">
             {STUDENT_CATEGORY_LABELS[portfolio.portfolioType]}
           </h2>
         </div>
+        <PortfolioWorkflowBadge status={portfolio.workflowStatus} />
       </div>
 
-      <div className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2">
-        <p className="text-sm font-medium text-zinc-900">
-          {statusPresentation.title}
-        </p>
-        <p className="mt-1 text-sm text-zinc-600">{statusPresentation.description}</p>
+      <div className="mt-4">
+        <StatusPanel
+          variant={statusVariant}
+          title={statusPresentation.title}
+          description={statusPresentation.description}
+        />
       </div>
 
       <dl className="mt-4 grid gap-3 sm:grid-cols-2">
         <div>
-          <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <dt className="text-xs font-medium uppercase tracking-wide text-text-muted">
             Leader
           </dt>
-          <dd className="mt-1 text-sm text-zinc-900">{portfolio.leaderName}</dd>
+          <dd className="mt-1 text-sm text-text-primary">{portfolio.leaderName}</dd>
         </div>
         <div>
-          <dt className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+          <dt className="text-xs font-medium uppercase tracking-wide text-text-muted">
             Assistants
           </dt>
-          <dd className="mt-1 text-sm text-zinc-900">
+          <dd className="mt-1 text-sm text-text-primary">
             {assistants.length > 0
               ? assistants.map((assistant) => assistant.fullName).join(", ")
               : "—"}
@@ -98,9 +113,13 @@ export function PortfolioCard({
       </dl>
 
       {portfolio.workflowStatus === "locked" && portfolio.lockedReason ? (
-        <p className="mt-4 rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-600">
-          {portfolio.lockedReason}
-        </p>
+        <div className="mt-4">
+          <StatusPanel
+            variant="neutral"
+            title="Work unavailable"
+            description={portfolio.lockedReason}
+          />
+        </div>
       ) : null}
 
       {portfolio.booking ? (
@@ -121,9 +140,13 @@ export function PortfolioCard({
       ) : null}
 
       {portfolio.workflowStatus === "awaiting_booking" && !isLeader ? (
-        <p className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
-          {getAssistantWaitingMessage(portfolio.portfolioType)}
-        </p>
+        <div className="mt-4">
+          <StatusPanel
+            variant="information"
+            title="Waiting on portfolio leader"
+            description={getAssistantWaitingMessage(portfolio.portfolioType)}
+          />
+        </div>
       ) : null}
 
       {portfolio.workflowStatus === "awaiting_submission" && isLeader ? (
@@ -133,9 +156,15 @@ export function PortfolioCard({
       ) : null}
 
       {portfolio.workflowStatus === "awaiting_submission" && !isLeader ? (
-        <p className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
-          {getAssistantSubmissionWaitingMessage(portfolio.portfolioType)}
-        </p>
+        <div className="mt-4">
+          <StatusPanel
+            variant="information"
+            title="Waiting on portfolio leader"
+            description={getAssistantSubmissionWaitingMessage(
+              portfolio.portfolioType
+            )}
+          />
+        </div>
       ) : null}
 
       {showRevisionPanel ? (
@@ -156,9 +185,15 @@ export function PortfolioCard({
       ) : null}
 
       {portfolio.workflowStatus === "revision_required" && !isLeader ? (
-        <p className="mt-4 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900">
-          {getAssistantRevisionWaitingMessage(portfolio.portfolioType)}
-        </p>
+        <div className="mt-4">
+          <StatusPanel
+            variant="information"
+            title="Waiting on portfolio leader"
+            description={getAssistantRevisionWaitingMessage(
+              portfolio.portfolioType
+            )}
+          />
+        </div>
       ) : null}
 
       {!showRevisionPanel &&

@@ -6,6 +6,7 @@ import {
   submitPortfolioAction,
   type SubmitPortfolioState,
 } from "@/actions/portfolio/submitPortfolio";
+import { StatusPanel } from "@/components/status/StatusPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -33,12 +34,12 @@ export function PortfolioSubmissionForm({
   }, [state.success, router]);
 
   return (
-    <section className="rounded-lg border border-zinc-200 p-4">
-      <h3 className="text-sm font-semibold text-zinc-900">Submit portfolio</h3>
-      <p className="mt-1 text-xs text-zinc-500">
+    <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-muted/40 p-4">
+      <h3 className="text-sm font-semibold text-text-primary">Submit portfolio</h3>
+      <p className="mt-1 text-sm text-text-muted">
         Enter a title and an external portfolio link. IncluHub does not host
         files or images. After submission, this entry cannot be edited until a
-        revision is formally requested in a future workflow.
+        revision is formally requested.
       </p>
 
       <form action={formAction} className="mt-4 space-y-4">
@@ -59,6 +60,7 @@ export function PortfolioSubmissionForm({
             maxLength={150}
             placeholder="e.g. Editorial Beauty Series"
             disabled={isPending}
+            className="min-h-11 w-full"
           />
         </div>
 
@@ -71,8 +73,9 @@ export function PortfolioSubmissionForm({
             required
             placeholder="https://"
             disabled={isPending}
+            className="min-h-11 w-full"
           />
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-text-muted">
             Use a public HTTP or HTTPS link (Google Drive, Behance, Dropbox,
             OneDrive, or your portfolio site).
           </p>
@@ -87,6 +90,7 @@ export function PortfolioSubmissionForm({
             maxLength={2000}
             placeholder="Optional context for your educator"
             disabled={isPending}
+            className="w-full"
           />
         </div>
 
@@ -97,12 +101,18 @@ export function PortfolioSubmissionForm({
         ) : null}
 
         {state.success ? (
-          <p className="text-sm text-green-700" role="status">
-            {state.success}
-          </p>
+          <StatusPanel
+            variant="success"
+            title="Portfolio submitted"
+            description={state.success}
+          />
         ) : null}
 
-        <Button type="submit" disabled={isPending}>
+        <Button
+          type="submit"
+          className="min-h-11 w-full sm:w-auto"
+          disabled={isPending}
+        >
           {isPending ? "Submitting…" : "Submit Portfolio"}
         </Button>
       </form>
