@@ -1,20 +1,29 @@
+import { DataTable } from "@/components/admin/DataTable";
+import { PageHeader } from "@/components/layout/PageHeader";
 import { getAdminEducators } from "@/lib/data/admin/educators";
-import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
 import { EducatorsTable } from "@/components/tables/EducatorsTable";
 
 export default async function AdminEducatorsPage() {
   const educators = await getAdminEducators();
 
   return (
-    <div className="flex min-h-full flex-col">
-      <RecordPageHeader
+    <div className="space-y-6">
+      <PageHeader
         title="Educators"
         description="View educator profiles, types, institute links, and team assignments."
-        count={educators.length}
+        metadata={
+          <span>
+            {educators.length}{" "}
+            {educators.length === 1 ? "educator" : "educators"}
+          </span>
+        }
       />
-      <div className="p-6">
-        <EducatorsTable educators={educators} />
-      </div>
+
+      <DataTable>
+        <div className="p-2">
+          <EducatorsTable educators={educators} />
+        </div>
+      </DataTable>
     </div>
   );
 }

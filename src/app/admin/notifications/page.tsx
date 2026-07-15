@@ -1,8 +1,8 @@
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
+import { AdminPlaceholderPage } from "@/components/admin/AdminPlaceholderPage";
 
 export default function AdminNotificationsPage() {
   return (
-    <PlaceholderPage
+    <AdminPlaceholderPage
       title="Notifications"
       description="View system notifications and alerts."
     />

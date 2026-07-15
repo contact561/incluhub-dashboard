@@ -1,8 +1,8 @@
-import { PlaceholderPage } from "@/components/layout/PlaceholderPage";
+import { AdminPlaceholderPage } from "@/components/admin/AdminPlaceholderPage";
 
 export default function AdminProjectApprovalsPage() {
   return (
-    <PlaceholderPage
+    <AdminPlaceholderPage
       title="Project Approvals"
       description="Review and approve student project submissions."
     />

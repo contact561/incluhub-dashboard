@@ -1,74 +1,144 @@
 import Link from "next/link";
 import { AdminApprovalCard } from "@/components/admin/portfolio-approvals/AdminApprovalCard";
-import { EmptyState, QueryErrorState } from "@/components/status";
-import { buttonVariants } from "@/components/ui/button";
+import { DashboardMetricCard } from "@/components/layout/DashboardMetricCard";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { SectionHeader } from "@/components/layout/SectionHeader";
+import { EmptyState, QueryErrorState, StatusPanel } from "@/components/status";
 import { getAdminPortfolioApprovalDashboard } from "@/lib/data/admin/portfolio-approvals";
+import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
   const { data, error } = await getAdminPortfolioApprovalDashboard();
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">Admin Dashboard</h1>
-      <p className="mt-1 text-sm text-zinc-500">
-        Overview of students, teams, stages, and pending approvals.
-      </p>
+    <div className="space-y-6">
+      <PageHeader
+        title="Dashboard"
+        description="Operational overview — pending portfolio work, stage progress, and studio bookings."
+      />
 
-      <div className="mt-6 space-y-6">
-        {error ? <QueryErrorState message={error} /> : null}
+      {error ? (
+        <QueryErrorState title="Could not load dashboard" message={error} />
+      ) : null}
 
-        {!error && data ? (
-          <>
-            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <article className="rounded-xl border border-zinc-200 bg-white p-5">
-                <p className="text-sm font-medium text-zinc-500">
-                  Pending Portfolio Approvals
-                </p>
-                <p className="mt-2 text-3xl font-semibold text-zinc-900">
-                  {data.pendingCount}
-                </p>
+      {!error && data ? (
+        <>
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <DashboardMetricCard
+              label="Pending approvals"
+              value={data.pendingCount}
+              href="/admin/portfolio-approvals"
+              statusIntent={data.pendingCount > 0 ? "warning" : "neutral"}
+              compact
+            />
+            <DashboardMetricCard
+              label="Stage board"
+              value="Teams"
+              description="Track team placement across stages."
+              href="/admin/stages"
+              compact
+            />
+            <DashboardMetricCard
+              label="Studio schedule"
+              value="Bookings"
+              description="Confirmed studio slots."
+              href="/admin/studio-schedule"
+              compact
+            />
+            <DashboardMetricCard
+              label="Teams"
+              value="Directory"
+              description="Balanced team records."
+              href="/admin/teams"
+              compact
+            />
+          </section>
+
+          {data.pendingCount > 0 ? (
+            <StatusPanel
+              variant="warning"
+              title={`${data.pendingCount} portfolio${data.pendingCount === 1 ? "" : "s"} awaiting Admin approval`}
+              description="Educator-approved submissions need your final decision."
+              action={
+                <Link
+                  href="/admin/portfolio-approvals"
+                  className={cn(buttonVariants({ size: "sm" }))}
+                >
+                  Open portfolio approvals
+                </Link>
+              }
+            />
+          ) : (
+            <StatusPanel
+              variant="information"
+              title="No portfolios awaiting approval"
+              description="When an educator approves a submission, it will appear in your approval queue."
+              action={
                 <Link
                   href="/admin/portfolio-approvals"
                   className={cn(
-                    buttonVariants({ variant: "outline", size: "sm" }),
-                    "mt-4"
+                    buttonVariants({ variant: "outline", size: "sm" })
                   )}
                 >
-                  View queue
+                  View approval queue
                 </Link>
-              </article>
-            </section>
+              }
+            />
+          )}
 
-            <section className="space-y-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-base font-semibold text-zinc-900">
-                  Latest Pending Approvals
-                </h2>
+          <section>
+            <SectionHeader
+              title="Latest pending approvals"
+              description="Most recent educator-approved portfolios."
+              count={data.pendingPreviews.length}
+              action={
                 <Link
                   href="/admin/portfolio-approvals"
-                  className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" })
+                  )}
                 >
                   View all
                 </Link>
+              }
+            />
+            {data.pendingPreviews.length === 0 ? (
+              <EmptyState
+                title="Queue is clear"
+                description="There are no portfolio previews to show right now."
+              />
+            ) : (
+              <div className="space-y-3">
+                {data.pendingPreviews.map((item) => (
+                  <AdminApprovalCard key={item.portfolioId} item={item} />
+                ))}
               </div>
+            )}
+          </section>
 
-              {data.pendingPreviews.length === 0 ? (
-                <EmptyState
-                  title="No portfolios awaiting approval"
-                  description="Educator-approved portfolios will appear here when they need Admin review."
-                />
-              ) : (
-                <div className="space-y-3">
-                  {data.pendingPreviews.map((item) => (
-                    <AdminApprovalCard key={item.portfolioId} item={item} />
-                  ))}
-                </div>
-              )}
-            </section>
-          </>
-        ) : null}
-      </div>
+          <section className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/stages"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              Stage board
+            </Link>
+            <Link
+              href="/admin/studio-schedule"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              Studio schedule
+            </Link>
+            <Link
+              href="/admin/teams"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              Teams
+            </Link>
+          </section>
+        </>
+      ) : null}
     </div>
   );
 }

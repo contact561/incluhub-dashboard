@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getAdminTeams } from "@/lib/data/admin/teams";
-import { EmptyState } from "@/components/status/EmptyState";
-import { QueryErrorState } from "@/components/status/QueryErrorState";
-import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
+import { DataTable } from "@/components/admin/DataTable";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState, QueryErrorState } from "@/components/status";
 import { TeamsTable } from "@/components/tables/TeamsTable";
+import { getAdminTeams } from "@/lib/data/admin/teams";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,12 +11,18 @@ export default async function AdminTeamsPage() {
   const { teams, error } = await getAdminTeams();
 
   return (
-    <div className="flex min-h-full flex-col">
-      <RecordPageHeader
+    <div className="space-y-6">
+      <PageHeader
         title="Teams"
         description="Create balanced student teams and assign educators."
-        count={error ? undefined : teams.length}
-        actions={
+        metadata={
+          error ? undefined : (
+            <span>
+              {teams.length} {teams.length === 1 ? "team" : "teams"}
+            </span>
+          )
+        }
+        primaryAction={
           <Link
             href="/admin/teams/create"
             className={cn(buttonVariants({ size: "sm" }))}
@@ -25,18 +31,21 @@ export default async function AdminTeamsPage() {
           </Link>
         }
       />
-      <div className="p-6">
-        {error ? (
-          <QueryErrorState message={error} />
-        ) : teams.length === 0 ? (
-          <EmptyState
-            title="No teams yet"
-            description="Create your first balanced team with one student and educator per category."
-          />
-        ) : (
-          <TeamsTable teams={teams} />
-        )}
-      </div>
+
+      {error ? (
+        <QueryErrorState title="Could not load teams" message={error} />
+      ) : teams.length === 0 ? (
+        <EmptyState
+          title="No teams yet"
+          description="Create your first balanced team with one student and educator per category."
+        />
+      ) : (
+        <DataTable>
+          <div className="p-2">
+            <TeamsTable teams={teams} />
+          </div>
+        </DataTable>
+      )}
     </div>
   );
 }

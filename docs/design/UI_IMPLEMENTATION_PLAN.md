@@ -340,6 +340,24 @@ test(ui-3b): verify Educator revision and approval workflow
 
 ## UI-4 — Admin portal
 
+### As-built progress
+
+| Slice | Status | Notes |
+|---|---|---|
+| **UI-4A** | **Done** | Full Admin portal visual redesign — dashboard, lists/CRUD, approvals, Stage Board, Studio Schedule, placeholders |
+| **UI-4B** | Pending | Admin portal QA / verification pass |
+
+**UI-4A as-built (2026-07-15):**
+
+- Admin dashboard redesigned — `PageHeader`, `DashboardMetricCard`, pending-approval `StatusPanel` (one primary CTA), preview cards, secondary Stage/Studio/Teams links; duplicate `p-6` removed
+- List and CRUD pages standardized — `PageHeader` + `DataTable` wrapper; create/detail card surfaces; contextual empty/error titles
+- Portfolio Approvals redesigned — queue cards with `PortfolioWorkflowBadge`; detail workspace uses `ProfileSummary`, shared `Timeline`, single sticky `ActionPanel`
+- Stage Board redesigned — `AdminStageBoard` with mobile horizontal scroll affordance + team counts; placement logic unchanged
+- Studio Schedule redesigned — tokenized table + mobile cards; date filter preserved
+- Placeholder pages standardized — `AdminPlaceholderPage` (“Coming later”); nav badges unchanged
+- Workflow / loaders / server actions / RPCs / permissions / routes — **unchanged**
+- **Next: UI-4B** (Admin portal QA)
+
 ### Goals
 
 - Portfolio approval alignment with educator review UI
@@ -348,43 +366,35 @@ test(ui-3b): verify Educator revision and approval workflow
 - Admin dashboard metrics expansion (visual only — same data)
 - CRUD list consistency
 
-### Files likely affected
+### Files affected (UI-4A)
 
 ```
-src/app/admin/dashboard/page.tsx
-src/app/admin/portfolio-approvals/*
-src/app/admin/stages/page.tsx
-src/app/admin/studio-schedule/page.tsx
-src/app/admin/users/*
-src/app/admin/students/page.tsx
-src/app/admin/educators/page.tsx
-src/app/admin/teams/*
-src/app/admin/programs/*
-src/app/admin/institutes/*
-src/app/admin/external-members/page.tsx
+src/app/admin/**
 src/components/admin/*
+  DataTable.tsx, AdminPlaceholderPage.tsx, stages/AdminStageBoard.tsx (new)
+src/components/studio/StudioScheduleTable.tsx (Admin schedule presentation)
 ```
 
-### Components to create
+### Components created
 
 | Component | Purpose |
 |---|---|
-| `DataTable` | Table + loading + empty + error slots |
-| `FilterBar` | Search/filter row for lists |
-| `StageBoardColumn` | Responsive stage board unit |
+| `DataTable` | Presentation wrapper (overflow / filters slot) — no fetch/sort/pagination |
+| `AdminStageBoard` | Responsive Stage Board presentation |
+| `AdminPlaceholderPage` | Consistent Coming later placeholders |
 
-### Components to replace
+### Components replaced
 
 | Current | Action |
 |---|---|
-| `SubmissionVersionHistory` | Merge into `Timeline` |
-| Admin approval panels | Share `ReviewCard` / `ActionPanel` with educator |
-| Inline admin dashboard | `PageHeader` + `DashboardMetricCard` |
+| `SubmissionVersionHistory` / `PortfolioReviewHistory` | Map into shared `Timeline` |
+| Admin approval detail chrome | Reuse `ProfileSummary` / `ActionPanel` |
+| Inline admin dashboard metrics | `PageHeader` + `DashboardMetricCard` |
 
 ### Routes affected
 
 - All `/admin/*` implemented routes
-- Placeholder pages: visual only (PlaceholderPage styling) — **no new features**
+- Placeholder pages: visual only — **no new features**
 
 ### What NOT to change
 
@@ -393,19 +403,20 @@ src/components/admin/*
 - User create forms server-side validation
 - Placeholder route URLs (keep; nav badge only)
 
-### Testing checklist
+### Testing checklist (UI-4B)
 
 - [ ] Portfolio approval detail matches educator patterns
-- [ ] Stage board: mobile column stack or horizontal scroll with affordance
-- [ ] Studio schedule touch targets
+- [ ] Stage board: mobile horizontal scroll with affordance
+- [ ] Studio schedule touch targets / mobile cards
 - [ ] Users list QueryErrorState shows contextual title
-- [ ] All tables have empty states
+- [ ] Tables wrapped in DataTable with empty states
 - [ ] Admin dashboard uses metric cards consistently
+- [ ] Approve / revision actions remain functional
 
 ### Recommended commit boundary
 
 ```
-feat(ui-4): admin portal visual system
+feat(ui-4a): admin portal visual redesign
 ```
 
 ---

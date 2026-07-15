@@ -1,3 +1,4 @@
+import { Timeline, type TimelineItem } from "@/components/status";
 import type { AdminPortfolioSubmissionVersion } from "@/types/admin-portfolio-approval";
 
 type SubmissionVersionHistoryProps = {
@@ -16,48 +17,35 @@ export function SubmissionVersionHistory({
   versions,
   latestSubmissionId,
 }: SubmissionVersionHistoryProps) {
-  if (versions.length === 0) {
-    return (
-      <p className="text-sm text-zinc-500">No submissions have been recorded.</p>
-    );
-  }
+  const items: TimelineItem[] = versions.map((version) => ({
+    id: version.submissionId,
+    title: `Version ${version.versionNumber}${
+      latestSubmissionId === version.submissionId ? " (latest)" : ""
+    }`,
+    timestamp: formatSubmittedAt(version.submittedAt),
+    description: (
+      <div className="space-y-2">
+        <p>{version.title}</p>
+        <a
+          href={version.portfolioUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="break-all underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {version.portfolioUrl}
+        </a>
+        {version.notes ? (
+          <p className="whitespace-pre-wrap text-text-muted">{version.notes}</p>
+        ) : null}
+      </div>
+    ),
+  }));
 
   return (
-    <ol className="space-y-3">
-      {versions.map((version) => (
-        <li
-          key={version.submissionId}
-          className="rounded-lg border border-zinc-200 bg-zinc-50/70 px-4 py-3"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="text-sm font-medium text-zinc-900">
-              Version {version.versionNumber}
-              {latestSubmissionId === version.submissionId ? (
-                <span className="ml-2 text-xs font-normal text-zinc-500">
-                  (latest)
-                </span>
-              ) : null}
-            </p>
-            <p className="text-xs text-zinc-500">
-              {formatSubmittedAt(version.submittedAt)}
-            </p>
-          </div>
-          <p className="mt-2 text-sm text-zinc-800">{version.title}</p>
-          <a
-            href={version.portfolioUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 inline-block break-all text-sm text-zinc-900 underline underline-offset-2"
-          >
-            {version.portfolioUrl}
-          </a>
-          {version.notes ? (
-            <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-600">
-              {version.notes}
-            </p>
-          ) : null}
-        </li>
-      ))}
-    </ol>
+    <Timeline
+      title="Submission history"
+      items={items}
+      emptyMessage="No submissions have been recorded."
+    />
   );
 }

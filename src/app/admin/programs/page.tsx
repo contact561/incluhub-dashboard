@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { getAdminPrograms } from "@/lib/data/admin/programs";
-import { EmptyState } from "@/components/status/EmptyState";
-import { QueryErrorState } from "@/components/status/QueryErrorState";
+import { DataTable } from "@/components/admin/DataTable";
+import { PageHeader } from "@/components/layout/PageHeader";
+import { EmptyState, QueryErrorState } from "@/components/status";
 import { ProgramsTable } from "@/components/tables/ProgramsTable";
-import { RecordPageHeader } from "@/components/tables/RecordPageHeader";
+import { getAdminPrograms } from "@/lib/data/admin/programs";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -11,12 +11,19 @@ export default async function AdminProgramsPage() {
   const { programs, error } = await getAdminPrograms();
 
   return (
-    <div className="flex min-h-full flex-col">
-      <RecordPageHeader
+    <div className="space-y-6">
+      <PageHeader
         title="Programs"
         description="Manage Program / Batch records that can include multiple institutes."
-        count={error ? undefined : programs.length}
-        actions={
+        metadata={
+          error ? undefined : (
+            <span>
+              {programs.length}{" "}
+              {programs.length === 1 ? "program" : "programs"}
+            </span>
+          )
+        }
+        primaryAction={
           <Link
             href="/admin/programs/create"
             className={cn(buttonVariants({ size: "sm" }))}
@@ -25,18 +32,21 @@ export default async function AdminProgramsPage() {
           </Link>
         }
       />
-      <div className="p-6">
-        {error ? (
-          <QueryErrorState message={error} />
-        ) : programs.length === 0 ? (
-          <EmptyState
-            title="No programs yet"
-            description="Create a program after adding at least one institute."
-          />
-        ) : (
-          <ProgramsTable programs={programs} />
-        )}
-      </div>
+
+      {error ? (
+        <QueryErrorState title="Could not load programs" message={error} />
+      ) : programs.length === 0 ? (
+        <EmptyState
+          title="No programs yet"
+          description="Create a program after adding at least one institute."
+        />
+      ) : (
+        <DataTable>
+          <div className="p-2">
+            <ProgramsTable programs={programs} />
+          </div>
+        </DataTable>
+      )}
     </div>
   );
 }
