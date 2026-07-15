@@ -29,11 +29,13 @@ export function StageJourneySection({
   );
 
   return (
-    <section className="rounded-lg border border-zinc-200 p-4">
+    <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-900">Stage journey</h2>
-          <p className="mt-1 text-xs text-zinc-500">
+          <h2 className="text-sm font-semibold text-text-primary">
+            Stage journey
+          </h2>
+          <p className="mt-1 text-xs text-text-muted">
             Enroll the team into the shared stage workflow after setup is
             complete.
           </p>
@@ -41,7 +43,7 @@ export function StageJourneySection({
         <StatusBadge status={assessment.state} />
       </div>
 
-      <p className="mt-3 text-sm text-zinc-700">
+      <p className="mt-3 text-sm text-text-primary">
         {TEAM_JOURNEY_STATE_LABELS[assessment.state]}
       </p>
 
@@ -66,7 +68,7 @@ export function StageJourneySection({
           ) : null}
 
           {state.success ? (
-            <p className="mb-3 text-sm text-green-700" role="status">
+            <p className="mb-3 text-sm text-status-success" role="status">
               {state.success}
             </p>
           ) : null}
@@ -78,7 +80,7 @@ export function StageJourneySection({
       ) : null}
 
       {!assessment.canEnroll && assessment.state === "in_progress" ? (
-        <p className="mt-3 text-xs text-zinc-500">
+        <p className="mt-3 text-xs text-text-muted">
           This team is enrolled in the stage journey. Use the timeline below to
           track progress.
         </p>

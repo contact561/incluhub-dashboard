@@ -25,11 +25,11 @@ export function BmsCompletionForm({ teamId, disabled }: BmsCompletionFormProps) 
   const isDisabled = disabled || isPending;
 
   return (
-    <section className="rounded-lg border border-zinc-200 p-4">
-      <h2 className="text-sm font-semibold text-zinc-900">
+    <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4">
+      <h2 className="text-sm font-semibold text-text-primary">
         Complete BMS session
       </h2>
-      <p className="mt-1 text-xs text-zinc-500">
+      <p className="mt-1 text-xs text-text-muted">
         Record the BMS session and unlock Stage 3 portfolio production for this
         team.
       </p>
@@ -66,7 +66,7 @@ export function BmsCompletionForm({ teamId, disabled }: BmsCompletionFormProps) 
         ) : null}
 
         {state.success ? (
-          <p className="text-sm text-green-700" role="status">
+          <p className="text-sm text-status-success" role="status">
             {state.success}
           </p>
         ) : null}

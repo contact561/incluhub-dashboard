@@ -37,9 +37,9 @@ export function TeamStageTimeline({
   portfolios,
 }: TeamStageTimelineProps) {
   return (
-    <section className="rounded-lg border border-zinc-200 p-4">
-      <h2 className="text-sm font-semibold text-zinc-900">Stage timeline</h2>
-      <p className="mt-1 text-xs text-zinc-500">
+    <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4">
+      <h2 className="text-sm font-semibold text-text-primary">Stage timeline</h2>
+      <p className="mt-1 text-xs text-text-muted">
         Shared team progression from onboarding through ecosystem unlock.
       </p>
 
@@ -47,14 +47,14 @@ export function TeamStageTimeline({
         {timeline.map((stage) => (
           <li
             key={stage.stageNumber}
-            className="rounded-lg border border-zinc-100 bg-zinc-50/60 p-4"
+            className="rounded-[var(--radius-card)] border border-border-default bg-surface-muted/60 p-4"
           >
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-zinc-400">
+                <p className="text-xs font-medium uppercase tracking-wide text-text-subtle">
                   Stage {stage.stageNumber}
                 </p>
-                <h3 className="text-sm font-semibold text-zinc-900">
+                <h3 className="text-sm font-semibold text-text-primary">
                   {stage.stageName}
                 </h3>
               </div>
@@ -62,50 +62,52 @@ export function TeamStageTimeline({
             </div>
 
             {stage.description ? (
-              <p className="mt-2 text-xs text-zinc-500">{stage.description}</p>
+              <p className="mt-2 text-xs text-text-muted">{stage.description}</p>
             ) : null}
 
             <dl className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
               <div>
-                <dt className="text-zinc-400">Started</dt>
-                <dd className="text-zinc-700">
+                <dt className="text-text-subtle">Started</dt>
+                <dd className="text-text-primary">
                   {formatTimestamp(stage.startedAt)}
                 </dd>
               </div>
               <div>
-                <dt className="text-zinc-400">Completed</dt>
-                <dd className="text-zinc-700">
+                <dt className="text-text-subtle">Completed</dt>
+                <dd className="text-text-primary">
                   {formatTimestamp(stage.completedAt)}
                 </dd>
               </div>
             </dl>
 
             {stage.status === "locked" && stage.lockedReason ? (
-              <p className="mt-2 text-xs text-zinc-500">{stage.lockedReason}</p>
+              <p className="mt-2 text-xs text-text-muted">{stage.lockedReason}</p>
             ) : null}
 
             {stage.stageNumber === 2 && stage.bmsSessionDate ? (
-              <div className="mt-3 rounded-md border border-zinc-200 bg-white p-3 text-xs">
-                <p className="font-medium text-zinc-700">BMS session</p>
-                <p className="mt-1 text-zinc-600">
+              <div className="mt-3 rounded-md border border-border-default bg-surface-card p-3 text-xs">
+                <p className="font-medium text-text-primary">BMS session</p>
+                <p className="mt-1 text-text-muted">
                   Date: {formatDate(stage.bmsSessionDate)}
                 </p>
                 {stage.bmsRemarks ? (
-                  <p className="mt-1 text-zinc-600">Remarks: {stage.bmsRemarks}</p>
+                  <p className="mt-1 text-text-muted">
+                    Remarks: {stage.bmsRemarks}
+                  </p>
                 ) : null}
               </div>
             ) : null}
 
             {stage.stageNumber === 3 && portfolios.length > 0 ? (
-              <div className="mt-3 rounded-md border border-zinc-200 bg-white p-3">
-                <p className="text-xs font-medium text-zinc-700">
+              <div className="mt-3 rounded-md border border-border-default bg-surface-card p-3">
+                <p className="text-xs font-medium text-text-primary">
                   Portfolio sequence
                 </p>
                 <ol className="mt-2 space-y-3">
                   {portfolios.map((portfolio) => (
                     <li key={portfolio.id} className="space-y-1 text-xs">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-zinc-700">
+                        <span className="text-text-primary">
                           {portfolio.sequenceOrder}.{" "}
                           {STUDENT_CATEGORY_LABELS[portfolio.portfolioType]} —{" "}
                           {portfolio.leaderName}
@@ -116,10 +118,10 @@ export function TeamStageTimeline({
                         />
                       </div>
                       {portfolio.submissionTitle && portfolio.submissionUrl ? (
-                        <div className="rounded border border-zinc-100 bg-zinc-50 px-2 py-1.5 text-zinc-600">
+                        <div className="rounded border border-border-default bg-surface-muted px-2 py-1.5 text-text-muted">
                           <p>
                             Submitted:{" "}
-                            <span className="font-medium text-zinc-800">
+                            <span className="font-medium text-text-primary">
                               {portfolio.submissionTitle}
                             </span>
                           </p>
@@ -133,7 +135,7 @@ export function TeamStageTimeline({
                           </a>
                         </div>
                       ) : null}
-                      <p className="text-zinc-600">
+                      <p className="text-text-muted">
                         {
                           getPortfolioWorkflowPresentation(
                             portfolio.workflowStatus,

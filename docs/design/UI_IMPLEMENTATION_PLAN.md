@@ -345,7 +345,9 @@ test(ui-3b): verify Educator revision and approval workflow
 | Slice | Status | Notes |
 |---|---|---|
 | **UI-4A** | **Done** | Full Admin portal visual redesign — dashboard, lists/CRUD, approvals, Stage Board, Studio Schedule, placeholders |
-| **UI-4B** | Pending | Admin portal QA / verification pass |
+| **UI-4B** | **Done** | Admin revision + approval workflow QA; disposable UI4 QA TEAM; residual Admin stage-helper token repair |
+
+**UI-4 complete (2026-07-15).** See `docs/design/UI_4_ADMIN_PORTAL_QA.md`.
 
 **UI-4A as-built (2026-07-15):**
 
@@ -356,7 +358,15 @@ test(ui-3b): verify Educator revision and approval workflow
 - Studio Schedule redesigned — tokenized table + mobile cards; date filter preserved
 - Placeholder pages standardized — `AdminPlaceholderPage` (“Coming later”); nav badges unchanged
 - Workflow / loaders / server actions / RPCs / permissions / routes — **unchanged**
-- **Next: UI-4B** (Admin portal QA)
+
+**UI-4B as-built (2026-07-15):**
+
+- Disposable **UI4 QA TEAM** fixture (`scripts/ui4-qa-fixture-setup.mjs` / `cleanup.mjs`) — Alpha/Beta untouched
+- Interactive Admin matrix: `pending_admin` → Admin revision → `revision_required` → resubmit → `pending_admin` (return-to-admin) → Admin approve → `completed`
+- Permissions: educator/student cannot call Admin review RPC; revision comments enforced
+- Stage Board / Studio Schedule / CRUD samples / placeholders verified
+- Controlled repair: Admin-facing `StageJourneySection`, `TeamStageTimeline`, `BmsCompletionForm` zinc → semantic tokens only
+- **UI-4 complete.** Next portal package: **UI-5** (do not start until requested)
 
 ### Goals
 
@@ -405,18 +415,18 @@ src/components/studio/StudioScheduleTable.tsx (Admin schedule presentation)
 
 ### Testing checklist (UI-4B)
 
-- [ ] Portfolio approval detail matches educator patterns
-- [ ] Stage board: mobile horizontal scroll with affordance
-- [ ] Studio schedule touch targets / mobile cards
-- [ ] Users list QueryErrorState shows contextual title
-- [ ] Tables wrapped in DataTable with empty states
-- [ ] Admin dashboard uses metric cards consistently
-- [ ] Approve / revision actions remain functional
+- [x] Portfolio approval detail matches educator patterns
+- [x] Stage board: mobile horizontal scroll with affordance
+- [x] Studio schedule touch targets / mobile cards
+- [x] Users list QueryErrorState shows contextual title
+- [x] Tables wrapped in DataTable with empty states
+- [x] Admin dashboard uses metric cards consistently
+- [x] Approve / revision actions remain functional
 
 ### Recommended commit boundary
 
 ```
-feat(ui-4a): admin portal visual redesign
+test(ui-4b): verify Admin revision and approval workflow
 ```
 
 ---
