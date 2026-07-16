@@ -98,6 +98,28 @@ export function TeamStageTimeline({
               </div>
             ) : null}
 
+            {stage.stageNumber === 4 && stage.brandWorksDate ? (
+              <div className="mt-3 rounded-md border border-border-default bg-surface-card p-3 text-xs">
+                <p className="font-medium text-text-primary">Brand Works</p>
+                <p className="mt-1 text-text-muted">
+                  Scheduled date: {formatDate(stage.brandWorksDate)}
+                </p>
+                <p className="mt-1 text-text-muted">
+                  Schedule recorded: {formatTimestamp(stage.brandWorksScheduledAt)}
+                </p>
+                {stage.brandWorksRemarks ? (
+                  <p className="mt-1 whitespace-pre-wrap text-text-muted">
+                    Remarks: {stage.brandWorksRemarks}
+                  </p>
+                ) : null}
+                {stage.brandWorksCompletedAt ? (
+                  <p className="mt-1 font-medium text-status-success">
+                    Completed: {formatTimestamp(stage.brandWorksCompletedAt)}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+
             {stage.stageNumber === 3 && portfolios.length > 0 ? (
               <div className="mt-3 rounded-md border border-border-default bg-surface-card p-3">
                 <p className="text-xs font-medium text-text-primary">

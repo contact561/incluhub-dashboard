@@ -22,7 +22,19 @@ type TeamBoardQueryRow = {
   }> | null;
 };
 
-function mapTeamCard(row: TeamBoardQueryRow): StageBoardTeamCard {
+type Stage4ProgressRow = {
+  team_id: string;
+  stage_number: number;
+  brand_works_date: string | null;
+  brand_works_remarks: string | null;
+  brand_works_scheduled_at: string | null;
+  brand_works_completed_at: string | null;
+};
+
+function mapTeamCard(
+  row: TeamBoardQueryRow,
+  stage4: Stage4ProgressRow | null
+): StageBoardTeamCard {
   const activeMembers = (row.team_members ?? []).filter(
     (member) => member.member_status === "active"
   );
@@ -34,6 +46,10 @@ function mapTeamCard(row: TeamBoardQueryRow): StageBoardTeamCard {
     currentStageNumber: row.current_stage_number,
     stageStatus: row.stage_status,
     updatedAt: row.updated_at,
+    brandWorksDate: stage4?.brand_works_date ?? null,
+    brandWorksRemarks: stage4?.brand_works_remarks ?? null,
+    brandWorksScheduledAt: stage4?.brand_works_scheduled_at ?? null,
+    brandWorksCompletedAt: stage4?.brand_works_completed_at ?? null,
     students: activeMembers.map((member) => ({
       fullName: member.students?.profiles?.full_name ?? "—",
       category: member.student_category,
@@ -96,7 +112,16 @@ export async function getAdminStageBoard(): Promise<AdminStageBoardResult> {
       )
       .eq("status", "active")
       .order("updated_at", { ascending: false }),
-    supabase.from("team_stage_progress").select("team_id"),
+    supabase.from("team_stage_progress").select(
+      `
+      team_id,
+      stage_number,
+      brand_works_date,
+      brand_works_remarks,
+      brand_works_scheduled_at,
+      brand_works_completed_at
+    `
+    ),
   ]);
 
   const firstError =
@@ -111,9 +136,14 @@ export async function getAdminStageBoard(): Promise<AdminStageBoardResult> {
   }
 
   const enrolledTeamIds = new Set(
-    ((progressResult.data ?? []) as Array<{ team_id: string }>).map(
+    ((progressResult.data ?? []) as Stage4ProgressRow[]).map(
       (row) => row.team_id
     )
+  );
+  const stage4ByTeam = new Map(
+    ((progressResult.data ?? []) as Stage4ProgressRow[])
+      .filter((row) => row.stage_number === 4)
+      .map((row) => [row.team_id, row])
   );
 
   const awaitingAssignment = (
@@ -147,8 +177,8 @@ export async function getAdminStageBoard(): Promise<AdminStageBoardResult> {
     }))
     .sort((a, b) => a.fullName.localeCompare(b.fullName));
 
-  const teams = ((teamsResult.data ?? []) as TeamBoardQueryRow[]).map(
-    mapTeamCard
+  const teams = ((teamsResult.data ?? []) as TeamBoardQueryRow[]).map((row) =>
+    mapTeamCard(row, stage4ByTeam.get(row.id) ?? null)
   );
 
   const enrolledTeams = teams.filter((team) => enrolledTeamIds.has(team.id));

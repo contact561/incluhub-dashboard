@@ -9,6 +9,12 @@ type AssignedTeamCardProps = {
   team: EducatorAssignedTeam;
 };
 
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
+    new Date(`${value}T00:00:00+05:30`)
+  );
+}
+
 export function AssignedTeamCard({ team }: AssignedTeamCardProps) {
   return (
     <article className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:p-5">
@@ -66,6 +72,21 @@ export function AssignedTeamCard({ team }: AssignedTeamCardProps) {
           </div>
         </div>
       </div>
+
+      {team.brandWorksDate ? (
+        <div className="mt-4 rounded-[var(--radius-control)] border border-border-default bg-surface-muted p-3 text-sm">
+          <p className="font-medium text-text-primary">Brand Works</p>
+          <p className="mt-1 text-text-muted">
+            {team.brandWorksCompletedAt ? "Completed" : "Scheduled"}: {" "}
+            {formatDate(team.brandWorksDate)}
+          </p>
+          {team.brandWorksRemarks ? (
+            <p className="mt-1 whitespace-pre-wrap text-text-muted">
+              Remarks: {team.brandWorksRemarks}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       {team.pendingReviewPortfolioId ? (
         <div className="mt-4">

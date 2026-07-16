@@ -1,14 +1,24 @@
+import Link from "next/link";
 import { StudentStageJourney } from "@/components/student/StudentStageJourney";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { EmptyState, QueryErrorState } from "@/components/status";
+import { EmptyState, QueryErrorState, StatusPanel } from "@/components/status";
 import { StatusBadge } from "@/components/status/StatusBadge";
+import { buttonVariants } from "@/components/ui/button";
 import { STUDENT_PORTAL_ERRORS } from "@/lib/data/student/activeTeamContext";
 import {
   formatCurrentStageLabel,
   getStudentMyStagePageData,
 } from "@/lib/data/student/myStage";
+import { cn } from "@/lib/utils";
 
-export default async function StudentMyStagePage() {
+type StudentMyStagePageProps = {
+  searchParams: Promise<{ ecosystem?: string }>;
+};
+
+export default async function StudentMyStagePage({
+  searchParams,
+}: StudentMyStagePageProps) {
+  const { ecosystem } = await searchParams;
   const { data, error } = await getStudentMyStagePageData();
 
   return (
@@ -19,6 +29,14 @@ export default async function StudentMyStagePage() {
       />
 
       {error ? <QueryErrorState message={error} /> : null}
+
+      {ecosystem === "locked" ? (
+        <StatusPanel
+          variant="warning"
+          title="Ecosystem access is still locked"
+          description="Complete Brand Works and reach Stage 5 to open the IncluHub Ecosystem."
+        />
+      ) : null}
 
       {!error && !data ? (
         <EmptyState
@@ -80,6 +98,22 @@ export default async function StudentMyStagePage() {
               currentStageNumber={data.currentStageNumber}
             />
           )}
+
+          {data.currentStageNumber !== null && data.currentStageNumber >= 5 ? (
+            <StatusPanel
+              variant="success"
+              title="Stage 5 complete — your ecosystem is ready"
+              description="Celebrate your programme completion and continue into the IncluHub Ecosystem."
+              action={
+                <Link
+                  href="/student/ecosystem"
+                  className={cn(buttonVariants({ size: "sm" }))}
+                >
+                  Enter the Ecosystem
+                </Link>
+              }
+            />
+          ) : null}
         </>
       ) : null}
     </div>

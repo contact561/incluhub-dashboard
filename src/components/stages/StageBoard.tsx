@@ -200,8 +200,8 @@ export function StageBoard({
         </StageBoardColumn>
 
         <StageBoardColumn
-          title="Stage 4 — Brand / Creative Project"
-          description="Teams working on the brand or creative project."
+          title="Stage 4 — Brand Works"
+          description="Teams scheduled for or completing Brand Works."
         >
           {stage4Teams.length === 0 ? (
             <EmptyState
@@ -216,8 +216,8 @@ export function StageBoard({
         </StageBoardColumn>
 
         <StageBoardColumn
-          title="Stage 5 — Ecosystem / Application Unlock"
-          description="Teams with the final ecosystem section unlocked."
+          title="Stage 5 — IncluHub Ecosystem Welcome"
+          description="Teams whose final ecosystem stage is completed."
         >
           {stage5Teams.length === 0 ? (
             <EmptyState

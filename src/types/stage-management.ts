@@ -21,6 +21,10 @@ export type StageBoardTeamCard = {
   currentStageNumber: number | null;
   stageStatus: StageStatus;
   updatedAt: string;
+  brandWorksDate: string | null;
+  brandWorksRemarks: string | null;
+  brandWorksScheduledAt: string | null;
+  brandWorksCompletedAt: string | null;
   students: Array<{
     fullName: string;
     category: StudentCategory;
@@ -50,6 +54,12 @@ export type TeamStageTimelineEntry = {
   completedAt: string | null;
   bmsSessionDate: string | null;
   bmsRemarks: string | null;
+  brandWorksDate: string | null;
+  brandWorksRemarks: string | null;
+  brandWorksScheduledAt: string | null;
+  brandWorksScheduledBy: string | null;
+  brandWorksCompletedAt: string | null;
+  brandWorksCompletedBy: string | null;
   lockedReason: string | null;
 };
 
@@ -68,6 +78,9 @@ export type TeamStageDetail = {
   portfolios: TeamPortfolioSummary[];
   stage2InProgress: boolean;
   bmsAlreadyCompleted: boolean;
+  stage4InProgress: boolean;
+  brandWorksScheduled: boolean;
+  brandWorksCompleted: boolean;
   journeyEnrolled: boolean;
 };
 

@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:release-authz": "node scripts/package-f-authz-check.mjs",
     "test:reset": "node scripts/reset-and-seed-test-environment.mjs"
   },
   "dependencies": {

@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import type {
   TeamPortfolioSummary,
-  TeamStageDetail,
   TeamStageDetailResult,
   TeamStageTimelineEntry,
 } from "@/types/stage-management";
@@ -29,10 +28,34 @@ function lockedReasonForStage(
     case 4:
       return "Unlocks after all three portfolio outputs are approved.";
     case 5:
-      return "Unlocks after the brand/creative project is approved.";
+      return "Unlocks after Brand Works is completed.";
     default:
       return "This stage is not yet available.";
   }
+}
+
+function stagePresentation(stage: {
+  stage_number: number;
+  name: string;
+  description: string | null;
+}) {
+  if (stage.stage_number === 4) {
+    return {
+      name: "Brand Works",
+      description:
+        "The IncluHub team schedules and completes the team's Brand Works session.",
+    };
+  }
+
+  if (stage.stage_number === 5) {
+    return {
+      name: "IncluHub Ecosystem Welcome",
+      description:
+        "Programme completion and access to the IncluHub ecosystem application.",
+    };
+  }
+
+  return { name: stage.name, description: stage.description };
 }
 
 export async function getTeamStageDetail(
@@ -55,7 +78,13 @@ export async function getTeamStageDetail(
         started_at,
         completed_at,
         bms_session_date,
-        bms_remarks
+        bms_remarks,
+        brand_works_date,
+        brand_works_remarks,
+        brand_works_scheduled_at,
+        brand_works_scheduled_by,
+        brand_works_completed_at,
+        brand_works_completed_by
       `
       )
       .eq("team_id", teamId)
@@ -105,14 +134,14 @@ export async function getTeamStageDetail(
     console.error("[getTeamStageDetail]", firstError);
 
     const migrationHint =
-      /workflow_status|bms_session_date|portfolio_workflow_status|portfolio_submissions/i.test(
+      /brand_works_|workflow_status|bms_session_date|portfolio_workflow_status|portfolio_submissions/i.test(
         firstError
       );
 
     return {
       detail: null,
       error: migrationHint
-        ? "Database migration has not been applied. Run 006_stage_bms_foundation.sql in Supabase."
+        ? "A required database migration has not been applied. Apply migrations through 013_stage4_brand_works.sql."
         : firstError,
     };
   }
@@ -124,6 +153,12 @@ export async function getTeamStageDetail(
         completed_at: string | null;
         bms_session_date: string | null;
         bms_remarks: string | null;
+        brand_works_date: string | null;
+        brand_works_remarks: string | null;
+        brand_works_scheduled_at: string | null;
+        brand_works_scheduled_by: string | null;
+        brand_works_completed_at: string | null;
+        brand_works_completed_by: string | null;
       }>;
 
   const journeyEnrolled = progressRows.length > 0;
@@ -142,16 +177,23 @@ export async function getTeamStageDetail(
       ).map((stage) => {
         const progress = progressByStage.get(stage.stage_number);
         const status = progress?.status ?? "locked";
+        const presentation = stagePresentation(stage);
 
         return {
           stageNumber: stage.stage_number,
-          stageName: stage.name,
-          description: stage.description,
+          stageName: presentation.name,
+          description: presentation.description,
           status,
           startedAt: progress?.started_at ?? null,
           completedAt: progress?.completed_at ?? null,
           bmsSessionDate: progress?.bms_session_date ?? null,
           bmsRemarks: progress?.bms_remarks ?? null,
+          brandWorksDate: progress?.brand_works_date ?? null,
+          brandWorksRemarks: progress?.brand_works_remarks ?? null,
+          brandWorksScheduledAt: progress?.brand_works_scheduled_at ?? null,
+          brandWorksScheduledBy: progress?.brand_works_scheduled_by ?? null,
+          brandWorksCompletedAt: progress?.brand_works_completed_at ?? null,
+          brandWorksCompletedBy: progress?.brand_works_completed_by ?? null,
           lockedReason: lockedReasonForStage(stage.stage_number, status),
         };
       })
@@ -210,6 +252,14 @@ export async function getTeamStageDetail(
   const stage2 = progressByStage.get(2);
   const stage2InProgress = stage2?.status === "in_progress";
   const bmsAlreadyCompleted = stage2?.status === "completed";
+  const stage4 = progressByStage.get(4);
+  const stage4InProgress = stage4?.status === "in_progress";
+  const brandWorksScheduled = Boolean(
+    stage4?.brand_works_date && stage4?.brand_works_scheduled_at
+  );
+  const brandWorksCompleted = Boolean(
+    stage4?.status === "completed" && stage4?.brand_works_completed_at
+  );
 
   return {
     detail: {
@@ -217,6 +267,9 @@ export async function getTeamStageDetail(
       portfolios,
       stage2InProgress,
       bmsAlreadyCompleted,
+      stage4InProgress,
+      brandWorksScheduled,
+      brandWorksCompleted,
       journeyEnrolled,
     },
     error: null,

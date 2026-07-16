@@ -30,6 +30,6 @@ export const PORTFOLIO_WORKFLOW_STATUS_LABELS: Record<
 export const STAGE_COLUMN_LABELS = {
   stage2: "Stage 2 — BMS Session",
   stage3: "Stage 3 — Sequential Portfolio Production",
-  stage4: "Stage 4 — Brand / Creative Project",
-  stage5: "Stage 5 — Ecosystem / Application Unlock",
+  stage4: "Stage 4 — Brand Works",
+  stage5: "Stage 5 — IncluHub Ecosystem Welcome",
 } as const;

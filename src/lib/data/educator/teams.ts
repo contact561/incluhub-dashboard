@@ -3,6 +3,7 @@ import {
   loadPortfoliosForMappedLeaders,
 } from "@/lib/data/educator/context";
 import { logEducatorLoaderError } from "@/lib/data/educator/loader-errors";
+import { createClient } from "@/lib/supabase/server";
 import type { EducatorAssignedTeam } from "@/types/educator-portfolio";
 import type { StageStatus } from "@/types/database";
 
@@ -27,6 +28,42 @@ export async function getEducatorAssignedTeams(): Promise<{
     return { teams: [], error: portfolioError };
   }
 
+  const supabase = await createClient();
+  const { data: stage4Rows, error: stage4Error } =
+    context.mappedTeamIds.length === 0
+      ? { data: [], error: null }
+      : await supabase
+          .from("team_stage_progress")
+          .select(
+            `
+            team_id,
+            brand_works_date,
+            brand_works_remarks,
+            brand_works_scheduled_at,
+            brand_works_completed_at
+          `
+          )
+          .in("team_id", context.mappedTeamIds)
+          .eq("stage_number", 4);
+
+  if (stage4Error) {
+    logEducatorLoaderError(LOADER, stage4Error.message);
+    return {
+      teams: [],
+      error: "Assigned team Brand Works schedules could not be loaded.",
+    };
+  }
+
+  const stage4ByTeam = new Map(
+    ((stage4Rows ?? []) as Array<{
+      team_id: string;
+      brand_works_date: string | null;
+      brand_works_remarks: string | null;
+      brand_works_scheduled_at: string | null;
+      brand_works_completed_at: string | null;
+    }>).map((row) => [row.team_id, row])
+  );
+
   const portfoliosByTeam = new Map<string, typeof portfolios>();
   for (const portfolio of portfolios) {
     const list = portfoliosByTeam.get(portfolio.teamId) ?? [];
@@ -38,6 +75,7 @@ export async function getEducatorAssignedTeams(): Promise<{
     const teamMappings = context.mappings.filter((m) => m.teamId === teamId);
     const first = teamMappings[0];
     const teamPortfolios = portfoliosByTeam.get(teamId) ?? [];
+    const stage4 = stage4ByTeam.get(teamId);
 
     const pending = teamPortfolios.find(
       (p) => p.workflowStatus === "pending_educator"
@@ -63,6 +101,10 @@ export async function getEducatorAssignedTeams(): Promise<{
       activePortfolioType: active?.portfolioType ?? null,
       activeWorkflowStatus: active?.workflowStatus ?? null,
       pendingReviewPortfolioId: pending?.id ?? null,
+      brandWorksDate: stage4?.brand_works_date ?? null,
+      brandWorksRemarks: stage4?.brand_works_remarks ?? null,
+      brandWorksScheduledAt: stage4?.brand_works_scheduled_at ?? null,
+      brandWorksCompletedAt: stage4?.brand_works_completed_at ?? null,
     };
   });
 

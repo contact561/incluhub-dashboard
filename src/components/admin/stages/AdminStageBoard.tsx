@@ -43,6 +43,12 @@ function formatUpdatedAt(value: string): string {
   }).format(new Date(value));
 }
 
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
+    new Date(`${value}T00:00:00+05:30`)
+  );
+}
+
 function TeamStageCard({ team }: { team: StageBoardTeamCard }) {
   return (
     <article className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-3">
@@ -65,6 +71,15 @@ function TeamStageCard({ team }: { team: StageBoardTeamCard }) {
           </li>
         ))}
       </ul>
+      {team.brandWorksDate ? (
+        <div className="mt-3 rounded-md border border-border-default bg-surface-muted p-2 text-xs">
+          <p className="font-medium text-text-primary">Brand Works</p>
+          <p className="mt-0.5 text-text-muted">
+            {team.brandWorksCompletedAt ? "Completed" : "Scheduled"}: {" "}
+            {formatDate(team.brandWorksDate)}
+          </p>
+        </div>
+      ) : null}
       <div className="mt-3 flex items-center justify-between gap-2 text-xs text-text-subtle">
         <span>
           {team.currentStageNumber === null
@@ -218,8 +233,8 @@ export function AdminStageBoard({
           </StageBoardColumn>
 
           <StageBoardColumn
-            title="Stage 4 — Brand / Creative Project"
-            description="Teams working on the brand or creative project."
+            title="Stage 4 — Brand Works"
+            description="Teams scheduled for or completing Brand Works."
             count={stage4Teams.length}
           >
             {stage4Teams.length === 0 ? (
@@ -235,8 +250,8 @@ export function AdminStageBoard({
           </StageBoardColumn>
 
           <StageBoardColumn
-            title="Stage 5 — Ecosystem / Application Unlock"
-            description="Teams with the final ecosystem section unlocked."
+            title="Stage 5 — IncluHub Ecosystem Welcome"
+            description="Teams whose final ecosystem stage is completed."
             count={stage5Teams.length}
           >
             {stage5Teams.length === 0 ? (

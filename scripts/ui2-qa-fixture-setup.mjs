@@ -16,6 +16,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
+import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
 
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
@@ -118,6 +119,10 @@ async function createStudent(admin, { email, fullName, category, instituteId, cr
 }
 
 async function main() {
+  assertFixtureMutationAllowed({
+    confirmationFlag: "--confirm-fixture",
+    label: "UI2 QA fixture setup",
+  });
   console.log("=== UI-2B disposable Stage 3 fixture setup ===");
   console.log("Team:", TEAM_NAME);
   console.log("Will NOT modify TEST TEAM ALPHA or TEST TEAM BETA.");

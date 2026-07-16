@@ -1,5 +1,86 @@
 # Implementation Progress
 
+## Package F — Release Readiness
+
+**Status:** Passed locally with Package G deployment gates documented.
+
+**Date:** 2026-07-16
+
+### Scope delivered
+
+- Live authorization and RLS verification against the connected test Supabase.
+- Cross-role browser checks for Admin, Educator, Stage 4 Student, and Stage 5
+  Student experiences.
+- Persisted Stage 3→4 and Stage 4→5 consistency checks.
+- Final Stage 4/5 naming consistency across Stage Boards and timelines.
+- Next.js `middleware` to `proxy` migration and temporary-artifact cleanup.
+- TypeScript, lint, default test, production build, and diff hygiene checks.
+- Preview/production deployment gates documented in
+  `docs/PACKAGE_F_RELEASE_READINESS.md`.
+
+---
+
+## Package E2 — Stage 5 Ecosystem Welcome
+
+**Status:** Implemented locally; final external application URL replacement and
+deployment remain pending.
+
+**Date:** 2026-07-16
+
+### Scope delivered
+
+- Server-gated `/student/ecosystem` route for active Students at Stage 5 only.
+- UI/UX-focused completion screen with centered IncluHub symbol, approved
+  welcome copy, team/program context, responsive layout, and motion-safe
+  confetti celebration.
+- Environment-configured ecosystem display name, URL, and logo with a clearly
+  labelled placeholder destination.
+- Conditional Student Ecosystem navigation visible only at Stage 5.
+- Stage 5 calls to action on Student Dashboard and My Stage.
+- Friendly redirect and locked explanation for Students below Stage 5.
+- Placeholder URL opens in a new tab; no external credentials are stored.
+- Browser QA with Team Beta at Stage 5 and negative gate QA with Team Alpha at
+  Stage 4.
+
+---
+
+## Package E1 — Stage 4 Brand Works
+
+**Status:** Implemented; migration `013` is applied to the connected test project.
+
+**Date:** 2026-07-16
+
+### Scope delivered
+
+- Forward-only migration `013_stage4_brand_works.sql` with all six approved
+  Brand Works audit fields.
+- Admin-only `schedule_brand_works` and `complete_brand_works` RPCs with active
+  role checks, fixed `search_path`, deterministic row locks, validation,
+  idempotent retries, and atomic Stage 4 to completed Stage 5 progression.
+- Direct authenticated mutation privileges removed from
+  `team_stage_progress`; existing Admin, own-team Student, and assigned
+  Educator RLS read policies remain in force.
+- Admin scheduling/rescheduling, date-gated completion, Stage Board, and
+  timeline integration.
+- Read-only Student dashboard/My Stage and Educator My Teams visibility.
+- Superseded and unfinished submission navigation hidden.
+- Environment-labelled Stage 5 placeholder configuration and logo asset.
+- Read-only static verification plus rollback-safe workflow, permission,
+  idempotency, and RLS fixture tests.
+- Hard-coded test passwords removed and service-role fixture utilities guarded
+  by expected project ref, production exclusion, environment opt-in, and an
+  explicit command-line confirmation.
+
+### Staging validation
+
+Use `supabase/scripts/verify_package_e1.sql` after applying migration `013`,
+then run `supabase/scripts/verify_package_e1_rpc.sql`. The RPC script builds a
+disposable Stage 4 state inside a transaction and ends with `ROLLBACK`. It
+requires one active enrolled team with three active members and an active
+assigned educator.
+
+---
+
 ## Package B — Real-Time Leader-Only Studio Booking
 
 **Status:** Implemented (application code). Apply migration `008_studio_bookings.sql` and policy `004_studio_booking_rls.sql` in Supabase.

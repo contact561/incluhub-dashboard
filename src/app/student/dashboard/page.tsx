@@ -15,6 +15,12 @@ import { buttonVariants } from "@/components/ui/button";
 import { getStudentDashboardData } from "@/lib/data/student/dashboard";
 import { cn } from "@/lib/utils";
 
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
+    new Date(`${value}T00:00:00+05:30`)
+  );
+}
+
 export default async function StudentDashboardPage() {
   const { data, error } = await getStudentDashboardData();
 
@@ -79,13 +85,43 @@ export default async function StudentDashboardPage() {
                 />
               )}
             </section>
-          ) : data.currentStageNumber > 3 ? (
+          ) : data.currentStageNumber === 4 ? (
+            <StatusPanel
+              variant={data.brandWorks?.date ? "information" : "warning"}
+              title={
+                data.brandWorks?.date
+                  ? "Brand Works scheduled"
+                  : "Brand Works scheduling pending"
+              }
+              description={
+                data.brandWorks?.date
+                  ? `Your team's Brand Works is scheduled for ${formatDate(data.brandWorks.date)}.${data.brandWorks.remarks ? ` ${data.brandWorks.remarks}` : ""}`
+                  : "An IncluHub admin will publish the Brand Works date and instructions here."
+              }
+              action={
+                <Link
+                  href="/student/my-stage"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" })
+                  )}
+                >
+                  View stage journey
+                </Link>
+              }
+            />
+          ) : data.currentStageNumber > 4 ? (
             <StatusPanel
               variant="success"
-              title="Stage 3 portfolio period complete"
-              description="Your team has progressed past Stage 3. Open My Stage for the current journey, or Portfolio for retained Stage 3 history when available."
+              title="Welcome to Stage 5"
+              description="Your team has completed Brand Works and your IncluHub ecosystem access is active."
               action={
                 <div className="flex flex-wrap gap-2">
+                  <Link
+                    href="/student/ecosystem"
+                    className={cn(buttonVariants({ size: "sm" }))}
+                  >
+                    Enter the Ecosystem
+                  </Link>
                   <Link
                     href="/student/my-stage"
                     className={cn(
@@ -93,14 +129,6 @@ export default async function StudentDashboardPage() {
                     )}
                   >
                     View stage journey
-                  </Link>
-                  <Link
-                    href="/student/portfolio"
-                    className={cn(
-                      buttonVariants({ variant: "outline", size: "sm" })
-                    )}
-                  >
-                    View portfolio
                   </Link>
                 </div>
               }

@@ -4,6 +4,8 @@ import { getAdminTeamById } from "@/lib/data/admin/teams";
 import { getTeamStageDetail } from "@/lib/data/admin/team-stage";
 import { assessTeamJourneyReadiness } from "@/lib/stages/teamJourneyReadiness";
 import { BmsCompletionForm } from "@/components/stages/BmsCompletionForm";
+import { BrandWorksCompletionForm } from "@/components/stages/BrandWorksCompletionForm";
+import { BrandWorksScheduleForm } from "@/components/stages/BrandWorksScheduleForm";
 import { StageJourneySection } from "@/components/stages/StageJourneySection";
 import { TeamStageTimeline } from "@/components/stages/TeamStageTimeline";
 import {
@@ -33,6 +35,24 @@ function formatCurrentStage(stageNumber: number | null): string {
     return "Not enrolled";
   }
   return `Stage ${stageNumber}`;
+}
+
+function currentDateInIndia(): string {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const value = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((part) => part.type === type)?.value ?? "";
+  return `${value("year")}-${value("month")}-${value("day")}`;
+}
+
+function formatBrandWorksDate(value: string): string {
+  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
+    new Date(`${value}T00:00:00+05:30`)
+  );
 }
 
 export default async function AdminTeamDetailPage({
@@ -74,6 +94,16 @@ export default async function AdminTeamDetailPage({
     team.currentStageNumber === 2 &&
     stageDetail?.stage2InProgress === true &&
     stageDetail?.bmsAlreadyCompleted !== true;
+  const stage4 = stageDetail?.timeline.find((stage) => stage.stageNumber === 4);
+  const showBrandWorksControls =
+    journeyEnrolled &&
+    team.currentStageNumber === 4 &&
+    stageDetail?.stage4InProgress === true &&
+    stageDetail?.brandWorksCompleted !== true;
+  const brandWorksDate = stage4?.brandWorksDate ?? null;
+  const canCompleteBrandWorks = Boolean(
+    brandWorksDate && brandWorksDate <= currentDateInIndia()
+  );
 
   return (
     <div className="space-y-6">
@@ -170,6 +200,22 @@ export default async function AdminTeamDetailPage({
                 portfolios={stageDetail.portfolios}
               />
               {showBmsForm ? <BmsCompletionForm teamId={team.id} /> : null}
+              {showBrandWorksControls ? (
+                <div className="grid gap-4 lg:grid-cols-2">
+                  <BrandWorksScheduleForm
+                    teamId={team.id}
+                    existingDate={brandWorksDate}
+                    existingRemarks={stage4?.brandWorksRemarks ?? null}
+                  />
+                  {stageDetail.brandWorksScheduled && brandWorksDate ? (
+                    <BrandWorksCompletionForm
+                      teamId={team.id}
+                      canComplete={canCompleteBrandWorks}
+                      scheduledDateLabel={formatBrandWorksDate(brandWorksDate)}
+                    />
+                  ) : null}
+                </div>
+              ) : null}
             </>
           ) : null}
         </>

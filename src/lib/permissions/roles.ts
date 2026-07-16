@@ -38,17 +38,17 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   {
     label: "Project Approvals",
     href: "/admin/project-approvals",
-    badge: "Coming later",
+    hidden: true,
   },
   {
     label: "Notifications",
     href: "/admin/notifications",
-    badge: "Coming later",
+    hidden: true,
   },
   {
     label: "Activity Logs",
     href: "/admin/activity-logs",
-    badge: "Coming later",
+    hidden: true,
   },
 ];
 
@@ -59,6 +59,11 @@ export const STUDENT_NAV_ITEMS: NavItem[] = [
   { label: "Portfolio", href: "/student/portfolio" },
 ];
 
+export const STUDENT_ECOSYSTEM_NAV_ITEM: NavItem = {
+  label: "Ecosystem",
+  href: "/student/ecosystem",
+};
+
 export const EDUCATOR_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/educator/dashboard" },
   { label: "My Teams", href: "/educator/my-teams" },
@@ -67,7 +72,7 @@ export const EDUCATOR_NAV_ITEMS: NavItem[] = [
 ];
 
 export const EXTERNAL_NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/external/dashboard" },
+  { label: "Dashboard", href: "/external/dashboard", hidden: true },
   {
     label: "Assigned Team",
     href: "/external/assigned-team",

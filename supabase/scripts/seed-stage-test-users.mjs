@@ -1,8 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { assertFixtureMutationAllowed } from "../../scripts/fixture-safety.mjs";
 
-const PASSWORD = "IncluHubTest2026!";
 
 function loadEnvLocal() {
   const envPath = resolve(process.cwd(), ".env.local");
@@ -95,7 +95,7 @@ async function getAdminId(admin) {
   return data.id;
 }
 
-async function createUser(admin, adminId, instituteId, user) {
+async function createUser(admin, adminId, instituteId, user, password) {
   const { data: existing } = await admin
     .from("profiles")
     .select("id, email")
@@ -110,7 +110,7 @@ async function createUser(admin, adminId, instituteId, user) {
   const { data: authData, error: authError } = await admin.auth.admin.createUser(
     {
       email: user.email,
-      password: PASSWORD,
+      password,
       email_confirm: true,
       user_metadata: { full_name: user.fullName, role: user.role },
     }
@@ -177,11 +177,18 @@ async function main() {
   const env = loadEnvLocal();
   const url = env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  const password = env.TEST_ACCOUNT_PASSWORD;
 
-  if (!url || !serviceRoleKey) {
-    console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
+  if (!url || !serviceRoleKey || !password) {
+    console.error("Missing Supabase credentials or TEST_ACCOUNT_PASSWORD in .env.local");
     process.exit(1);
   }
+
+  assertFixtureMutationAllowed({
+    confirmationFlag: "--confirm-seed-users",
+    label: "Stage test-user seed",
+    values: env,
+  });
 
   const admin = createClient(url, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -216,12 +223,11 @@ async function main() {
   const results = [];
   for (const user of TEST_USERS) {
     const instituteId = institutes[user.instituteIndex].id;
-    results.push(await createUser(admin, adminId, instituteId, user));
+    results.push(await createUser(admin, adminId, instituteId, user, password));
   }
 
   console.log("");
-  console.log("Done. Shared password for all test accounts:");
-  console.log(PASSWORD);
+  console.log("Done. Shared password was read from TEST_ACCOUNT_PASSWORD and is not printed.");
   console.log("");
   console.log("Students:");
   console.log("  makeup.student@incluhub.test — Makeup Artist");

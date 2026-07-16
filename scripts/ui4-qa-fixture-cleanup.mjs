@@ -13,6 +13,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
+import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
 
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
@@ -45,6 +46,10 @@ async function deleteByEq(admin, table, column, values) {
 }
 
 async function main() {
+  assertFixtureMutationAllowed({
+    confirmationFlag: "--confirm-fixture",
+    label: "UI4 QA fixture cleanup",
+  });
   console.log("=== UI-4B disposable fixture cleanup ===");
   console.log("Target team:", TEAM_NAME);
   console.log("Will NOT modify TEST TEAM ALPHA or TEST TEAM BETA.");

@@ -229,6 +229,12 @@ export interface TeamStageProgress {
   completed_at: string | null;
   bms_session_date: string | null;
   bms_remarks: string | null;
+  brand_works_date: string | null;
+  brand_works_remarks: string | null;
+  brand_works_scheduled_at: string | null;
+  brand_works_scheduled_by: string | null;
+  brand_works_completed_at: string | null;
+  brand_works_completed_by: string | null;
   admin_approval_status: ApprovalStatus;
   admin_approved_by: string | null;
   admin_approved_at: string | null;
@@ -730,6 +736,31 @@ export type Database = {
           p_remarks: string | null;
         };
         Returns: undefined;
+      };
+      schedule_brand_works: {
+        Args: {
+          p_team_id: string;
+          p_brand_works_date: string;
+          p_remarks: string | null;
+        };
+        Returns: {
+          team_id: string;
+          brand_works_date: string;
+          brand_works_remarks: string | null;
+          brand_works_scheduled_at: string;
+          brand_works_scheduled_by: string;
+        }[];
+      };
+      complete_brand_works: {
+        Args: {
+          p_team_id: string;
+        };
+        Returns: {
+          team_id: string;
+          stage4_status: string;
+          stage5_status: string;
+          current_stage_number: number;
+        }[];
       };
       start_team_stage_journey: {
         Args: {

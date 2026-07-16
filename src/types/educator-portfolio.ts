@@ -43,6 +43,10 @@ export type EducatorAssignedTeam = {
   activePortfolioType: StudentCategory | null;
   activeWorkflowStatus: PortfolioWorkflowStatus | null;
   pendingReviewPortfolioId: string | null;
+  brandWorksDate: string | null;
+  brandWorksRemarks: string | null;
+  brandWorksScheduledAt: string | null;
+  brandWorksCompletedAt: string | null;
 };
 
 export type EducatorAssignedStudent = {

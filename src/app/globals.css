@@ -298,3 +298,59 @@
     color: var(--text-primary);
   }
 }
+
+@keyframes ecosystem-confetti-fall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, -12vh, 0) rotate(0deg);
+  }
+  8% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--confetti-drift, 0), 112vh, 0)
+      rotate(720deg);
+  }
+}
+
+.ecosystem-confetti-piece {
+  position: absolute;
+  top: -1.5rem;
+  width: 0.5rem;
+  height: 0.85rem;
+  border-radius: 0.125rem;
+  background: var(--brand-primary);
+  opacity: 0;
+  animation-name: ecosystem-confetti-fall;
+  animation-timing-function: cubic-bezier(0.2, 0.65, 0.4, 1);
+  animation-iteration-count: 1;
+  animation-fill-mode: both;
+}
+
+.ecosystem-confetti-piece:nth-child(5n + 2) {
+  background: #d97706;
+}
+
+.ecosystem-confetti-piece:nth-child(5n + 3) {
+  background: #15803d;
+  border-radius: 999px;
+}
+
+.ecosystem-confetti-piece:nth-child(5n + 4) {
+  background: #7c3aed;
+}
+
+.ecosystem-confetti-piece:nth-child(5n + 5) {
+  background: #db2777;
+  border-radius: 999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ecosystem-confetti-piece {
+    display: none;
+  }
+}

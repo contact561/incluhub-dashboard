@@ -112,6 +112,25 @@ export function StudentStageJourney({
             </div>
           ) : null}
 
+          {stage.stageNumber === 4 && stage.brandWorksDate ? (
+            <div className="rounded-[var(--radius-control)] border border-border-default bg-surface-muted p-3 text-sm">
+              <p className="font-medium text-text-primary">Brand Works</p>
+              <p className="mt-1 text-text-muted">
+                Scheduled date: {formatDate(stage.brandWorksDate)}
+              </p>
+              {stage.brandWorksRemarks ? (
+                <p className="mt-1 whitespace-pre-wrap text-text-muted">
+                  Remarks: {stage.brandWorksRemarks}
+                </p>
+              ) : null}
+              {stage.brandWorksCompletedAt ? (
+                <p className="mt-1 font-medium text-status-success">
+                  Completed: {formatTimestamp(stage.brandWorksCompletedAt)}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
           {stage.stageNumber === 3 && portfolios.length > 0 ? (
             <div className="space-y-2">
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">

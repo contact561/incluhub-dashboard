@@ -628,7 +628,7 @@ async function seedEnvironment(admin, anonClient, password) {
   );
 
   logStep("Enrolling students in program…");
-  const enrollmentRows = Object.entries(ctx.studentIds).map(([key, studentId]) => ({
+  const enrollmentRows = Object.values(ctx.studentIds).map((studentId) => ({
     program_id: ctx.programId,
     student_id: studentId,
     status: "active",

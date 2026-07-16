@@ -32,10 +32,11 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
-# local test reset artifacts (never commit)
+# local test and development artifacts (never commit)
 TEST_CREDENTIALS.local.md
-tmp/test-reset-backups/
+/tmp/
 
 # vercel
 .vercel

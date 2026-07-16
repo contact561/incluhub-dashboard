@@ -77,6 +77,12 @@ export type StudentDashboardData = {
   ownPortfolioOutput: StudentPortfolioCard | null;
   activeTeamPortfolio: StudentPortfolioCard | null;
   teamPortfolioProgress: StudentPortfolioCard[];
+  brandWorks: {
+    date: string | null;
+    remarks: string | null;
+    scheduledAt: string | null;
+    completedAt: string | null;
+  } | null;
 };
 
 export type StudentDashboardResult = {

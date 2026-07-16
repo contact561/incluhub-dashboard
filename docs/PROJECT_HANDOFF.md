@@ -38,7 +38,12 @@ Roles:
 
 Current phase:
 
-Package E implementation preparation.
+Packages E1, E2, and F are implemented locally on
+`chore/package-f-release-readiness`. Package F passed local application,
+authorization, RLS, responsive browser, TypeScript, lint, and production build
+checks. See `docs/PACKAGE_F_RELEASE_READINESS.md` for the deployment gates.
+Both Package E1 SQL verification scripts passed in the connected test Supabase
+before Package G began.
 
 The UI redesign programme is complete.
 
@@ -56,17 +61,21 @@ Completed:
 
 Stage 3 portfolio workflow is complete and verified.
 
-TEST TEAM ALPHA and TEST TEAM BETA are currently at Stage 4.
+Stage 4 Brand Works application code, migration `013`, admin controls,
+read-only student/educator visibility, and rollback-safe verification SQL are
+implemented locally. Migration `013` has been applied to the connected test
+Supabase project; no production project has been modified.
 
-Next packages:
+TEST TEAM ALPHA is currently at Stage 4 and TEST TEAM BETA is at Stage 5 for
+the Ecosystem Welcome access checks.
 
-1. E1 — Stage 4 Brand Works
+Next package:
 
-2. E2 — Stage 5 Ecosystem Welcome and end-to-end QA
+1. Package G — configure Vercel, deploy a preview, smoke-test all roles, then
+   perform the approved submission/production deployment.
 
-3. Package F — Release-readiness audit
-
-4. Package G — Preview and production deployment
+2. Replace the labelled placeholder ecosystem URL when the final destination is
+   supplied, or explicitly approve the placeholder for submission.
 
 ## 3. Source-of-truth documents
 
@@ -252,7 +261,7 @@ Recommended configuration:
 
 - NEXT_PUBLIC_ECOSYSTEM_APP_NAME
 
-- public/brand/ecosystem-app-logo.svg
+- public/brand/incluhub-logo.svg
 
 The external application password must not be stored in IncluHub.
 

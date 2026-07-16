@@ -1,10 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { resolve } from "path";
+import { assertFixtureMutationAllowed } from "../../scripts/fixture-safety.mjs";
 
-const EMAIL = "admin.new@incluhub.test";
-const PASSWORD = "IncluHubAdmin2026!";
-const FULL_NAME = "Demo Admin New";
 
 function loadEnvLocal() {
   const envPath = resolve(process.cwd(), ".env.local");
@@ -34,11 +32,22 @@ async function main() {
   const env = loadEnvLocal();
   const url = env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  const email = env.TEST_ADMIN_EMAIL;
+  const password = env.TEST_ADMIN_PASSWORD;
+  const fullName = env.TEST_ADMIN_FULL_NAME;
 
-  if (!url || !serviceRoleKey) {
-    console.error("Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env.local");
+  if (!url || !serviceRoleKey || !email || !password || !fullName) {
+    console.error(
+      "Missing Supabase credentials or TEST_ADMIN_EMAIL, TEST_ADMIN_PASSWORD, TEST_ADMIN_FULL_NAME in .env.local"
+    );
     process.exit(1);
   }
+
+  assertFixtureMutationAllowed({
+    confirmationFlag: "--confirm-create-admin",
+    label: "Admin fixture creation",
+    values: env,
+  });
 
   const admin = createClient(url, serviceRoleKey, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -47,19 +56,19 @@ async function main() {
   const { data: existing } = await admin
     .from("profiles")
     .select("id")
-    .eq("email", EMAIL)
+    .eq("email", email)
     .maybeSingle();
 
   if (existing) {
-    console.error(`Profile already exists for ${EMAIL}. Use a different email or delete the user first.`);
+    console.error(`Profile already exists for ${email}. Use a different email or delete the user first.`);
     process.exit(1);
   }
 
   const { data: authData, error: authError } = await admin.auth.admin.createUser({
-    email: EMAIL,
-    password: PASSWORD,
+    email,
+    password,
     email_confirm: true,
-    user_metadata: { full_name: FULL_NAME, role: "admin" },
+    user_metadata: { full_name: fullName, role: "admin" },
   });
 
   if (authError || !authData.user) {
@@ -71,8 +80,8 @@ async function main() {
 
   const { error: profileError } = await admin.from("profiles").insert({
     id: userId,
-    full_name: FULL_NAME,
-    email: EMAIL,
+    full_name: fullName,
+    email,
     phone: null,
     role: "admin",
     status: "active",
@@ -86,8 +95,8 @@ async function main() {
   }
 
   console.log("Admin user created successfully.");
-  console.log("EMAIL:", EMAIL);
-  console.log("PASSWORD:", PASSWORD);
+  console.log("EMAIL:", email);
+  console.log("Password was read from TEST_ADMIN_PASSWORD and is not printed.");
   console.log("USER_ID:", userId);
 }
 
