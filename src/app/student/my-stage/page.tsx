@@ -10,6 +10,8 @@ import {
   getStudentMyStagePageData,
 } from "@/lib/data/student/myStage";
 import { cn } from "@/lib/utils";
+import { WhatHappensNow } from "@/components/student/WhatHappensNow";
+import { getStudentEcosystemAccess } from "@/lib/data/student/ecosystem";
 
 type StudentMyStagePageProps = {
   searchParams: Promise<{ ecosystem?: string }>;
@@ -19,7 +21,10 @@ export default async function StudentMyStagePage({
   searchParams,
 }: StudentMyStagePageProps) {
   const { ecosystem } = await searchParams;
-  const { data, error } = await getStudentMyStagePageData();
+  const [{ data, error }, ecosystemAccess] = await Promise.all([
+    getStudentMyStagePageData(),
+    getStudentEcosystemAccess(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -34,7 +39,7 @@ export default async function StudentMyStagePage({
         <StatusPanel
           variant="warning"
           title="Ecosystem access is still locked"
-          description="Complete Brand Works and reach Stage 5 to open the IncluHub Ecosystem."
+          description="Complete the Brand Opportunity and final Admin review to open the IncluHub Ecosystem."
         />
       ) : null}
 
@@ -47,6 +52,7 @@ export default async function StudentMyStagePage({
 
       {data ? (
         <>
+          <WhatHappensNow title="Complete only the current unlocked stage" description="The timeline below explains completed, active, and locked work. Follow the active stage instructions; IncluHub unlocks the next stage after its required approval." actionLabel={data.currentStageNumber === 3 ? "Open portfolio workspace" : undefined} actionHref={data.currentStageNumber === 3 ? "/student/portfolio" : undefined} />
           <section className="grid gap-4 rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
@@ -101,15 +107,15 @@ export default async function StudentMyStagePage({
 
           {data.currentStageNumber !== null && data.currentStageNumber >= 5 ? (
             <StatusPanel
-              variant="success"
-              title="Stage 5 complete — your ecosystem is ready"
-              description="Celebrate your programme completion and continue into the IncluHub Ecosystem."
+              variant={ecosystemAccess.status === "granted" ? "success" : "information"}
+              title={ecosystemAccess.status === "granted" ? "Final review complete — your ecosystem is ready" : "Stage 5 · Under Review"}
+              description={ecosystemAccess.status === "granted" ? "Your access is approved. Continue into the IncluHub Ecosystem." : "Admin is completing the separate final review. You will be notified when ecosystem access is approved."}
               action={
                 <Link
                   href="/student/ecosystem"
                   className={cn(buttonVariants({ size: "sm" }))}
                 >
-                  Enter the Ecosystem
+                  {ecosystemAccess.status === "granted" ? "Enter the Ecosystem" : "View final review"}
                 </Link>
               }
             />

@@ -59,7 +59,7 @@ export type StudentStage3PortfolioContext = {
   teamId: string;
   teamName: string;
   programName: string | null;
-  currentStageNumber: number;
+  currentStageNumber: number | null;
   currentStudentId: string;
   currentStudentName: string;
   ownPortfolioOutput: StudentPortfolioCard | null;
@@ -72,7 +72,7 @@ export type StudentStage3PortfolioContext = {
 export type StudentDashboardData = {
   teamName: string;
   programName: string | null;
-  currentStageNumber: number;
+  currentStageNumber: number | null;
   currentStudentId: string;
   ownPortfolioOutput: StudentPortfolioCard | null;
   activeTeamPortfolio: StudentPortfolioCard | null;

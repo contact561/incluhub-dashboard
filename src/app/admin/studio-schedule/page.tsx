@@ -21,7 +21,7 @@ export default async function AdminStudioSchedulePage({
     <div className="space-y-6">
       <PageHeader
         title="Studio Schedule"
-        description="Read-only view of confirmed IncluHub studio bookings."
+        description="Manage physical QR check-in for online studio bookings. Submission opens only after the booked leader scans and confirms attendance."
         metadata={
           error ? undefined : (
             <span>

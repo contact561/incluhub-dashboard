@@ -62,6 +62,12 @@ export function getPortfolioWorkflowPresentation(
         title: "Ready for studio booking",
         description: "Book the studio before submitting your portfolio.",
       };
+    case "awaiting_studio_checkin":
+      return {
+        title: "Physical studio check-in required",
+        description:
+          "At the studio, scan the temporary QR displayed by Admin. Submission opens only after the portfolio leader confirms attendance.",
+      };
     case "awaiting_submission":
       return {
         title: "Ready for portfolio submission",

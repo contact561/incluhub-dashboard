@@ -13,6 +13,7 @@ import {
 } from "@/lib/constants/labels";
 import { getStudentMyTeamPageData } from "@/lib/data/student/myTeam";
 import { formatCurrentStageLabel } from "@/lib/data/student/myStage";
+import { WhatHappensNow } from "@/components/student/WhatHappensNow";
 
 export default async function StudentMyTeamPage() {
   const { data, error } = await getStudentMyTeamPageData();
@@ -35,6 +36,7 @@ export default async function StudentMyTeamPage() {
 
       {data ? (
         <>
+          <WhatHappensNow title="Know who leads and who assists" description="Every team member leads one category portfolio and assists on the other two. Use the educator mapping below when your category work reaches review." actionLabel="View programme stage" actionHref="/student/my-stage" />
           <section className="grid gap-4 rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">

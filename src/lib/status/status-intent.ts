@@ -63,6 +63,7 @@ export const STATUS_INTENT_CLASSES: Record<
 const PORTFOLIO_WORKFLOW_STATUSES: readonly PortfolioWorkflowStatus[] = [
   "locked",
   "awaiting_booking",
+  "awaiting_studio_checkin",
   "awaiting_submission",
   "pending_educator",
   "pending_admin",
@@ -87,6 +88,7 @@ export function getPortfolioWorkflowSemanticIntent(
     case "locked":
       return "neutral";
     case "awaiting_booking":
+    case "awaiting_studio_checkin":
     case "awaiting_submission":
       return "info";
     case "pending_educator":

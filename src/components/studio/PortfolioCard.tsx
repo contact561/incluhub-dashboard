@@ -4,6 +4,8 @@ import { PortfolioRevisionFeedbackCard } from "@/components/studio/PortfolioRevi
 import { PortfolioSubmissionForm } from "@/components/studio/PortfolioSubmissionForm";
 import { PortfolioVersionHistory } from "@/components/studio/PortfolioVersionHistory";
 import { StudioBookingPanel } from "@/components/studio/StudioBookingPanel";
+import { AssistantAvailabilityForm } from "@/components/studio/AssistantAvailabilityForm";
+import { StudentQrCheckin } from "@/components/studio/StudentQrCheckin";
 import { SubmittedPortfolioCard } from "@/components/studio/SubmittedPortfolioCard";
 import { PortfolioWorkflowBadge } from "@/components/status";
 import { StatusPanel } from "@/components/status/StatusPanel";
@@ -135,7 +137,7 @@ export function PortfolioCard({
 
       {portfolio.workflowStatus === "awaiting_booking" && isLeader ? (
         <div className="mt-4">
-          <StudioBookingPanel portfolioOutputId={portfolio.id} />
+          <StudioBookingPanel portfolioOutputId={portfolio.id} assistantAvailability={portfolio.assistantAvailability} />
         </div>
       ) : null}
 
@@ -145,6 +147,21 @@ export function PortfolioCard({
             variant="information"
             title="Waiting on portfolio leader"
             description={getAssistantWaitingMessage(portfolio.portfolioType)}
+          />
+          <AssistantAvailabilityForm portfolioOutputId={portfolio.id} />
+        </div>
+      ) : null}
+
+      {portfolio.workflowStatus === "awaiting_studio_checkin" && isLeader ? (
+        <StudentQrCheckin />
+      ) : null}
+
+      {portfolio.workflowStatus === "awaiting_studio_checkin" && !isLeader ? (
+        <div className="mt-4">
+          <StatusPanel
+            variant="information"
+            title="Waiting for physical check-in"
+            description={`The ${STUDENT_CATEGORY_LABELS[portfolio.portfolioType]} leader must scan the temporary Admin QR at the studio before submission opens.`}
           />
         </div>
       ) : null}

@@ -10,6 +10,10 @@ export const PORTFOLIO_WORKFLOW_STATUS_LABELS: Record<
     "awaiting_booking",
     "photographer"
   ).title,
+  awaiting_studio_checkin: getPortfolioWorkflowPresentation(
+    "awaiting_studio_checkin",
+    "photographer"
+  ).title,
   awaiting_submission: getPortfolioWorkflowPresentation(
     "awaiting_submission",
     "photographer"

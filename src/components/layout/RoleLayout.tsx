@@ -1,10 +1,12 @@
 import { logoutAction } from "@/actions/auth/logout";
 import { AppShell } from "@/components/layout/AppShell";
 import { MobileNavigation } from "@/components/layout/MobileNavigation";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/button";
 import type { NavItem } from "@/lib/permissions/roles";
 import type { Profile } from "@/types/database";
+import { getNotificationInbox } from "@/lib/data/notifications";
 
 type RoleLayoutProps = {
   profile: Profile;
@@ -13,12 +15,14 @@ type RoleLayoutProps = {
   children: React.ReactNode;
 };
 
-export function RoleLayout({
+export async function RoleLayout({
   profile,
   portalTitle,
   navItems,
   children,
 }: RoleLayoutProps) {
+  const notifications = await getNotificationInbox();
+  const inboxHref = `/${profile.role === "external_member" ? "external" : profile.role}/notifications`;
   return (
     <AppShell
       sidebar={<Sidebar title={portalTitle} navItems={navItems} />}
@@ -37,11 +41,18 @@ export function RoleLayout({
               {profile.full_name}
             </span>
           </p>
-          <form action={logoutAction}>
-            <Button type="submit" variant="outline" size="sm">
-              Sign out
-            </Button>
-          </form>
+          <div className="flex items-center gap-2">
+            {profile.role !== "external_member" ? (
+              <NotificationBell
+                items={notifications.items}
+                unreadCount={notifications.unreadCount}
+                inboxHref={inboxHref}
+              />
+            ) : null}
+            <form action={logoutAction}>
+              <Button type="submit" variant="outline" size="sm">Sign out</Button>
+            </form>
+          </div>
         </header>
       }
     >

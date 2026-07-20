@@ -16,14 +16,17 @@ import {
   type StudioSlotCode,
 } from "@/lib/constants/studioSlots";
 import { useStudioAvailability } from "@/hooks/useStudioAvailability";
+import { AssistantAvailabilitySummary } from "@/components/studio/AssistantAvailabilitySummary";
+import type { AssistantAvailabilityChoice } from "@/types/studio-booking";
 
 type StudioBookingPanelProps = {
   portfolioOutputId: string;
+  assistantAvailability: AssistantAvailabilityChoice[];
 };
 
 const initialState: BookStudioSlotState = {};
 
-export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProps) {
+export function StudioBookingPanel({ portfolioOutputId, assistantAvailability }: StudioBookingPanelProps) {
   const router = useRouter();
   const [bookingDate, setBookingDate] = useState(getTodayInAsiaKolkata());
   const [selectedSlot, setSelectedSlot] = useState<StudioSlotCode | null>(null);
@@ -56,9 +59,10 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
     <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-muted/40 p-4">
       <h3 className="text-sm font-semibold text-text-primary">Book studio slot</h3>
       <p className="mt-1 text-sm text-text-muted">
-        Select a date and one of five daily IncluHub studio slots. Bookings are
-        free, final, and cannot be changed after confirmation.
+        Review your assistants&apos; preferred timings, then select a live studio slot.
+        Recommendations do not reserve the studio.
       </p>
+      <AssistantAvailabilitySummary choices={assistantAvailability} />
 
       <div className="mt-4 space-y-4">
         <div className="space-y-2">
@@ -113,7 +117,7 @@ export function StudioBookingPanel({ portfolioOutputId }: StudioBookingPanelProp
           <StatusPanel
             variant="warning"
             title="Final booking warning"
-            description="Once confirmed, this studio slot cannot be cancelled, edited, or rescheduled."
+            description="Confirm that this timing works for your team. After booking, physical Admin QR check-in is required before submission opens."
           />
         ) : null}
 

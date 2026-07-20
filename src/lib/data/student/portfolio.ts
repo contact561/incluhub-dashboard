@@ -146,13 +146,16 @@ export async function getStudentStage3PortfolioContext(): Promise<{
           id,
           portfolio_output_id,
           booked_at,
+          verification_status,
+          physically_verified_at,
           studio_slot_occupancy!occupancy_id (
             booking_date,
             slot_code
           )
         `
         )
-        .eq("team_id", teamId),
+        .eq("team_id", teamId)
+        .order("booked_at", { ascending: false }),
       supabase
         .from("team_members")
         .select(
@@ -202,7 +205,7 @@ export async function getStudentStage3PortfolioContext(): Promise<{
   const team = teamResult.data as {
     id: string;
     team_name: string;
-    current_stage_number: number;
+    current_stage_number: number | null;
     programs: { name: string } | null;
   };
 
@@ -280,6 +283,25 @@ export async function getStudentStage3PortfolioContext(): Promise<{
     return { data: null, error: participantsError.message };
   }
 
+  const { data: availabilityData, error: availabilityError } =
+    portfolioIds.length > 0
+      ? await supabase
+          .from("studio_availability_responses")
+          .select("portfolio_output_id, assistant_student_id, booking_date, slot_code")
+          .in("portfolio_output_id", portfolioIds)
+          .order("booking_date", { ascending: true })
+      : { data: [], error: null };
+
+  if (availabilityError) {
+    console.error(`[${LOADER}] availability`, availabilityError.message);
+    return {
+      data: null,
+      error: /studio_availability_responses/i.test(availabilityError.message)
+        ? "The database migration has not been applied."
+        : availabilityError.message,
+    };
+  }
+
   const participantsByPortfolio = new Map<string, PortfolioParticipantView[]>();
   for (const row of (participantsData ?? []) as Array<{
     portfolio_output_id: string;
@@ -297,32 +319,53 @@ export async function getStudentStage3PortfolioContext(): Promise<{
     participantsByPortfolio.set(row.portfolio_output_id, current);
   }
 
-  const bookingByPortfolio = new Map(
-    (
-      (bookingsResult.data ?? []) as Array<{
+  const bookingByPortfolio = new Map<string, StudentPortfolioCard["booking"]>();
+  const bookingRows = (bookingsResult.data ?? []) as Array<{
+        id: string;
         portfolio_output_id: string;
         booked_at: string;
+        verification_status: "online_confirmed" | "physically_verified" | "no_show";
+        physically_verified_at: string | null;
         studio_slot_occupancy: {
           booking_date: string;
           slot_code: string;
         } | null;
-      }>
-    )
-      .filter(
-        (row) =>
-          row.studio_slot_occupancy &&
-          isStudioSlotCode(row.studio_slot_occupancy.slot_code)
-      )
-      .map((row) => [
-        row.portfolio_output_id,
-        {
+      }>;
+  for (const row of bookingRows) {
+    if (
+      row.verification_status === "no_show" ||
+      !row.studio_slot_occupancy ||
+      !isStudioSlotCode(row.studio_slot_occupancy.slot_code) ||
+      bookingByPortfolio.has(row.portfolio_output_id)
+    ) continue;
+    bookingByPortfolio.set(row.portfolio_output_id, {
+          id: row.id,
           portfolioOutputId: row.portfolio_output_id,
           bookingDate: row.studio_slot_occupancy!.booking_date,
           slotCode: row.studio_slot_occupancy!.slot_code as StudioSlotCode,
           bookedAt: row.booked_at,
-        },
-      ])
-  );
+          verificationStatus: row.verification_status,
+          physicallyVerifiedAt: row.physically_verified_at,
+        });
+  }
+
+  const availabilityByPortfolio = new Map<string, StudentPortfolioCard["assistantAvailability"]>();
+  for (const row of (availabilityData ?? []) as Array<{
+    portfolio_output_id: string;
+    assistant_student_id: string;
+    booking_date: string;
+    slot_code: string;
+  }>) {
+    if (!isStudioSlotCode(row.slot_code)) continue;
+    const choices = availabilityByPortfolio.get(row.portfolio_output_id) ?? [];
+    choices.push({
+      assistantStudentId: row.assistant_student_id,
+      assistantName: memberNameById.get(row.assistant_student_id)?.name ?? "Assistant",
+      bookingDate: row.booking_date,
+      slotCode: row.slot_code,
+    });
+    availabilityByPortfolio.set(row.portfolio_output_id, choices);
+  }
 
   const submissionRows = (submissionsData ?? []) as Array<{
     id: string;
@@ -378,6 +421,7 @@ export async function getStudentStage3PortfolioContext(): Promise<{
         leaderStudentId: row.leader_student_id,
         leaderName: leader?.name ?? "—",
         participants: participantsByPortfolio.get(row.id) ?? [],
+        assistantAvailability: availabilityByPortfolio.get(row.id) ?? [],
         booking: bookingByPortfolio.get(row.id) ?? null,
         submission: submissionByPortfolio.get(row.id) ?? null,
         lockedReason: lockedReasonForPortfolio(

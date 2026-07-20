@@ -54,6 +54,7 @@ export type PaymentStatus =
 export type PortfolioWorkflowStatus =
   | "locked"
   | "awaiting_booking"
+  | "awaiting_studio_checkin"
   | "awaiting_submission"
   | "pending_educator"
   | "pending_admin"
@@ -286,6 +287,35 @@ export interface StudioBooking {
   occupancy_id: string;
   created_by: string;
   booked_at: string;
+  verification_status: "online_confirmed" | "physically_verified" | "no_show";
+  online_confirmed_at: string;
+  physically_verified_at: string | null;
+  physically_verified_by: string | null;
+  no_show_at: string | null;
+  no_show_by: string | null;
+  no_show_remarks: string | null;
+}
+
+export interface StudioAvailabilityResponse {
+  id: string;
+  portfolio_output_id: string;
+  assistant_student_id: string;
+  booking_date: string;
+  slot_code: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface StudioCheckinToken {
+  id: string;
+  booking_id: string;
+  token_hash: string;
+  expires_at: string;
+  generated_by: string;
+  generated_at: string;
+  used_at: string | null;
+  used_by: string | null;
 }
 
 export interface PortfolioApproval {
@@ -382,8 +412,64 @@ export interface Notification {
     | "specific_user";
   priority: "normal" | "high";
   created_by: string;
+  event_type: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  action_url: string | null;
+  dedupe_key: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface BrandOpportunity {
+  id: string;
+  team_id: string;
+  title: string;
+  description: string;
+  instructions: string | null;
+  scheduled_date: string;
+  due_date: string;
+  status: "draft" | "assigned" | "proof_submitted" | "revision_required" | "approved";
+  assigned_by: string;
+  assigned_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BrandOpportunityFile {
+  id: string;
+  opportunity_id: string;
+  file_name: string;
+  object_path: string;
+  mime_type: "application/pdf" | "image/jpeg";
+  size_bytes: number;
+  uploaded_by: string;
+  created_at: string;
+}
+
+export interface BrandWorkSubmission {
+  id: string;
+  opportunity_id: string;
+  version_number: number;
+  status: "draft" | "submitted" | "revision_required" | "approved";
+  notes: string | null;
+  submitted_by_student_id: string;
+  submitted_at: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
+  review_comments: string | null;
+  created_at: string;
+}
+
+export interface BrandWorkSubmissionFile {
+  id: string;
+  submission_id: string;
+  file_name: string;
+  object_path: string;
+  mime_type: "application/pdf" | "image/jpeg";
+  size_bytes: number;
+  uploaded_by: string;
+  created_at: string;
 }
 
 export interface NotificationRecipient {
@@ -635,6 +721,8 @@ export type Database = {
         ]
       >;
       studio_slot_occupancy: TableDef<StudioSlotOccupancy>;
+      studio_availability_responses: TableDef<StudioAvailabilityResponse>;
+      studio_checkin_tokens: TableDef<StudioCheckinToken>;
       studio_bookings: TableDef<
         StudioBooking,
         [
@@ -699,6 +787,10 @@ export type Database = {
       project_approvals: TableDef<ProjectApproval>;
       notifications: TableDef<Notification>;
       notification_recipients: TableDef<NotificationRecipient>;
+      brand_opportunities: TableDef<BrandOpportunity>;
+      brand_opportunity_files: TableDef<BrandOpportunityFile>;
+      brand_work_submissions: TableDef<BrandWorkSubmission>;
+      brand_work_submission_files: TableDef<BrandWorkSubmissionFile>;
       activity_logs: TableDef<ActivityLog>;
     };
     Views: {
@@ -788,6 +880,58 @@ export type Database = {
           slot_code: string;
           booked_at: string;
         }[];
+      };
+      save_studio_availability: {
+        Args: { p_portfolio_output_id: string; p_slots: unknown };
+        Returns: number;
+      };
+      create_studio_checkin_qr: {
+        Args: { p_booking_id: string };
+        Returns: { booking_id: string; qr_token: string; expires_at: string }[];
+      };
+      verify_studio_checkin: {
+        Args: { p_qr_token: string };
+        Returns: { booking_id: string; portfolio_output_id: string; verified_at: string }[];
+      };
+      mark_studio_no_show: {
+        Args: { p_booking_id: string; p_remarks: string };
+        Returns: boolean;
+      };
+      mark_notification_read: {
+        Args: { p_notification_id: string };
+        Returns: boolean;
+      };
+      mark_all_notifications_read: { Args: Record<string, never>; Returns: number };
+      assign_brand_opportunity: {
+        Args: {
+          p_team_id: string;
+          p_title: string;
+          p_description: string;
+          p_instructions: string | null;
+          p_scheduled_date: string;
+          p_due_date: string;
+        };
+        Returns: string;
+      };
+      activate_brand_opportunity: {
+        Args: { p_opportunity_id: string };
+        Returns: boolean;
+      };
+      start_brand_work_submission: {
+        Args: { p_opportunity_id: string; p_notes: string | null };
+        Returns: string;
+      };
+      finalize_brand_work_submission: {
+        Args: { p_submission_id: string };
+        Returns: boolean;
+      };
+      review_brand_work_submission: {
+        Args: { p_submission_id: string; p_decision: string; p_comments: string | null };
+        Returns: boolean;
+      };
+      approve_stage5_review: {
+        Args: { p_team_id: string; p_remarks: string | null };
+        Returns: boolean;
       };
       submit_portfolio: {
         Args: {

@@ -1,5 +1,5 @@
-import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
 import { logEducatorLoaderError } from "@/lib/data/educator/loader-errors";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { PortfolioWorkflowStatus, StudentCategory } from "@/types/database";
 
@@ -41,15 +41,16 @@ type TeamRow = {
 
 type StudentRow = {
   id: string;
+  user_id: string;
   student_category: StudentCategory;
   current_stage_number: number | null;
   status: string;
 };
 
-function studentDisplayName(category: StudentCategory): string {
-  const label = STUDENT_CATEGORY_LABELS[category] ?? "Student";
-  return `${label} student`;
-}
+type StudentProfileRow = {
+  id: string;
+  full_name: string;
+};
 
 function missingIds(expected: string[], found: Set<string>): string[] {
   return expected.filter((id) => !found.has(id));
@@ -145,7 +146,7 @@ export async function getEducatorContext(): Promise<{
 
   const { data: studentRows, error: studentError } = await supabase
     .from("students")
-    .select("id, student_category, current_stage_number, status")
+    .select("id, user_id, student_category, current_stage_number, status")
     .in("id", studentIds)
     .eq("status", "active");
 
@@ -171,6 +172,58 @@ export async function getEducatorContext(): Promise<{
     return { context: null, error: message };
   }
 
+  // Profiles are not educator-readable under RLS. Use the server-only admin
+  // client only after the signed-in educator and their active mappings have
+  // been resolved, and restrict the lookup to those mapped student user IDs.
+  const studentUserIds = [
+    ...new Set(students.map((student) => student.user_id)),
+  ];
+  let studentProfileRows: StudentProfileRow[] = [];
+
+  try {
+    const admin = createAdminClient();
+    const { data: profileRows, error: profileError } = await admin
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", studentUserIds);
+
+    if (profileError) {
+      logEducatorLoaderError(CONTEXT_LOADER, profileError.message);
+      return {
+        context: null,
+        error: "Assigned student names could not be loaded.",
+      };
+    }
+
+    studentProfileRows = (profileRows ?? []) as StudentProfileRow[];
+  } catch (error) {
+    logEducatorLoaderError(
+      CONTEXT_LOADER,
+      error instanceof Error ? error.message : "Student profile lookup failed."
+    );
+    return {
+      context: null,
+      error: "Assigned student names could not be loaded.",
+    };
+  }
+
+  const profileByUserId = new Map(
+    studentProfileRows.map((profile) => [profile.id, profile.full_name])
+  );
+  const profilesMissing = missingIds(
+    studentUserIds,
+    new Set(studentProfileRows.map((profile) => profile.id))
+  );
+
+  if (profilesMissing.length > 0) {
+    const message = "Assigned student names could not be loaded.";
+    logEducatorLoaderError(
+      CONTEXT_LOADER,
+      `${message} missingProfileIds=${profilesMissing.length}`
+    );
+    return { context: null, error: message };
+  }
+
   const mappings: EducatorMappingRow[] = educatorMappings
     .map((row) => {
       const team = teamById.get(row.team_id);
@@ -183,7 +236,7 @@ export async function getEducatorContext(): Promise<{
         teamStatus: team.status,
         currentStageNumber: team.current_stage_number,
         stageStatus: team.stage_status,
-        studentName: studentDisplayName(student.student_category),
+        studentName: profileByUserId.get(student.user_id)!,
         studentCategory: student.student_category,
         studentStageNumber: student.current_stage_number,
       };

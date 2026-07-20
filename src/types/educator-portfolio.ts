@@ -5,6 +5,7 @@ import type {
   StageStatus,
   StudentCategory,
 } from "@/types/database";
+import type { BrandOpportunityView } from "@/types/brand-opportunity";
 
 export type EducatorDashboardSummary = {
   assignedTeamsCount: number;
@@ -43,10 +44,13 @@ export type EducatorAssignedTeam = {
   activePortfolioType: StudentCategory | null;
   activeWorkflowStatus: PortfolioWorkflowStatus | null;
   pendingReviewPortfolioId: string | null;
+  bmsSessionDate: string | null;
+  bmsRemarks: string | null;
   brandWorksDate: string | null;
   brandWorksRemarks: string | null;
   brandWorksScheduledAt: string | null;
   brandWorksCompletedAt: string | null;
+  brandOpportunity: BrandOpportunityView | null;
 };
 
 export type EducatorAssignedStudent = {

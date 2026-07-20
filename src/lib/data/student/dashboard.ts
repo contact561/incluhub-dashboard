@@ -21,7 +21,7 @@ export async function getStudentDashboardData(): Promise<StudentDashboardResult>
 
   let brandWorks: StudentDashboardData["brandWorks"] = null;
 
-  if (data.currentStageNumber >= 4) {
+  if ((data.currentStageNumber ?? 0) >= 4) {
     const { detail, error: stageError } = await getTeamStageDetail(data.teamId);
     if (stageError) {
       console.error(`[${LOADER}] Brand Works`, stageError);

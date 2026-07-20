@@ -28,7 +28,7 @@ function lockedReasonForStage(
     case 4:
       return "Unlocks after all three portfolio outputs are approved.";
     case 5:
-      return "Unlocks after Brand Works is completed.";
+      return "Unlocks after Brand Opportunity proof is approved.";
     default:
       return "This stage is not yet available.";
   }
@@ -41,17 +41,17 @@ function stagePresentation(stage: {
 }) {
   if (stage.stage_number === 4) {
     return {
-      name: "Brand Works",
+      name: "Brand Opportunity",
       description:
-        "The IncluHub team schedules and completes the team's Brand Works session.",
+        "Admin assigns a private brief; the team submits mandatory proof for Admin review.",
     };
   }
 
   if (stage.stage_number === 5) {
     return {
-      name: "IncluHub Ecosystem Welcome",
+      name: "Final Review",
       description:
-        "Programme completion and access to the IncluHub ecosystem application.",
+        "Ecosystem access remains locked until the separate Admin final approval.",
     };
   }
 

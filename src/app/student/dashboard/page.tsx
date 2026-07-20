@@ -13,7 +13,11 @@ import {
 } from "@/components/status";
 import { buttonVariants } from "@/components/ui/button";
 import { getStudentDashboardData } from "@/lib/data/student/dashboard";
+import { formatCurrentStageLabel } from "@/lib/data/student/myStage";
 import { cn } from "@/lib/utils";
+import { ProgramOverview } from "@/components/student/ProgramOverview";
+import { WhatHappensNow } from "@/components/student/WhatHappensNow";
+import { getStudentEcosystemAccess } from "@/lib/data/student/ecosystem";
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
@@ -22,7 +26,10 @@ function formatDate(value: string): string {
 }
 
 export default async function StudentDashboardPage() {
-  const { data, error } = await getStudentDashboardData();
+  const [{ data, error }, ecosystemAccess] = await Promise.all([
+    getStudentDashboardData(),
+    getStudentEcosystemAccess(),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -35,6 +42,7 @@ export default async function StudentDashboardPage() {
 
       {!error && data ? (
         <>
+          <ProgramOverview currentStage={data.currentStageNumber} />
           <section className="grid gap-3 sm:grid-cols-3">
             <DashboardMetricCard label="Team" value={data.teamName} compact />
             <DashboardMetricCard
@@ -44,7 +52,7 @@ export default async function StudentDashboardPage() {
             />
             <DashboardMetricCard
               label="Current stage"
-              value={`Stage ${data.currentStageNumber}`}
+              value={formatCurrentStageLabel(data.currentStageNumber)}
               compact
               href="/student/my-stage"
             />
@@ -88,39 +96,31 @@ export default async function StudentDashboardPage() {
           ) : data.currentStageNumber === 4 ? (
             <StatusPanel
               variant={data.brandWorks?.date ? "information" : "warning"}
-              title={
-                data.brandWorks?.date
-                  ? "Brand Works scheduled"
-                  : "Brand Works scheduling pending"
-              }
-              description={
-                data.brandWorks?.date
-                  ? `Your team's Brand Works is scheduled for ${formatDate(data.brandWorks.date)}.${data.brandWorks.remarks ? ` ${data.brandWorks.remarks}` : ""}`
-                  : "An IncluHub admin will publish the Brand Works date and instructions here."
-              }
+              title={data.brandWorks?.date ? "Brand Opportunity assigned" : "Brand Opportunity assignment pending"}
+              description={data.brandWorks?.date ? `Your team's Brand Opportunity is scheduled for ${formatDate(data.brandWorks.date)}. Open it to review the private brief and proof requirements.` : "A Brand Opportunity is being assigned to your team. No action is required yet."}
               action={
                 <Link
-                  href="/student/my-stage"
+                  href="/student/brand-opportunity"
                   className={cn(
                     buttonVariants({ variant: "outline", size: "sm" })
                   )}
                 >
-                  View stage journey
+                  Open Brand Opportunity
                 </Link>
               }
             />
-          ) : data.currentStageNumber > 4 ? (
+          ) : (data.currentStageNumber ?? 0) > 4 ? (
             <StatusPanel
-              variant="success"
-              title="Welcome to Stage 5"
-              description="Your team has completed Brand Works and your IncluHub ecosystem access is active."
+              variant={ecosystemAccess.status === "granted" ? "success" : "information"}
+              title={ecosystemAccess.status === "granted" ? "Final review complete" : "Stage 5 · Under Review"}
+              description={ecosystemAccess.status === "granted" ? "Your ecosystem access is active." : "Your Brand Opportunity proof is approved. Admin must complete the separate final review before ecosystem access opens."}
               action={
                 <div className="flex flex-wrap gap-2">
                   <Link
                     href="/student/ecosystem"
                     className={cn(buttonVariants({ size: "sm" }))}
                   >
-                    Enter the Ecosystem
+                    {ecosystemAccess.status === "granted" ? "Enter the Ecosystem" : "View final review"}
                   </Link>
                   <Link
                     href="/student/my-stage"
@@ -165,6 +165,12 @@ export default async function StudentDashboardPage() {
               My Stage
             </Link>
           </section>
+          <WhatHappensNow
+            title={data.currentStageNumber === 3 ? "Continue your active portfolio" : data.currentStageNumber === 4 ? "Review your Brand Opportunity status" : data.currentStageNumber === 5 ? "Follow the final review" : "Follow your stage journey"}
+            description={data.currentStageNumber === 3 ? "Open the portfolio workspace to share availability, book, check in, submit, or respond to review feedback." : "Your stage page explains who must act next and what will unlock the following stage."}
+            actionLabel={data.currentStageNumber === 3 ? "Open portfolio workspace" : "View my stage"}
+            actionHref={data.currentStageNumber === 3 ? "/student/portfolio" : "/student/my-stage"}
+          />
         </>
       ) : null}
     </div>

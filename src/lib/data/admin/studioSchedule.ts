@@ -14,6 +14,9 @@ export async function getAdminStudioSchedule(
       `
       id,
       booked_at,
+      verification_status,
+      physically_verified_at,
+      no_show_remarks,
       portfolio_outputs!portfolio_output_id (
         portfolio_type,
         leader_student_id,
@@ -53,6 +56,9 @@ export async function getAdminStudioSchedule(
   let rows = ((data ?? []) as unknown as Array<{
     id: string;
     booked_at: string;
+    verification_status: "online_confirmed" | "physically_verified" | "no_show";
+    physically_verified_at: string | null;
+    no_show_remarks: string | null;
     portfolio_outputs: {
       portfolio_type: StudentCategory;
       students: {
@@ -81,6 +87,9 @@ export async function getAdminStudioSchedule(
       teamName: row.teams?.team_name ?? "—",
       programName: row.teams?.programs?.name ?? null,
       portfolioType: row.portfolio_outputs?.portfolio_type ?? "photographer",
+      verificationStatus: row.verification_status,
+      physicallyVerifiedAt: row.physically_verified_at,
+      noShowRemarks: row.no_show_remarks,
       leaderName:
         row.portfolio_outputs?.students?.profiles?.full_name ?? "—",
     }));

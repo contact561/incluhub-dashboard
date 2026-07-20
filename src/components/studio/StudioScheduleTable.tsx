@@ -5,6 +5,7 @@ import {
 } from "@/lib/constants/studioSlots";
 import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
 import type { AdminStudioScheduleRow } from "@/types/studio-booking";
+import { StudioVerificationControls } from "@/components/studio/StudioVerificationControls";
 
 type StudioScheduleTableProps = {
   rows: AdminStudioScheduleRow[];
@@ -49,6 +50,9 @@ function ScheduleCard({ row }: { row: AdminStudioScheduleRow }) {
           </dd>
         </div>
       </dl>
+      <div className="mt-4 border-t border-border-default pt-4">
+        <StudioVerificationControls bookingId={row.id} status={row.verificationStatus} />
+      </div>
     </article>
   );
 }
@@ -87,6 +91,7 @@ export function StudioScheduleTable({ rows }: StudioScheduleTableProps) {
               <th className="px-4 py-3 text-left font-medium text-text-muted">
                 Booked at
               </th>
+              <th className="px-4 py-3 text-left font-medium text-text-muted">Check-in</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-default bg-surface-card">
@@ -108,6 +113,9 @@ export function StudioScheduleTable({ rows }: StudioScheduleTableProps) {
                 <td className="px-4 py-3 text-text-primary">{row.leaderName}</td>
                 <td className="px-4 py-3 text-text-primary">
                   {formatStudioBookedAt(row.bookedAt)}
+                </td>
+                <td className="min-w-72 px-4 py-3 align-top text-text-primary">
+                  <StudioVerificationControls bookingId={row.id} status={row.verificationStatus} />
                 </td>
               </tr>
             ))}

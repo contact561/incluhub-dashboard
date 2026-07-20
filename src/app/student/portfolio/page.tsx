@@ -10,7 +10,9 @@ import {
   StatusPanel,
 } from "@/components/status";
 import { PortfolioCard } from "@/components/studio/PortfolioCard";
+import { formatCurrentStageLabel } from "@/lib/data/student/myStage";
 import { getStudentPortfolioPageData } from "@/lib/data/student/portfolio";
+import { WhatHappensNow } from "@/components/student/WhatHappensNow";
 
 export default async function StudentPortfolioPage() {
   const { data, error } = await getStudentPortfolioPageData();
@@ -33,6 +35,7 @@ export default async function StudentPortfolioPage() {
 
       {data ? (
         <>
+          <WhatHappensNow title="Follow the active portfolio card" description="Assistants share suitable timings first. The leader books a live slot, scans Admin's QR at the studio, uploads a public Google Drive link, and responds to Educator or Admin feedback if requested." />
           <section className="grid gap-4 rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:grid-cols-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
@@ -55,23 +58,25 @@ export default async function StudentPortfolioPage() {
                 Current stage
               </p>
               <p className="mt-1 text-sm text-text-primary">
-                {data.currentStageNumber === 3
-                  ? "Stage 3"
-                  : `Stage ${data.currentStageNumber}`}
+                {formatCurrentStageLabel(data.currentStageNumber)}
               </p>
             </div>
           </section>
 
           {data.currentStageNumber !== 3 ? (
             <StatusPanel
-              variant={data.currentStageNumber > 3 ? "success" : "information"}
+              variant={
+                (data.currentStageNumber ?? 0) > 3
+                  ? "success"
+                  : "information"
+              }
               title={
-                data.currentStageNumber > 3
+                (data.currentStageNumber ?? 0) > 3
                   ? "Stage 3 portfolio period complete"
                   : "Studio booking unavailable"
               }
               description={
-                data.currentStageNumber > 3
+                (data.currentStageNumber ?? 0) > 3
                   ? "Your team has progressed past Stage 3. Active studio booking is no longer required on this page."
                   : "Studio booking and portfolio submission open when your team reaches Stage 3."
               }

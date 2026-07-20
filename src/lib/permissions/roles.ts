@@ -30,7 +30,11 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Programs", href: "/admin/programs" },
   { label: "Students", href: "/admin/students" },
   { label: "Educators", href: "/admin/educators" },
-  { label: "External Members", href: "/admin/external-members" },
+  {
+    label: "External Members",
+    href: "/admin/external-members",
+    hidden: true,
+  },
   { label: "Teams", href: "/admin/teams" },
   { label: "Stages", href: "/admin/stages" },
   { label: "Studio Schedule", href: "/admin/studio-schedule" },
@@ -43,7 +47,6 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   {
     label: "Notifications",
     href: "/admin/notifications",
-    hidden: true,
   },
   {
     label: "Activity Logs",
@@ -57,6 +60,8 @@ export const STUDENT_NAV_ITEMS: NavItem[] = [
   { label: "My Team", href: "/student/my-team" },
   { label: "My Stage", href: "/student/my-stage" },
   { label: "Portfolio", href: "/student/portfolio" },
+  { label: "Brand Opportunity", href: "/student/brand-opportunity" },
+  { label: "Notifications", href: "/student/notifications" },
 ];
 
 export const STUDENT_ECOSYSTEM_NAV_ITEM: NavItem = {
@@ -69,6 +74,7 @@ export const EDUCATOR_NAV_ITEMS: NavItem[] = [
   { label: "My Teams", href: "/educator/my-teams" },
   { label: "My Students", href: "/educator/my-students" },
   { label: "Portfolio Reviews", href: "/educator/portfolio-reviews" },
+  { label: "Notifications", href: "/educator/notifications" },
 ];
 
 export const EXTERNAL_NAV_ITEMS: NavItem[] = [

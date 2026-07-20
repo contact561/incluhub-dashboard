@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { GoogleDriveGuide } from "@/components/studio/GoogleDriveGuide";
 
 type PortfolioResubmissionFormProps = {
   portfolioOutputId: string;
@@ -54,6 +55,7 @@ export function PortfolioResubmissionForm({
       </p>
 
       <form action={formAction} className="mt-4 space-y-4">
+        <GoogleDriveGuide />
         <input
           type="hidden"
           name="portfolio_output_id"
@@ -93,10 +95,14 @@ export function PortfolioResubmissionForm({
             className="min-h-11 w-full"
           />
           <p className="text-xs text-text-muted">
-            Use a public HTTP or HTTPS link (Google Drive, Behance, Dropbox,
-            OneDrive, or your portfolio site).
+            Required format: https://drive.google.com/…
           </p>
         </div>
+
+        <label className="flex items-start gap-2 text-sm text-text-primary">
+          <input type="checkbox" name="link_tested" value="yes" required disabled={isBlocked} className="mt-1" />
+          I set General access to Anyone with the link · Viewer and tested this link in a private window.
+        </label>
 
         <div className="space-y-2">
           <Label htmlFor={`resubmit-notes-${portfolioOutputId}`}>

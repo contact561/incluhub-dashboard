@@ -4,8 +4,7 @@ import { getAdminTeamById } from "@/lib/data/admin/teams";
 import { getTeamStageDetail } from "@/lib/data/admin/team-stage";
 import { assessTeamJourneyReadiness } from "@/lib/stages/teamJourneyReadiness";
 import { BmsCompletionForm } from "@/components/stages/BmsCompletionForm";
-import { BrandWorksCompletionForm } from "@/components/stages/BrandWorksCompletionForm";
-import { BrandWorksScheduleForm } from "@/components/stages/BrandWorksScheduleForm";
+import { BrandOpportunityAdminPanel } from "@/components/stages/BrandOpportunityAdminPanel";
 import { StageJourneySection } from "@/components/stages/StageJourneySection";
 import { TeamStageTimeline } from "@/components/stages/TeamStageTimeline";
 import {
@@ -18,6 +17,7 @@ import { SectionHeader } from "@/components/layout/SectionHeader";
 import { QueryErrorState, StatusBadge } from "@/components/status";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getBrandOpportunityForTeam } from "@/lib/data/brand-opportunity";
 
 type AdminTeamDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -37,30 +37,19 @@ function formatCurrentStage(stageNumber: number | null): string {
   return `Stage ${stageNumber}`;
 }
 
-function currentDateInIndia(): string {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(new Date());
-  const value = (type: Intl.DateTimeFormatPartTypes) =>
-    parts.find((part) => part.type === type)?.value ?? "";
-  return `${value("year")}-${value("month")}-${value("day")}`;
-}
-
-function formatBrandWorksDate(value: string): string {
-  return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
-    new Date(`${value}T00:00:00+05:30`)
-  );
-}
-
 export default async function AdminTeamDetailPage({
   params,
 }: AdminTeamDetailPageProps) {
   const { id } = await params;
-  const [{ team, error }, { detail: stageDetail, error: stageError }] =
-    await Promise.all([getAdminTeamById(id), getTeamStageDetail(id)]);
+  const [
+    { team, error },
+    { detail: stageDetail, error: stageError },
+    { opportunity, error: brandError },
+  ] = await Promise.all([
+    getAdminTeamById(id),
+    getTeamStageDetail(id),
+    getBrandOpportunityForTeam(id),
+  ]);
 
   if (error) {
     return (
@@ -94,16 +83,6 @@ export default async function AdminTeamDetailPage({
     team.currentStageNumber === 2 &&
     stageDetail?.stage2InProgress === true &&
     stageDetail?.bmsAlreadyCompleted !== true;
-  const stage4 = stageDetail?.timeline.find((stage) => stage.stageNumber === 4);
-  const showBrandWorksControls =
-    journeyEnrolled &&
-    team.currentStageNumber === 4 &&
-    stageDetail?.stage4InProgress === true &&
-    stageDetail?.brandWorksCompleted !== true;
-  const brandWorksDate = stage4?.brandWorksDate ?? null;
-  const canCompleteBrandWorks = Boolean(
-    brandWorksDate && brandWorksDate <= currentDateInIndia()
-  );
 
   return (
     <div className="space-y-6">
@@ -200,21 +179,9 @@ export default async function AdminTeamDetailPage({
                 portfolios={stageDetail.portfolios}
               />
               {showBmsForm ? <BmsCompletionForm teamId={team.id} /> : null}
-              {showBrandWorksControls ? (
-                <div className="grid gap-4 lg:grid-cols-2">
-                  <BrandWorksScheduleForm
-                    teamId={team.id}
-                    existingDate={brandWorksDate}
-                    existingRemarks={stage4?.brandWorksRemarks ?? null}
-                  />
-                  {stageDetail.brandWorksScheduled && brandWorksDate ? (
-                    <BrandWorksCompletionForm
-                      teamId={team.id}
-                      canComplete={canCompleteBrandWorks}
-                      scheduledDateLabel={formatBrandWorksDate(brandWorksDate)}
-                    />
-                  ) : null}
-                </div>
+              {brandError ? <QueryErrorState title="Could not load Brand Opportunity" message={brandError} /> : null}
+              {!brandError && (team.currentStageNumber ?? 0) >= 4 ? (
+                <BrandOpportunityAdminPanel teamId={team.id} currentStageNumber={team.currentStageNumber} opportunity={opportunity} />
               ) : null}
             </>
           ) : null}

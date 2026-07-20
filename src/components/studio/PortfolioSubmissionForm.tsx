@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { GoogleDriveGuide } from "@/components/studio/GoogleDriveGuide";
 
 type PortfolioSubmissionFormProps = {
   portfolioOutputId: string;
@@ -37,12 +38,12 @@ export function PortfolioSubmissionForm({
     <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-muted/40 p-4">
       <h3 className="text-sm font-semibold text-text-primary">Submit portfolio</h3>
       <p className="mt-1 text-sm text-text-muted">
-        Enter a title and an external portfolio link. IncluHub does not host
-        files or images. After submission, this entry cannot be edited until a
-        revision is formally requested.
+        Upload the finished work to Google Drive, share it as Anyone with the
+        link · Viewer, test it privately, then submit the link for review.
       </p>
 
       <form action={formAction} className="mt-4 space-y-4">
+        <GoogleDriveGuide />
         <input
           type="hidden"
           name="portfolio_output_id"
@@ -76,10 +77,14 @@ export function PortfolioSubmissionForm({
             className="min-h-11 w-full"
           />
           <p className="text-xs text-text-muted">
-            Use a public HTTP or HTTPS link (Google Drive, Behance, Dropbox,
-            OneDrive, or your portfolio site).
+            Required format: https://drive.google.com/…
           </p>
         </div>
+
+        <label className="flex items-start gap-2 text-sm text-text-primary">
+          <input type="checkbox" name="link_tested" value="yes" required disabled={isPending} className="mt-1" />
+          I set General access to Anyone with the link · Viewer and tested this link in a private window.
+        </label>
 
         <div className="space-y-2">
           <Label htmlFor={`notes-${portfolioOutputId}`}>Notes (optional)</Label>

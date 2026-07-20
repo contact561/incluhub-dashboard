@@ -16,10 +16,20 @@ export type StudioSlotAvailability = {
 };
 
 export type ConfirmedStudioBooking = {
+  id: string;
   portfolioOutputId: string;
   bookingDate: string;
   slotCode: StudioSlotCode;
   bookedAt: string;
+  verificationStatus: "online_confirmed" | "physically_verified" | "no_show";
+  physicallyVerifiedAt: string | null;
+};
+
+export type AssistantAvailabilityChoice = {
+  assistantStudentId: string;
+  assistantName: string;
+  bookingDate: string;
+  slotCode: StudioSlotCode;
 };
 
 export type PortfolioParticipantView = {
@@ -37,6 +47,7 @@ export type StudentPortfolioCard = {
   leaderStudentId: string;
   leaderName: string;
   participants: PortfolioParticipantView[];
+  assistantAvailability: AssistantAvailabilityChoice[];
   booking: ConfirmedStudioBooking | null;
   submission: PortfolioSubmissionView | null;
   lockedReason: string | null;
@@ -47,7 +58,7 @@ export type StudentPortfolioPageData = {
   teamId: string;
   teamName: string;
   programName: string | null;
-  currentStageNumber: number;
+  currentStageNumber: number | null;
   currentStudentId: string;
   currentStudentName: string;
   ownPortfolioOutput: StudentPortfolioCard | null;
@@ -72,6 +83,9 @@ export type AdminStudioScheduleRow = {
   programName: string | null;
   portfolioType: StudentCategory;
   leaderName: string;
+  verificationStatus: "online_confirmed" | "physically_verified" | "no_show";
+  physicallyVerifiedAt: string | null;
+  noShowRemarks: string | null;
 };
 
 export type AdminStudioScheduleResult = {

@@ -89,7 +89,7 @@ export async function bookStudioSlotAction(
 
   return {
     success:
-      "Studio booked successfully. This booking is final and cannot be cancelled or rescheduled.",
+      "Studio booked online. Ask Admin for the temporary check-in QR when you arrive; submission stays locked until you scan and confirm attendance.",
     booking: {
       bookingDate: booking.booking_date,
       slotCode: booking.slot_code,

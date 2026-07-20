@@ -4,6 +4,7 @@ import { STUDENT_CATEGORY_LABELS } from "@/lib/constants/labels";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { EducatorAssignedTeam } from "@/types/educator-portfolio";
+import { BrandOpportunityFiles } from "@/components/stages/BrandOpportunityFiles";
 
 type AssignedTeamCardProps = {
   team: EducatorAssignedTeam;
@@ -73,6 +74,14 @@ export function AssignedTeamCard({ team }: AssignedTeamCardProps) {
         </div>
       </div>
 
+      {team.bmsSessionDate ? (
+        <div className="mt-4 rounded-[var(--radius-control)] border border-border-default bg-surface-muted p-3 text-sm">
+          <p className="font-medium text-text-primary">BMS session</p>
+          <p className="mt-1 text-text-muted">Completed: {formatDate(team.bmsSessionDate)}</p>
+          {team.bmsRemarks ? <p className="mt-1 whitespace-pre-wrap text-text-muted">Remarks: {team.bmsRemarks}</p> : null}
+        </div>
+      ) : null}
+
       {team.brandWorksDate ? (
         <div className="mt-4 rounded-[var(--radius-control)] border border-border-default bg-surface-muted p-3 text-sm">
           <p className="font-medium text-text-primary">Brand Works</p>
@@ -85,6 +94,15 @@ export function AssignedTeamCard({ team }: AssignedTeamCardProps) {
               Remarks: {team.brandWorksRemarks}
             </p>
           ) : null}
+        </div>
+      ) : null}
+
+      {team.brandOpportunity ? (
+        <div className="mt-4 space-y-3 rounded-[var(--radius-control)] border border-border-default bg-surface-muted p-3 text-sm">
+          <div><p className="font-medium text-text-primary">Brand Opportunity · Read only</p><p className="mt-1 font-medium text-text-primary">{team.brandOpportunity.title}</p><p className="mt-1 whitespace-pre-wrap text-text-muted">{team.brandOpportunity.description}</p></div>
+          <BrandOpportunityFiles files={team.brandOpportunity.files} />
+          {team.brandOpportunity.submissions.map((submission) => <div key={submission.id} className="border-t border-border-default pt-3"><p className="font-medium text-text-primary">Proof version {submission.versionNumber} · {submission.status.replaceAll("_", " ")}</p><div className="mt-2"><BrandOpportunityFiles files={submission.files} /></div>{submission.reviewComments ? <p className="mt-2 text-text-muted">Admin feedback: {submission.reviewComments}</p> : null}</div>)}
+          <p className="text-xs text-text-subtle">Educators can view the brief and proof history but cannot change or approve Brand Works.</p>
         </div>
       ) : null}
 

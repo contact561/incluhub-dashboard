@@ -42,6 +42,7 @@ function mapRpcError(message: string): string {
     "Portfolio title is required.",
     "Portfolio title must be between 3 and 150 characters.",
     "Enter a valid HTTP or HTTPS portfolio link.",
+    "Use a Google Drive link beginning with https://drive.google.com/.",
     "Notes cannot exceed 2000 characters.",
     "This portfolio has already been submitted.",
   ];
@@ -74,8 +75,13 @@ function validateClientInput(
     return "Enter a valid HTTP or HTTPS portfolio link.";
   }
 
-  if (!/^https?:\/\//i.test(trimmedUrl)) {
-    return "Enter a valid HTTP or HTTPS portfolio link.";
+  try {
+    const parsed = new URL(trimmedUrl);
+    if (parsed.protocol !== "https:" || parsed.hostname !== "drive.google.com") {
+      return "Use a Google Drive link beginning with https://drive.google.com/.";
+    }
+  } catch {
+    return "Use a valid Google Drive link.";
   }
 
   if (trimmedNotes.length > NOTES_MAX) {
@@ -93,6 +99,7 @@ export async function submitPortfolioAction(
   const titleRaw = formData.get("title");
   const urlRaw = formData.get("portfolio_url");
   const notesRaw = formData.get("notes");
+  const linkTested = formData.get("link_tested");
 
   if (typeof portfolioOutputId !== "string" || !portfolioOutputId.trim()) {
     return { error: "The portfolio submission could not be completed." };
@@ -111,6 +118,9 @@ export async function submitPortfolioAction(
   const clientError = validateClientInput(titleRaw, urlRaw, notes);
   if (clientError) {
     return { error: clientError };
+  }
+  if (linkTested !== "yes") {
+    return { error: "Confirm that you tested the Google Drive link in a private window." };
   }
 
   const supabase = await createClient();
