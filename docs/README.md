@@ -8,6 +8,8 @@ delivery reports live under `archive/`.
 | Doc | Purpose |
 |-----|---------|
 | [../README.md](../README.md) | Clone, env, run, and verify the app |
+| [runbooks/NEW_DEVELOPER_SETUP.md](runbooks/NEW_DEVELOPER_SETUP.md) | First-time setup checklist |
+| [runbooks/LOCAL_DEVELOPMENT.md](runbooks/LOCAL_DEVELOPMENT.md) | Day-to-day dev, branches, and test data |
 | [PROJECT_RULES.md](PROJECT_RULES.md) | MVP constraints and engineering rules |
 | [IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md) | What is built, migration notes, changelog |
 

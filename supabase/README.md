@@ -62,7 +62,9 @@ supabase/scripts/verify/verify_stage3_qr_workflow.sql
 2. Reset: `supabase/scripts/reset/reset_test_data.sql` (transactional)
 3. Confirm: `supabase/scripts/verify/verify_clean_database.sql`
 
-Node alternatives: see `../scripts/README.md`.
+Node alternatives: see [../scripts/README.md](../scripts/README.md).
+
+Day-to-day development: [../docs/runbooks/LOCAL_DEVELOPMENT.md](../docs/runbooks/LOCAL_DEVELOPMENT.md).
 
 ## MVP database rules
 

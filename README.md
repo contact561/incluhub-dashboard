@@ -54,6 +54,7 @@ editor (or your migration pipeline):
 - **Founder / local-dev:** also `014` → `022`
 
 See [supabase/README.md](supabase/README.md) and [docs/README.md](docs/README.md).
+For detailed workflows see [docs/runbooks/LOCAL_DEVELOPMENT.md](docs/runbooks/LOCAL_DEVELOPMENT.md).
 
 ### 5. Run locally
 
@@ -93,6 +94,10 @@ Database checks (Supabase SQL editor):
 | Topic | Location |
 |-------|----------|
 | Doc index | [docs/README.md](docs/README.md) |
+| New developer setup | [docs/runbooks/NEW_DEVELOPER_SETUP.md](docs/runbooks/NEW_DEVELOPER_SETUP.md) |
+| Local development | [docs/runbooks/LOCAL_DEVELOPMENT.md](docs/runbooks/LOCAL_DEVELOPMENT.md) |
+| Dev scripts | [scripts/README.md](scripts/README.md) |
+| Database / migrations | [supabase/README.md](supabase/README.md) |
 | MVP rules | [docs/PROJECT_RULES.md](docs/PROJECT_RULES.md) |
 | Build progress | [docs/IMPLEMENTATION_PROGRESS.md](docs/IMPLEMENTATION_PROGRESS.md) |
 | Release readiness | [docs/releases/PACKAGE_F_RELEASE_READINESS.md](docs/releases/PACKAGE_F_RELEASE_READINESS.md) |
