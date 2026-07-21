@@ -10,8 +10,8 @@
 
 Disposable **`UI4 QA TEAM`** (Stage 3) via:
 
-- `scripts/ui4-qa-fixture-setup.mjs`
-- `scripts/ui4-qa-fixture-cleanup.mjs`
+- `scripts/fixtures/ui4-qa-fixture-setup.mjs`
+- `scripts/fixtures/ui4-qa-fixture-cleanup.mjs`
 
 Setup creates three dedicated students, balanced team + BMS completion, then books photography via existing `book_studio_slot` → **`awaiting_submission`**. Alpha/Beta are never modified.
 
@@ -275,7 +275,7 @@ Replaced zinc / green utility classes with UI-1 semantic tokens (`border-border-
 
 ## 21. Cleanup status
 
-`node scripts/ui4-qa-fixture-cleanup.mjs` — **executed**.  
+`node scripts/fixtures/ui4-qa-fixture-cleanup.mjs` — **executed**.  
 
 Confirm: UI4 QA TEAM remaining **0**; Alpha/Beta still Stage 4.
 

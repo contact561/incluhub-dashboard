@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * IncluHub — DEVELOPMENT-ONLY cleanup for UI-4B disposable Stage 3 fixture.
+ * IncluHub — DEVELOPMENT-ONLY cleanup for UI-2B disposable Stage 3 fixture.
  *
- * Removes only UI4 QA TEAM and its three dedicated students/auth users.
+ * Removes only UI2 QA TEAM and its three dedicated students/auth users.
  * Does NOT modify TEST TEAM ALPHA or TEST TEAM BETA.
  *
  * Usage:
- *   node scripts/ui4-qa-fixture-cleanup.mjs
+ *   node scripts/fixtures/ui2-qa-fixture-cleanup.mjs
  *
  * NEVER run against production.
  */
@@ -18,11 +18,11 @@ import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
 
-const TEAM_NAME = "UI4 QA TEAM";
+const TEAM_NAME = "UI2 QA TEAM";
 const EMAILS = [
-  "ui4.photo.student@incluhub.test",
-  "ui4.makeup.student@incluhub.test",
-  "ui4.hair.student@incluhub.test",
+  "ui2.photo.student@incluhub.test",
+  "ui2.makeup.student@incluhub.test",
+  "ui2.hair.student@incluhub.test",
 ];
 
 function requireEnv(name) {
@@ -48,9 +48,9 @@ async function deleteByEq(admin, table, column, values) {
 async function main() {
   assertFixtureMutationAllowed({
     confirmationFlag: "--confirm-fixture",
-    label: "UI4 QA fixture cleanup",
+    label: "UI2 QA fixture cleanup",
   });
-  console.log("=== UI-4B disposable fixture cleanup ===");
+  console.log("=== UI-2B disposable fixture cleanup ===");
   console.log("Target team:", TEAM_NAME);
   console.log("Will NOT modify TEST TEAM ALPHA or TEST TEAM BETA.");
 
@@ -100,6 +100,7 @@ async function main() {
     console.log("No team named", TEAM_NAME, "— continuing with user cleanup.");
   }
 
+  // Resolve student rows by email via profiles
   const { data: profiles } = await admin
     .from("profiles")
     .select("id, email")
@@ -115,6 +116,7 @@ async function main() {
 
     if (studentIds.length) {
       await deleteByEq(admin, "program_enrollments", "student_id", studentIds);
+      // Clear any leftover membership pointers if team already gone
       await admin
         .from("students")
         .update({ current_team_id: null })
@@ -130,9 +132,9 @@ async function main() {
         console.warn(`Auth delete warning for ${userId}: ${error.message}`);
       }
     }
-    console.log("Removed", userIds.length, "UI4 QA auth users/profiles/students.");
+    console.log("Removed", userIds.length, "UI2 QA auth users/profiles/students.");
   } else {
-    console.log("No UI4 QA profiles found.");
+    console.log("No UI2 QA profiles found.");
   }
 
   const { data: alphaBeta } = await admin
@@ -147,10 +149,10 @@ async function main() {
 
   console.log("\n=== Cleanup complete ===");
   console.log("Alpha/Beta unchanged:", JSON.stringify(alphaBeta, null, 2));
-  console.log("UI4 QA TEAM remaining:", remainingQa?.length ?? 0);
+  console.log("UI2 QA TEAM remaining:", remainingQa?.length ?? 0);
 }
 
 main().catch((error) => {
-  console.error("UI4 QA fixture cleanup FAILED:", error.message ?? error);
+  console.error("UI2 QA fixture cleanup FAILED:", error.message ?? error);
   process.exit(1);
 });

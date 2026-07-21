@@ -6,7 +6,7 @@
 -- Does not modify live data.
 --
 -- For simulated-auth RPC mutation tests (BEGIN … ROLLBACK), use:
---   supabase/scripts/verify_package_c_rpc.sql
+--   supabase/scripts/verify/verify_package_c_rpc.sql
 --
 -- Browser/manual UI tests are NOT covered here — see IMPLEMENTATION_PROGRESS.md.
 -- =============================================================================

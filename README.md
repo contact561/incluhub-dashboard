@@ -84,8 +84,9 @@ npm run test:release-authz
 
 Database checks (Supabase SQL editor):
 
-- Package E1: `supabase/scripts/verify_package_e1.sql`, `verify_package_e1_rpc.sql`
-- Stage 3 (local-dev): `supabase/scripts/verify_stage3_tables.sql`, `verify_stage3_qr_workflow.sql`
+- Package E1: `supabase/scripts/verify/verify_package_e1.sql`, `supabase/scripts/verify/verify_package_e1_rpc.sql`
+- Stage 3 (local-dev): `supabase/scripts/verify/verify_stage3_tables.sql`, `supabase/scripts/verify/verify_stage3_qr_workflow.sql`
+- Dev scripts index: [scripts/README.md](scripts/README.md)
 
 ## Documentation map
 

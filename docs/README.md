@@ -44,6 +44,8 @@ delivery reports live under `archive/`.
 
 See [../supabase/README.md](../supabase/README.md) for migrations and policies.
 
+See [../scripts/README.md](../scripts/README.md) for Node seed/reset/QA utilities.
+
 ### Migration ranges
 
 | Branch track | Migrations |

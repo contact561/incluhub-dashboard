@@ -28,9 +28,9 @@ select
 1. Open the staging SQL editor.
 2. Paste and run the complete file
    `supabase/migrations/013_stage4_brand_works.sql` once.
-3. Paste and run `supabase/scripts/verify_package_e1.sql`.
+3. Paste and run `supabase/scripts/verify/verify_package_e1.sql`.
 4. Confirm every notice starts with `PASS` and there is no exception.
-5. Paste and run `supabase/scripts/verify_package_e1_rpc.sql`.
+5. Paste and run `supabase/scripts/verify/verify_package_e1_rpc.sql`.
 6. Confirm the Student, Educator, Admin, idempotency, and atomic transition
    notices all report `PASS`.
 7. Confirm the final statement is `ROLLBACK`. The selected team's original

@@ -2,12 +2,12 @@
 /**
  * Create Program 1 + 3 educators + 9 students + enrollments (no teams).
  *
- *   node scripts/seed-program1-accounts.mjs --confirm-seed
+ *   node scripts/seed/seed-program1-accounts.mjs --confirm-seed
  */
 
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
-import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
+import { assertFixtureMutationAllowed } from "../fixtures/fixture-safety.mjs";
 
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());

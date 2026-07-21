@@ -461,9 +461,9 @@ UI components do **not** directly query Supabase; pages call data loaders.
 
 | File | Purpose |
 |------|---------|
-| `supabase/scripts/audit_test_data_before_reset.sql` | Read-only counts and deletion preview |
-| `supabase/scripts/reset_test_data.sql` | Destructive cleanup in transaction |
-| `supabase/scripts/verify_clean_database.sql` | Post-cleanup PASS/FAIL checks |
+| `supabase/scripts/reset/audit_test_data_before_reset.sql` | Read-only counts and deletion preview |
+| `supabase/scripts/reset/reset_test_data.sql` | Destructive cleanup in transaction |
+| `supabase/scripts/verify/verify_clean_database.sql` | Post-cleanup PASS/FAIL checks |
 
 | Aspect | Detail |
 |--------|--------|
@@ -693,4 +693,4 @@ Do **not** start Stage 2 UI until this E2E path is confirmed.
 
 **Exact next step:** Commit cross-institute work, then E2E test on clean DB: institute → users → program → enrol → team → verify Stage 2 DB state.
 
-**Key paths:** `supabase/migrations/005_cross_institute_program_teams.sql`, `src/actions/teams/createTeam.ts`, `src/actions/programs/createProgram.ts`, `src/app/admin/programs/[id]/page.tsx`, `src/components/forms/CreateTeamForm.tsx`, `supabase/scripts/reset_test_data.sql`, `docs/PROJECT_RULES.md`.
+**Key paths:** `supabase/migrations/005_cross_institute_program_teams.sql`, `src/actions/teams/createTeam.ts`, `src/actions/programs/createProgram.ts`, `src/app/admin/programs/[id]/page.tsx`, `src/components/forms/CreateTeamForm.tsx`, `supabase/scripts/reset/reset_test_data.sql`, `docs/PROJECT_RULES.md`.

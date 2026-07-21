@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "fs";
 import { resolve } from "path";
-import { assertFixtureMutationAllowed } from "../../scripts/fixture-safety.mjs";
+import { assertFixtureMutationAllowed } from "../../../scripts/fixtures/fixture-safety.mjs";
 
 
 function loadEnvLocal() {

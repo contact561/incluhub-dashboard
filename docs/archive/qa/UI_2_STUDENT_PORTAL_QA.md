@@ -31,8 +31,8 @@ Team stage: **3 / in_progress**
 | Dedicated auth users only | `ui2.photo.student@`, `ui2.makeup.student@`, `ui2.hair.student@incluhub.test` |
 | Reuses institutes / program / educators | Yes |
 | Uses existing RPCs | `create_balanced_team`, `start_team_stage_journey`, `complete_bms_session` |
-| Setup script | `scripts/ui2-qa-fixture-setup.mjs` |
-| Cleanup script | `scripts/ui2-qa-fixture-cleanup.mjs` |
+| Setup script | `scripts/fixtures/ui2-qa-fixture-setup.mjs` |
+| Cleanup script | `scripts/fixtures/ui2-qa-fixture-cleanup.mjs` |
 | Not a migration / not production-auto | Yes |
 
 ---
@@ -221,7 +221,7 @@ No loader / RPC / action / workflow changes.
 
 ## 19. Cleanup status
 
-Cleanup script executed after verification (`node scripts/ui2-qa-fixture-cleanup.mjs`).  
+Cleanup script executed after verification (`node scripts/fixtures/ui2-qa-fixture-cleanup.mjs`).  
 Alpha/Beta remain Stage 4 and untouched.  
 Scripts remain for future re-seeding of `UI2 QA TEAM`.
 

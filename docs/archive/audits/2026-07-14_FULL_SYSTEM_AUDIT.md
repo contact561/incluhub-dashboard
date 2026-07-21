@@ -96,7 +96,7 @@ additions).
 | `supabase/migrations/011_portfolio_review_workflow.sql` | **Package D1 backend — never committed** |
 | `supabase/migrations/012_fix_admin_review_status_ambiguity.sql` | **Package D1 repair — never committed** |
 | `supabase/policies/006_portfolio_review_rls.sql` | **Package D1 RLS — never committed** |
-| `supabase/scripts/verify_package_d.sql`, `verify_package_d_rpc.sql` | D1 verification — never committed |
+| `supabase/scripts/verify/verify_package_d.sql`, `verify_package_d_rpc.sql` | D1 verification — never committed |
 
 **Package commit boundaries:** Foundation `69f31d4`→`8df096e`; Auth
 `7b449c2`; Package A `4fa8e76`/`f4ec16d`/`e31fad8`; A.1/B/B.1 `e92acfd`;
@@ -312,7 +312,7 @@ category-only or team-only matching; submission history is scoped by
 
 ## 14. Test-fixture health
 
-`scripts/reset-and-seed-test-environment.mjs` (committed `d22b3b8`, pushed):
+`scripts/seed/reset-and-seed-test-environment.mjs` (committed `d22b3b8`, pushed):
 dry-run default; destructive path requires `--confirm-reset`; JSON backups to
 gitignored `tmp/test-reset-backups`; full wipe-and-recreate rerun strategy
 (safe after partial failure); BMS session date = yesterday in Asia/Kolkata

@@ -53,7 +53,7 @@ configured non-production Supabase project:
 The schedule-retry check skipped because Team Alpha intentionally has no
 schedule. Team Beta's persisted audit fields prove that scheduling and
 completion previously ran. Before production, run the transactional
-`supabase/scripts/verify_package_e1_rpc.sql` check to replay scheduling,
+`supabase/scripts/verify/verify_package_e1_rpc.sql` check to replay scheduling,
 rescheduling, completion, permission, and idempotency paths with `ROLLBACK`.
 
 ## Browser verification

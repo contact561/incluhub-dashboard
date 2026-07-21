@@ -10,8 +10,8 @@
 
 Disposable **`UI3 QA TEAM`** (Stage 3) via:
 
-- `scripts/ui3-qa-fixture-setup.mjs`
-- `scripts/ui3-qa-fixture-cleanup.mjs`
+- `scripts/fixtures/ui3-qa-fixture-setup.mjs`
+- `scripts/fixtures/ui3-qa-fixture-cleanup.mjs`
 
 Setup creates three dedicated students, balanced team + BMS completion, then books photography via existing `book_studio_slot` → **`awaiting_submission`**. Alpha/Beta are never modified.
 
@@ -217,7 +217,7 @@ No Educator presentation blocker found for revision/approval UX.
 
 ## 20. Cleanup status
 
-`node scripts/ui3-qa-fixture-cleanup.mjs` executed after verification.  
+`node scripts/fixtures/ui3-qa-fixture-cleanup.mjs` executed after verification.  
 `UI3 QA TEAM` removed; Alpha/Beta remain Stage 4.
 
 ---

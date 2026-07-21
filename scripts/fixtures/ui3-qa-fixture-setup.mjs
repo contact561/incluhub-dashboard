@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 /**
- * IncluHub — DEVELOPMENT-ONLY disposable Stage 3 fixture for UI-4B QA.
+ * IncluHub — DEVELOPMENT-ONLY disposable Stage 3 fixture for UI-3B QA.
  *
- * Creates: UI4 QA TEAM + three dedicated students.
+ * Creates: UI3 QA TEAM + three dedicated students.
  * Leaves photography portfolio at awaiting_submission (booked via book_studio_slot).
  * Does NOT modify TEST TEAM ALPHA or TEST TEAM BETA.
  *
  * Usage:
- *   node scripts/ui4-qa-fixture-setup.mjs
+ *   node scripts/fixtures/ui3-qa-fixture-setup.mjs
  *
  * Cleanup:
- *   node scripts/ui4-qa-fixture-cleanup.mjs
+ *   node scripts/fixtures/ui3-qa-fixture-cleanup.mjs
  *
  * NEVER run against production.
  * Credentials come from environment (TEST_ACCOUNT_PASSWORD); never hardcode secrets.
@@ -23,11 +23,11 @@ import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
 
-const TEAM_NAME = "UI4 QA TEAM";
+const TEAM_NAME = "UI3 QA TEAM";
 const EMAILS = {
-  photo: "ui4.photo.student@incluhub.test",
-  makeup: "ui4.makeup.student@incluhub.test",
-  hair: "ui4.hair.student@incluhub.test",
+  photo: "ui3.photo.student@incluhub.test",
+  makeup: "ui3.makeup.student@incluhub.test",
+  hair: "ui3.hair.student@incluhub.test",
 };
 
 function requireEnv(name) {
@@ -131,13 +131,13 @@ async function createStudent(admin, { email, fullName, category, instituteId, cr
 async function main() {
   assertFixtureMutationAllowed({
     confirmationFlag: "--confirm-fixture",
-    label: "UI4 QA fixture setup",
+    label: "UI3 QA fixture setup",
   });
-  console.log("=== UI-4B disposable Stage 3 fixture setup ===");
+  console.log("=== UI-3B disposable Stage 3 fixture setup ===");
   console.log("Team:", TEAM_NAME);
   console.log("Will NOT modify TEST TEAM ALPHA or TEST TEAM BETA.");
   console.log("\nFixture plan:");
-  console.log("  1. Create 3 UI4 QA students (photo/makeup/hair) + enrollments");
+  console.log("  1. Create 3 UI3 QA students (photo/makeup/hair) + enrollments");
   console.log("  2. create_balanced_team + start_team_stage_journey + complete_bms_session");
   console.log("  3. book_studio_slot as photography student → awaiting_submission");
   console.log("  4. Leave Alpha/Beta untouched");
@@ -165,7 +165,7 @@ async function main() {
     );
     if (hit) {
       throw new Error(
-        `Auth user ${email} already exists. Run ui4-qa-fixture-cleanup.mjs first.`
+        `Auth user ${email} already exists. Run ui3-qa-fixture-cleanup.mjs first.`
       );
     }
   }
@@ -215,10 +215,10 @@ async function main() {
     throw new Error("admin@incluhub.test profile not found.");
   }
 
-  console.log("Creating three UI4 QA students…");
+  console.log("Creating three UI3 QA students…");
   const photo = await createStudent(admin, {
     email: EMAILS.photo,
-    fullName: "UI4 QA Photography Student",
+    fullName: "UI3 QA Photography Student",
     category: "photographer",
     instituteId: photography.id,
     createdBy: adminProfile.id,
@@ -226,7 +226,7 @@ async function main() {
   });
   const makeupStudent = await createStudent(admin, {
     email: EMAILS.makeup,
-    fullName: "UI4 QA Makeup Student",
+    fullName: "UI3 QA Makeup Student",
     category: "makeup_artist",
     instituteId: makeup.id,
     createdBy: adminProfile.id,
@@ -234,7 +234,7 @@ async function main() {
   });
   const hairStudent = await createStudent(admin, {
     email: EMAILS.hair,
-    fullName: "UI4 QA Hairstyling Student",
+    fullName: "UI3 QA Hairstyling Student",
     category: "hairstylist",
     instituteId: hair.id,
     createdBy: adminProfile.id,
@@ -291,7 +291,7 @@ async function main() {
   await rpcCall(anon, "complete_bms_session", {
     p_team_id: teamId,
     p_session_date: bmsDate,
-    p_remarks: "UI-4B disposable QA fixture BMS completion",
+    p_remarks: "UI-3B disposable QA fixture BMS completion",
   });
 
   await anon.auth.signOut();
@@ -307,7 +307,7 @@ async function main() {
   }
 
   const bookingDate = getTodayInAsiaKolkata();
-  const slotCode = "slot_15_18";
+  const slotCode = "slot_18_21";
   console.log(
     `Booking studio as photography student (${bookingDate} ${slotCode})…`
   );
@@ -362,10 +362,10 @@ async function main() {
   console.log(" ", EMAILS.hair, "— Hairstyling (expect locked)");
   console.log("  photo.educator@incluhub.test — assigned photo educator");
   console.log("  makeup.educator@incluhub.test — unrelated for permission denial");
-  console.log("\nCleanup: node scripts/ui4-qa-fixture-cleanup.mjs");
+  console.log("\nCleanup: node scripts/fixtures/ui3-qa-fixture-cleanup.mjs");
 }
 
 main().catch((error) => {
-  console.error("UI4 QA fixture setup FAILED:", error.message ?? error);
+  console.error("UI3 QA fixture setup FAILED:", error.message ?? error);
   process.exit(1);
 });

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * IncluHub — DEVELOPMENT-ONLY cleanup for UI-3B disposable Stage 3 fixture.
+ * IncluHub — DEVELOPMENT-ONLY cleanup for UI-4B disposable Stage 3 fixture.
  *
- * Removes only UI3 QA TEAM and its three dedicated students/auth users.
+ * Removes only UI4 QA TEAM and its three dedicated students/auth users.
  * Does NOT modify TEST TEAM ALPHA or TEST TEAM BETA.
  *
  * Usage:
- *   node scripts/ui3-qa-fixture-cleanup.mjs
+ *   node scripts/fixtures/ui4-qa-fixture-cleanup.mjs
  *
  * NEVER run against production.
  */
@@ -18,11 +18,11 @@ import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
 
-const TEAM_NAME = "UI3 QA TEAM";
+const TEAM_NAME = "UI4 QA TEAM";
 const EMAILS = [
-  "ui3.photo.student@incluhub.test",
-  "ui3.makeup.student@incluhub.test",
-  "ui3.hair.student@incluhub.test",
+  "ui4.photo.student@incluhub.test",
+  "ui4.makeup.student@incluhub.test",
+  "ui4.hair.student@incluhub.test",
 ];
 
 function requireEnv(name) {
@@ -48,9 +48,9 @@ async function deleteByEq(admin, table, column, values) {
 async function main() {
   assertFixtureMutationAllowed({
     confirmationFlag: "--confirm-fixture",
-    label: "UI3 QA fixture cleanup",
+    label: "UI4 QA fixture cleanup",
   });
-  console.log("=== UI-3B disposable fixture cleanup ===");
+  console.log("=== UI-4B disposable fixture cleanup ===");
   console.log("Target team:", TEAM_NAME);
   console.log("Will NOT modify TEST TEAM ALPHA or TEST TEAM BETA.");
 
@@ -130,9 +130,9 @@ async function main() {
         console.warn(`Auth delete warning for ${userId}: ${error.message}`);
       }
     }
-    console.log("Removed", userIds.length, "UI3 QA auth users/profiles/students.");
+    console.log("Removed", userIds.length, "UI4 QA auth users/profiles/students.");
   } else {
-    console.log("No UI3 QA profiles found.");
+    console.log("No UI4 QA profiles found.");
   }
 
   const { data: alphaBeta } = await admin
@@ -147,10 +147,10 @@ async function main() {
 
   console.log("\n=== Cleanup complete ===");
   console.log("Alpha/Beta unchanged:", JSON.stringify(alphaBeta, null, 2));
-  console.log("UI3 QA TEAM remaining:", remainingQa?.length ?? 0);
+  console.log("UI4 QA TEAM remaining:", remainingQa?.length ?? 0);
 }
 
 main().catch((error) => {
-  console.error("UI3 QA fixture cleanup FAILED:", error.message ?? error);
+  console.error("UI4 QA fixture cleanup FAILED:", error.message ?? error);
   process.exit(1);
 });

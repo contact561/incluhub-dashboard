@@ -12,7 +12,7 @@ executed. Applied-to-remote claims below come from
 (DOCUMENTED_PLAN / VERIFIED_BROWSER_REPORTED).
 
 `supabase/seed/` does not exist. Seeding is performed by
-`scripts/reset-and-seed-test-environment.mjs` (Node, service-role).
+`scripts/seed/reset-and-seed-test-environment.mjs` (Node, service-role).
 
 ---
 

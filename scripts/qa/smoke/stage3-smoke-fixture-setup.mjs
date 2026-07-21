@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
  * Creates a disposable Stage 3 team with photography at awaiting_booking.
- * Usage: node scripts/stage3-smoke-fixture-setup.mjs --confirm-fixture
+ * Usage: node scripts/qa/smoke/stage3-smoke-fixture-setup.mjs --confirm-fixture
  */
 
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
-import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
+import { assertFixtureMutationAllowed } from "../../fixtures/fixture-safety.mjs";
 
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());

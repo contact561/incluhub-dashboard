@@ -4,8 +4,8 @@
  * Keeps ONE admin account (default: admin@incluhub.test).
  *
  * Usage:
- *   node scripts/purge-keep-admin-only.mjs --confirm-purge
- *   node scripts/purge-keep-admin-only.mjs --confirm-purge --keep-email you@example.com
+ *   node scripts/reset/purge-keep-admin-only.mjs --confirm-purge
+ *   node scripts/reset/purge-keep-admin-only.mjs --confirm-purge --keep-email you@example.com
  *
  * Keeps: institutes, programs, program_institutes (reference catalog).
  * NEVER run against production.
@@ -13,7 +13,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
-import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
+import { assertFixtureMutationAllowed } from "../fixtures/fixture-safety.mjs";
 
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());

@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:release-authz": "node scripts/package-f-authz-check.mjs",
-    "test:reset": "node scripts/reset-and-seed-test-environment.mjs"
+    "test:release-authz": "node scripts/authz/package-f-authz-check.mjs",
+    "test:reset": "node scripts/seed/reset-and-seed-test-environment.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

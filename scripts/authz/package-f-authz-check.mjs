@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
+import { assertFixtureMutationAllowed } from "../fixtures/fixture-safety.mjs";
 
 function parseEnvFile(path) {
   return Object.fromEntries(

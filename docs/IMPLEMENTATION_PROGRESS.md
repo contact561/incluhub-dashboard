@@ -15,7 +15,7 @@
 
 ### Verify
 
-Run `supabase/scripts/verify_stage3_qr_workflow.sql` after applying migrations.
+Run `supabase/scripts/verify/verify_stage3_qr_workflow.sql` after applying migrations.
 
 ---
 
@@ -92,8 +92,8 @@ deployment remain pending.
 
 ### Staging validation
 
-Use `supabase/scripts/verify_package_e1.sql` after applying migration `013`,
-then run `supabase/scripts/verify_package_e1_rpc.sql`. The RPC script builds a
+Use `supabase/scripts/verify/verify_package_e1.sql` after applying migration `013`,
+then run `supabase/scripts/verify/verify_package_e1_rpc.sql`. The RPC script builds a
 disposable Stage 4 state inside a transaction and ends with `ROLLBACK`. It
 requires one active enrolled team with three active members and an active
 assigned educator.
@@ -125,8 +125,8 @@ assigned educator.
 |------|---------|
 | `supabase/migrations/008_studio_bookings.sql` | Tables + RPCs + Realtime |
 | `supabase/policies/004_studio_booking_rls.sql` | RLS for studio tables |
-| `supabase/scripts/verify_package_b.sql` | Read-only checks |
-| `supabase/scripts/verify_package_b_rpc.sql` | RPC integration (BEGIN/ROLLBACK) |
+| `supabase/scripts/verify/verify_package_b.sql` | Read-only checks |
+| `supabase/scripts/verify/verify_package_b_rpc.sql` | RPC integration (BEGIN/ROLLBACK) |
 | `src/lib/constants/studioSlots.ts` | Slot codes, labels, timezone helpers |
 | `src/types/studio-booking.ts` | Package B view types |
 | `src/lib/data/studio/availability.ts` | Availability fetch helper |
@@ -202,7 +202,7 @@ No INSERT/UPDATE/DELETE policies — all writes via `book_studio_slot`.
 
 1. Run `supabase/migrations/008_studio_bookings.sql`
 2. Run `supabase/policies/004_studio_booking_rls.sql`
-3. Run `supabase/scripts/verify_package_b.sql`
+3. Run `supabase/scripts/verify/verify_package_b.sql`
 4. (Optional) Run `verify_package_b_rpc.sql` inside transaction
 5. If Realtime check shows `MANUAL_CHECK_REQUIRED`: Dashboard → Database → Replication → enable `studio_slot_occupancy` on `supabase_realtime`
 
@@ -248,8 +248,8 @@ See Package C section below.
 |------|---------|
 | `supabase/migrations/010_portfolio_submission.sql` | Table + `submit_portfolio` RPC |
 | `supabase/policies/005_portfolio_submission_rls.sql` | SELECT-only RLS |
-| `supabase/scripts/verify_package_c.sql` | Read-only static checks |
-| `supabase/scripts/verify_package_c_rpc.sql` | RPC integration (BEGIN/ROLLBACK) |
+| `supabase/scripts/verify/verify_package_c.sql` | Read-only static checks |
+| `supabase/scripts/verify/verify_package_c_rpc.sql` | RPC integration (BEGIN/ROLLBACK) |
 | `src/types/portfolio-submission.ts` | Submission view types |
 | `src/actions/portfolio/submitPortfolio.ts` | Controlled server action |
 | `src/components/studio/PortfolioSubmissionForm.tsx` | Leader submission form |
@@ -331,7 +331,7 @@ No INSERT / UPDATE / DELETE policies — writes only via `submit_portfolio`.
 
 1. Run `supabase/migrations/010_portfolio_submission.sql`
 2. Run `supabase/policies/005_portfolio_submission_rls.sql`
-3. Run `supabase/scripts/verify_package_c.sql`
+3. Run `supabase/scripts/verify/verify_package_c.sql`
 4. (Optional) Run `verify_package_c_rpc.sql` inside transaction (requires a portfolio in `awaiting_submission` with booking)
 
 ### Tests run
@@ -398,8 +398,8 @@ Confirmed before implementation:
 |------|---------|
 | `supabase/migrations/011_portfolio_review_workflow.sql` | Enums, reviews table, revision routing, 3 RPCs, legacy deprecation |
 | `supabase/policies/006_portfolio_review_rls.sql` | SELECT-only RLS for `portfolio_reviews` |
-| `supabase/scripts/verify_package_d.sql` | Read-only static checks |
-| `supabase/scripts/verify_package_d_rpc.sql` | BEGIN/ROLLBACK simulated-auth RPC tests |
+| `supabase/scripts/verify/verify_package_d.sql` | Read-only static checks |
+| `supabase/scripts/verify/verify_package_d_rpc.sql` | BEGIN/ROLLBACK simulated-auth RPC tests |
 
 ### Files modified
 
@@ -458,7 +458,7 @@ Still deferred — no shared logging helper invented in D1.
 
 1. Run `supabase/migrations/011_portfolio_review_workflow.sql`
 2. Run `supabase/policies/006_portfolio_review_rls.sql`
-3. Run `supabase/scripts/verify_package_d.sql`
+3. Run `supabase/scripts/verify/verify_package_d.sql`
 4. (Optional) Run `verify_package_d_rpc.sql` inside transaction
 
 Verification notes:
@@ -526,7 +526,7 @@ Date rules used by the seed workflow:
 
 Reruns after partial failure: backup current state, wipe all app data + auth users, recreate fixture from zero (never resume mid-seed).
 
-Script: `scripts/reset-and-seed-test-environment.mjs`
+Script: `scripts/seed/reset-and-seed-test-environment.mjs`
 
 ---
 
@@ -552,8 +552,8 @@ Script: `scripts/reset-and-seed-test-environment.mjs`
 | File | Purpose |
 |------|---------|
 | `supabase/migrations/007_team_stage_journey_enrollment.sql` | Schema + RPCs |
-| `supabase/scripts/verify_package_a1.sql` | Read-only checks |
-| `supabase/scripts/verify_package_a1_rpc.sql` | RPC integration (BEGIN/ROLLBACK) |
+| `supabase/scripts/verify/verify_package_a1.sql` | Read-only checks |
+| `supabase/scripts/verify/verify_package_a1_rpc.sql` | RPC integration (BEGIN/ROLLBACK) |
 | `src/lib/stages/teamJourneyReadiness.ts` | Client-side readiness assessment |
 | `src/actions/stages/startTeamStageJourney.ts` | Enrollment server action |
 | `src/components/stages/StageJourneySection.tsx` | Journey UI on team detail |
@@ -605,7 +605,7 @@ Script: `scripts/reset-and-seed-test-environment.mjs`
 ### Manual Supabase steps
 
 1. Run `supabase/migrations/007_team_stage_journey_enrollment.sql`
-2. Run `supabase/scripts/verify_package_a1.sql`
+2. Run `supabase/scripts/verify/verify_package_a1.sql`
 3. (Optional) Run `verify_package_a1_rpc.sql` inside transaction
 
 ---

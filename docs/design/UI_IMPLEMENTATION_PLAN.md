@@ -200,7 +200,7 @@ Single commit or split:
 
 **UI-2B as-built (2026-07-15):**
 
-- Disposable Stage 3 fixture: `UI2 QA TEAM` via `scripts/ui2-qa-fixture-setup.mjs` / cleanup via `scripts/ui2-qa-fixture-cleanup.mjs` (Alpha/Beta never modified)
+- Disposable Stage 3 fixture: `UI2 QA TEAM` via `scripts/fixtures/ui2-qa-fixture-setup.mjs` / cleanup via `scripts/fixtures/ui2-qa-fixture-cleanup.mjs` (Alpha/Beta never modified)
 - Full status matrix exercised: locked → awaiting_booking → awaiting_submission → pending_educator → revision_required → resubmit → pending_educator → pending_admin → completed
 - Student screens, booking/submission/revision/Timeline, 375px overflow, and keyboard sampling verified
 - Controlled repair: `SectionHeader` explicit `h2`/`h3` (hydration risk)
@@ -222,8 +222,8 @@ src/components/student/*
 src/components/studio/* (student-facing visual only)
 src/components/status/Timeline.tsx
 src/components/layout/SectionHeader.tsx (UI-2B hydration repair)
-scripts/ui2-qa-fixture-setup.mjs
-scripts/ui2-qa-fixture-cleanup.mjs
+scripts/fixtures/ui2-qa-fixture-setup.mjs
+scripts/fixtures/ui2-qa-fixture-cleanup.mjs
 docs/archive/qa/UI_2_STUDENT_PORTAL_QA.md
 ```
 
@@ -272,7 +272,7 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 
 **UI-3B as-built (2026-07-15):**
 
-- Disposable Stage 3 fixture: `UI3 QA TEAM` via `scripts/ui3-qa-fixture-setup.mjs` / cleanup via `scripts/ui3-qa-fixture-cleanup.mjs` (Alpha/Beta never modified)
+- Disposable Stage 3 fixture: `UI3 QA TEAM` via `scripts/fixtures/ui3-qa-fixture-setup.mjs` / cleanup via `scripts/fixtures/ui3-qa-fixture-cleanup.mjs` (Alpha/Beta never modified)
 - Workflow verified: awaiting_submission → submit → pending_educator → revision_required → resubmit → pending_educator → approve → pending_admin
 - Dashboard count/queue/ReviewCard/detail ActionPanel, Timeline history, unrelated-educator 404, and Admin-RPC denial verified
 - No presentation repairs required beyond UI-3A
@@ -291,8 +291,8 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 src/app/educator/**
 src/components/educator/*
   ReviewCard.tsx, ProfileSummary.tsx, ActionPanel.tsx (UI-3A)
-scripts/ui3-qa-fixture-setup.mjs
-scripts/ui3-qa-fixture-cleanup.mjs
+scripts/fixtures/ui3-qa-fixture-setup.mjs
+scripts/fixtures/ui3-qa-fixture-cleanup.mjs
 docs/archive/qa/UI_3_EDUCATOR_PORTAL_QA.md
 ```
 
@@ -361,7 +361,7 @@ test(ui-3b): verify Educator revision and approval workflow
 
 **UI-4B as-built (2026-07-15):**
 
-- Disposable **UI4 QA TEAM** fixture (`scripts/ui4-qa-fixture-setup.mjs` / `cleanup.mjs`) — Alpha/Beta untouched
+- Disposable **UI4 QA TEAM** fixture (`scripts/fixtures/ui4-qa-fixture-setup.mjs` / `cleanup.mjs`) — Alpha/Beta untouched
 - Interactive Admin matrix: `pending_admin` → Admin revision → `revision_required` → resubmit → `pending_admin` (return-to-admin) → Admin approve → `completed`
 - Permissions: educator/student cannot call Admin review RPC; revision comments enforced
 - Stage Board / Studio Schedule / CRUD samples / placeholders verified

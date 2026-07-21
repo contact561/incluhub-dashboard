@@ -257,7 +257,7 @@ Commit references (VERIFIED_LOCAL_GIT):
 
 ## AJ. Test reset/seed utility
 
-- **File:** `scripts/reset-and-seed-test-environment.mjs`. **Commit:**
+- **File:** `scripts/seed/reset-and-seed-test-environment.mjs`. **Commit:**
   `d22b3b8` (committed & pushed, including the BMS-yesterday date fix).
 - **Safety (VERIFIED_LOCAL_CODE):** dry-run default; destructive path
   requires `--confirm-reset`; backup to `tmp/test-reset-backups` (gitignored);

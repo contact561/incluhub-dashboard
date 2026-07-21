@@ -3,7 +3,7 @@
  * Stage 3 authoritative workflow + Admin Updates + Stage 5 messaging smoke test.
  *
  * Usage:
- *   node scripts/stage3-workflow-smoke.mjs --confirm-stage3-smoke
+ *   node scripts/qa/smoke/stage3-workflow-smoke.mjs --confirm-stage3-smoke
  */
 
 import { createHash, randomUUID } from "node:crypto";
@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import nextEnv from "@next/env";
-import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
+import { assertFixtureMutationAllowed } from "../../fixtures/fixture-safety.mjs";
 
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());

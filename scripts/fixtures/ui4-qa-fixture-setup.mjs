@@ -1,17 +1,19 @@
 #!/usr/bin/env node
 /**
- * IncluHub — DEVELOPMENT-ONLY disposable Stage 3 fixture for UI-2B QA.
+ * IncluHub — DEVELOPMENT-ONLY disposable Stage 3 fixture for UI-4B QA.
  *
- * Creates: UI2 QA TEAM + three dedicated students.
+ * Creates: UI4 QA TEAM + three dedicated students.
+ * Leaves photography portfolio at awaiting_submission (booked via book_studio_slot).
  * Does NOT modify TEST TEAM ALPHA or TEST TEAM BETA.
  *
  * Usage:
- *   node scripts/ui2-qa-fixture-setup.mjs
+ *   node scripts/fixtures/ui4-qa-fixture-setup.mjs
  *
  * Cleanup:
- *   node scripts/ui2-qa-fixture-cleanup.mjs
+ *   node scripts/fixtures/ui4-qa-fixture-cleanup.mjs
  *
  * NEVER run against production.
+ * Credentials come from environment (TEST_ACCOUNT_PASSWORD); never hardcode secrets.
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -21,11 +23,11 @@ import { assertFixtureMutationAllowed } from "./fixture-safety.mjs";
 const { loadEnvConfig } = nextEnv;
 loadEnvConfig(process.cwd());
 
-const TEAM_NAME = "UI2 QA TEAM";
+const TEAM_NAME = "UI4 QA TEAM";
 const EMAILS = {
-  photo: "ui2.photo.student@incluhub.test",
-  makeup: "ui2.makeup.student@incluhub.test",
-  hair: "ui2.hair.student@incluhub.test",
+  photo: "ui4.photo.student@incluhub.test",
+  makeup: "ui4.makeup.student@incluhub.test",
+  hair: "ui4.hair.student@incluhub.test",
 };
 
 function requireEnv(name) {
@@ -34,18 +36,26 @@ function requireEnv(name) {
   return value;
 }
 
-function getYesterdayInAsiaKolkata() {
+function getDateInAsiaKolkata(date) {
   const formatter = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Kolkata",
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   });
-  const parts = formatter.formatToParts(new Date(Date.now() - 24 * 60 * 60 * 1000));
+  const parts = formatter.formatToParts(date);
   const y = parts.find((p) => p.type === "year").value;
   const m = parts.find((p) => p.type === "month").value;
   const d = parts.find((p) => p.type === "day").value;
   return `${y}-${m}-${d}`;
+}
+
+function getYesterdayInAsiaKolkata() {
+  return getDateInAsiaKolkata(new Date(Date.now() - 24 * 60 * 60 * 1000));
+}
+
+function getTodayInAsiaKolkata() {
+  return getDateInAsiaKolkata(new Date());
 }
 
 function createAdmin() {
@@ -121,17 +131,22 @@ async function createStudent(admin, { email, fullName, category, instituteId, cr
 async function main() {
   assertFixtureMutationAllowed({
     confirmationFlag: "--confirm-fixture",
-    label: "UI2 QA fixture setup",
+    label: "UI4 QA fixture setup",
   });
-  console.log("=== UI-2B disposable Stage 3 fixture setup ===");
+  console.log("=== UI-4B disposable Stage 3 fixture setup ===");
   console.log("Team:", TEAM_NAME);
   console.log("Will NOT modify TEST TEAM ALPHA or TEST TEAM BETA.");
+  console.log("\nFixture plan:");
+  console.log("  1. Create 3 UI4 QA students (photo/makeup/hair) + enrollments");
+  console.log("  2. create_balanced_team + start_team_stage_journey + complete_bms_session");
+  console.log("  3. book_studio_slot as photography student → awaiting_submission");
+  console.log("  4. Leave Alpha/Beta untouched");
+  console.log("");
 
   const password = requireEnv("TEST_ACCOUNT_PASSWORD");
   const admin = createAdmin();
   const anon = createAnon();
 
-  // Guard: refuse if Alpha/Beta staging would be confused — only check existence
   const { data: existingQa } = await admin
     .from("teams")
     .select("id, team_name")
@@ -143,14 +158,14 @@ async function main() {
     );
   }
 
+  const { data: listed } = await admin.auth.admin.listUsers({ perPage: 200 });
   for (const email of Object.values(EMAILS)) {
-    const { data: existingAuth } = await admin.auth.admin.listUsers({ perPage: 200 });
-    const hit = (existingAuth?.users ?? []).find(
+    const hit = (listed?.users ?? []).find(
       (u) => u.email?.toLowerCase() === email.toLowerCase()
     );
     if (hit) {
       throw new Error(
-        `Auth user ${email} already exists. Run ui2-qa-fixture-cleanup.mjs first.`
+        `Auth user ${email} already exists. Run ui4-qa-fixture-cleanup.mjs first.`
       );
     }
   }
@@ -200,10 +215,10 @@ async function main() {
     throw new Error("admin@incluhub.test profile not found.");
   }
 
-  console.log("Creating three UI2 QA students…");
+  console.log("Creating three UI4 QA students…");
   const photo = await createStudent(admin, {
     email: EMAILS.photo,
-    fullName: "UI2 QA Photography Student",
+    fullName: "UI4 QA Photography Student",
     category: "photographer",
     instituteId: photography.id,
     createdBy: adminProfile.id,
@@ -211,7 +226,7 @@ async function main() {
   });
   const makeupStudent = await createStudent(admin, {
     email: EMAILS.makeup,
-    fullName: "UI2 QA Makeup Student",
+    fullName: "UI4 QA Makeup Student",
     category: "makeup_artist",
     instituteId: makeup.id,
     createdBy: adminProfile.id,
@@ -219,7 +234,7 @@ async function main() {
   });
   const hairStudent = await createStudent(admin, {
     email: EMAILS.hair,
-    fullName: "UI2 QA Hairstyling Student",
+    fullName: "UI4 QA Hairstyling Student",
     category: "hairstylist",
     instituteId: hair.id,
     createdBy: adminProfile.id,
@@ -276,9 +291,39 @@ async function main() {
   await rpcCall(anon, "complete_bms_session", {
     p_team_id: teamId,
     p_session_date: bmsDate,
-    p_remarks: "UI-2B disposable QA fixture BMS completion",
+    p_remarks: "UI-4B disposable QA fixture BMS completion",
   });
 
+  await anon.auth.signOut();
+
+  const { data: photoPortfolio, error: portfolioError } = await admin
+    .from("portfolio_outputs")
+    .select("id, workflow_status, sequence_order, portfolio_type")
+    .eq("team_id", teamId)
+    .eq("portfolio_type", "photographer")
+    .maybeSingle();
+  if (portfolioError || !photoPortfolio) {
+    throw new Error(`Photography portfolio not found: ${portfolioError?.message}`);
+  }
+
+  const bookingDate = getTodayInAsiaKolkata();
+  const slotCode = "slot_15_18";
+  console.log(
+    `Booking studio as photography student (${bookingDate} ${slotCode})…`
+  );
+  const { error: studentSignInError } = await anon.auth.signInWithPassword({
+    email: EMAILS.photo,
+    password,
+  });
+  if (studentSignInError) {
+    throw new Error(`Photo student sign-in failed: ${studentSignInError.message}`);
+  }
+
+  await rpcCall(anon, "book_studio_slot", {
+    p_portfolio_output_id: photoPortfolio.id,
+    p_booking_date: bookingDate,
+    p_slot_code: slotCode,
+  });
   await anon.auth.signOut();
 
   const { data: team } = await admin
@@ -289,26 +334,38 @@ async function main() {
 
   const { data: portfolios } = await admin
     .from("portfolio_outputs")
-    .select("sequence_order, portfolio_type, workflow_status")
+    .select("id, sequence_order, portfolio_type, workflow_status")
     .eq("team_id", teamId)
     .order("sequence_order");
 
-  // Verify Alpha/Beta untouched
   const { data: alphaBeta } = await admin
     .from("teams")
     .select("team_name, current_stage_number")
     .in("team_name", ["TEST TEAM ALPHA", "TEST TEAM BETA"]);
 
   console.log("\n=== Fixture ready ===");
-  console.log(JSON.stringify({ team, portfolios, alphaBetaUnchanged: alphaBeta }, null, 2));
+  console.log(
+    JSON.stringify(
+      {
+        team,
+        portfolios,
+        photoPortfolioId: photoPortfolio.id,
+        alphaBetaUnchanged: alphaBeta,
+      },
+      null,
+      2
+    )
+  );
   console.log("\nAccounts (password from TEST_ACCOUNT_PASSWORD):");
-  console.log(" ", EMAILS.photo, "— Photography leader (expect awaiting_booking)");
+  console.log(" ", EMAILS.photo, "— Photography leader (expect awaiting_submission)");
   console.log(" ", EMAILS.makeup, "— Makeup (expect locked)");
   console.log(" ", EMAILS.hair, "— Hairstyling (expect locked)");
-  console.log("\nCleanup: node scripts/ui2-qa-fixture-cleanup.mjs");
+  console.log("  photo.educator@incluhub.test — assigned photo educator");
+  console.log("  makeup.educator@incluhub.test — unrelated for permission denial");
+  console.log("\nCleanup: node scripts/fixtures/ui4-qa-fixture-cleanup.mjs");
 }
 
 main().catch((error) => {
-  console.error("UI2 QA fixture setup FAILED:", error.message ?? error);
+  console.error("UI4 QA fixture setup FAILED:", error.message ?? error);
   process.exit(1);
 });
