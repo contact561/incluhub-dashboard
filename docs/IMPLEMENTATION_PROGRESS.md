@@ -35,7 +35,7 @@ Run `supabase/scripts/verify_stage3_qr_workflow.sql` after applying migrations.
 - Next.js `middleware` to `proxy` migration and temporary-artifact cleanup.
 - TypeScript, lint, default test, production build, and diff hygiene checks.
 - Preview/production deployment gates documented in
-  `docs/PACKAGE_F_RELEASE_READINESS.md`.
+  `docs/releases/PACKAGE_F_RELEASE_READINESS.md`.
 
 ---
 

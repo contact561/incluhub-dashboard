@@ -41,7 +41,7 @@ Current phase:
 Packages E1, E2, and F are implemented locally on
 `chore/package-f-release-readiness`. Package F passed local application,
 authorization, RLS, responsive browser, TypeScript, lint, and production build
-checks. See `docs/PACKAGE_F_RELEASE_READINESS.md` for the deployment gates.
+checks. See `docs/releases/PACKAGE_F_RELEASE_READINESS.md` for the deployment gates.
 Both Package E1 SQL verification scripts passed in the connected test Supabase
 before Package G began.
 

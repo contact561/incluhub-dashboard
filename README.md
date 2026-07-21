@@ -1,42 +1,104 @@
 # IncluHub Education Management Dashboard
 
-IncluHub is a role-based creative education workflow application. The
-submission build surfaces implemented Admin, Student, and Educator workflows;
-unfinished navigation is hidden.
+IncluHub is a role-based creative education workflow application for Admin,
+Educator, and Student portals. Server actions and Supabase RLS enforce every
+protected workflow.
 
 ## Stack
 
-- Next.js 16, React 19, and TypeScript
+- Next.js 16, React 19, TypeScript
 - Tailwind CSS and shadcn-style UI components
 - Supabase Postgres, Auth, RLS, Storage, and RPC workflows
 
-## Local setup
+## Quick start
 
-1. Copy `.env.example` to `.env.local` and replace placeholders with values
-   for an isolated development or staging Supabase project.
-2. Install dependencies with `npm install`.
-3. Start locally with `npm run dev`.
+### 1. Clone and install
 
-Never expose `SUPABASE_SERVICE_ROLE_KEY` to browser code. Fixture utilities
-also require a matching `EXPECTED_SUPABASE_PROJECT_REF`,
-`ALLOW_DESTRUCTIVE_TEST_RESET=true`, and an explicit confirmation flag.
+```bash
+git clone <repo-url>
+cd incluhub-dashboard
+npm install
+```
 
-## Verification
+### 2. Environment
 
-```text
+Copy `.env.example` to `.env.local` and set:
+
+| Variable | Required |
+|----------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server only — never expose to the browser |
+| `NEXT_PUBLIC_APP_URL` | Yes (e.g. `http://localhost:3000`) |
+| `EXPECTED_SUPABASE_PROJECT_REF` | Required for seed/reset scripts |
+
+Never commit `.env.local`.
+
+### 3. Choose a branch
+
+| Branch | Use for |
+|--------|---------|
+| `master` | Package F baseline (migrations `001`–`013`) |
+| `feat/local-dev` | Current founder workflows (migrations `014`–`022`) |
+
+```bash
+git checkout feat/local-dev   # active development
+```
+
+### 4. Apply database schema
+
+Apply SQL migrations in order from `supabase/migrations/` in the Supabase SQL
+editor (or your migration pipeline):
+
+- **Package F:** `001` → `013`
+- **Founder / local-dev:** also `014` → `022`
+
+See [supabase/README.md](supabase/README.md) and [docs/README.md](docs/README.md).
+
+### 5. Run locally
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Admin creates all users;
+there is no public signup.
+
+### 6. Optional test data (non-production only)
+
+Destructive scripts require explicit flags. See script headers and
+[docs/PROJECT_RULES.md](docs/PROJECT_RULES.md).
+
+```bash
+npm run test:reset -- --confirm-reset
+```
+
+## Verify changes
+
+```bash
 npm exec tsc -- --noEmit --incremental false
 npm run lint
 npm run build
+npm run test:release-authz
 ```
 
-Package E1 database checks are `supabase/scripts/verify_package_e1.sql` and
-`supabase/scripts/verify_package_e1_rpc.sql`. The RPC check is transactionally
-disposable and ends with `ROLLBACK`.
+Database checks (Supabase SQL editor):
 
-## Current delivery sequence
+- Package E1: `supabase/scripts/verify_package_e1.sql`, `verify_package_e1_rpc.sql`
+- Stage 3 (local-dev): `supabase/scripts/verify_stage3_tables.sql`, `verify_stage3_qr_workflow.sql`
 
-Packages E1 Stage 4 Brand Works, E2 Stage 5 Ecosystem Welcome, and Package F
-release readiness are implemented locally. The Ecosystem page uses a labelled
-placeholder destination until the final URL is supplied. Next: follow
-`docs/PACKAGE_F_RELEASE_READINESS.md` for Package G preview and production
-deployment gates.
+## Documentation map
+
+| Topic | Location |
+|-------|----------|
+| Doc index | [docs/README.md](docs/README.md) |
+| MVP rules | [docs/PROJECT_RULES.md](docs/PROJECT_RULES.md) |
+| Build progress | [docs/IMPLEMENTATION_PROGRESS.md](docs/IMPLEMENTATION_PROGRESS.md) |
+| Release readiness | [docs/releases/PACKAGE_F_RELEASE_READINESS.md](docs/releases/PACKAGE_F_RELEASE_READINESS.md) |
+| AI agent instructions | [AGENTS.md](AGENTS.md) |
+
+## Current status
+
+Package F (Stages 1–4 portfolio and studio flows) is on `master`. Founder
+workflows on `feat/local-dev` add in-app notifications, Stage 3 QR check-in,
+admin broadcast updates, and Stage 5 ecosystem review messaging.

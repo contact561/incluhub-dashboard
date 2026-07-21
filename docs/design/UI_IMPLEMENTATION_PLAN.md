@@ -32,7 +32,7 @@
 | **UI-1C1** | Done | StatusBadge repaired; PortfolioWorkflowBadge + StatusPanel created; workflow labels backend-driven |
 | **UI-1C2A** | **Done** | LoadingSkeleton created; EmptyState tokenized; QueryErrorState parameterized with optional retry |
 | **UI-1C2B** | **Done** | PageHeader / SectionHeader / DashboardMetricCard; RecordPageHeader wraps PageHeader. **UI-1C complete.** |
-| **UI-1D** | **Done** | Foundation verification + controlled repairs. See `docs/design/UI_1_FOUNDATION_VERIFICATION.md`. **UI-1 complete.** |
+| **UI-1D** | **Done** | Foundation verification + controlled repairs. See `docs/archive/qa/UI_1_FOUNDATION_VERIFICATION.md`. **UI-1 complete.** |
 
 **UI-1B1 as-built (2026-07-15):**
 
@@ -86,7 +86,7 @@
 
 **UI-1D as-built (2026-07-15):**
 
-- Verification report: `docs/design/UI_1_FOUNDATION_VERIFICATION.md`
+- Verification report: `docs/archive/qa/UI_1_FOUNDATION_VERIFICATION.md`
 - Brand / shell / nav / status / shared states / headers verified against UI-1 acceptance questions
 - Controlled repairs only: fixed circular `@theme` radius token self-references in `globals.css`; `StatusPanel` danger uses `role="alert"`
 - Role-page zinc / duplicate padding / metric adoption **deferred** to UI-2 / UI-3 / UI-4
@@ -185,7 +185,7 @@ Single commit or split:
 | Slice | Status | Notes |
 |---|---|---|
 | **UI-2A** | **Done** | Full Student portal visual redesign — pages + student-facing studio UI |
-| **UI-2B** | **Done** | Stage 3 disposable fixture QA + controlled repair. See `docs/design/UI_2_STUDENT_PORTAL_QA.md`. **UI-2 complete.** |
+| **UI-2B** | **Done** | Stage 3 disposable fixture QA + controlled repair. See `docs/archive/qa/UI_2_STUDENT_PORTAL_QA.md`. **UI-2 complete.** |
 
 **UI-2A as-built (2026-07-15):**
 
@@ -204,7 +204,7 @@ Single commit or split:
 - Full status matrix exercised: locked → awaiting_booking → awaiting_submission → pending_educator → revision_required → resubmit → pending_educator → pending_admin → completed
 - Student screens, booking/submission/revision/Timeline, 375px overflow, and keyboard sampling verified
 - Controlled repair: `SectionHeader` explicit `h2`/`h3` (hydration risk)
-- QA report: `docs/design/UI_2_STUDENT_PORTAL_QA.md`
+- QA report: `docs/archive/qa/UI_2_STUDENT_PORTAL_QA.md`
 - **UI-2 complete.** Next portal package: **UI-3 Educator**
 
 ### Goals
@@ -224,7 +224,7 @@ src/components/status/Timeline.tsx
 src/components/layout/SectionHeader.tsx (UI-2B hydration repair)
 scripts/ui2-qa-fixture-setup.mjs
 scripts/ui2-qa-fixture-cleanup.mjs
-docs/design/UI_2_STUDENT_PORTAL_QA.md
+docs/archive/qa/UI_2_STUDENT_PORTAL_QA.md
 ```
 
 ### What NOT to change
@@ -259,7 +259,7 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 | Slice | Status | Notes |
 |---|---|---|
 | **UI-3A** | **Done** | Full Educator portal visual redesign — dashboard, lists, review queue + detail |
-| **UI-3B** | **Done** | Disposable Stage 3 fixture QA + revision/approval verification. See `docs/design/UI_3_EDUCATOR_PORTAL_QA.md`. **UI-3 complete.** |
+| **UI-3B** | **Done** | Disposable Stage 3 fixture QA + revision/approval verification. See `docs/archive/qa/UI_3_EDUCATOR_PORTAL_QA.md`. **UI-3 complete.** |
 
 **UI-3A as-built (2026-07-15):**
 
@@ -276,7 +276,7 @@ test(ui-2b): verify Student Stage 3 workflow and fix SectionHeader hydration
 - Workflow verified: awaiting_submission → submit → pending_educator → revision_required → resubmit → pending_educator → approve → pending_admin
 - Dashboard count/queue/ReviewCard/detail ActionPanel, Timeline history, unrelated-educator 404, and Admin-RPC denial verified
 - No presentation repairs required beyond UI-3A
-- QA report: `docs/design/UI_3_EDUCATOR_PORTAL_QA.md`
+- QA report: `docs/archive/qa/UI_3_EDUCATOR_PORTAL_QA.md`
 - **UI-3 complete.** Next portal package: **UI-4 Admin**
 
 ### Goals
@@ -293,7 +293,7 @@ src/components/educator/*
   ReviewCard.tsx, ProfileSummary.tsx, ActionPanel.tsx (UI-3A)
 scripts/ui3-qa-fixture-setup.mjs
 scripts/ui3-qa-fixture-cleanup.mjs
-docs/design/UI_3_EDUCATOR_PORTAL_QA.md
+docs/archive/qa/UI_3_EDUCATOR_PORTAL_QA.md
 ```
 
 ### Components created
@@ -347,7 +347,7 @@ test(ui-3b): verify Educator revision and approval workflow
 | **UI-4A** | **Done** | Full Admin portal visual redesign — dashboard, lists/CRUD, approvals, Stage Board, Studio Schedule, placeholders |
 | **UI-4B** | **Done** | Admin revision + approval workflow QA; disposable UI4 QA TEAM; residual Admin stage-helper token repair |
 
-**UI-4 complete (2026-07-15).** See `docs/design/UI_4_ADMIN_PORTAL_QA.md`.
+**UI-4 complete (2026-07-15).** See `docs/archive/qa/UI_4_ADMIN_PORTAL_QA.md`.
 
 **UI-4A as-built (2026-07-15):**
 
@@ -439,7 +439,7 @@ test(ui-4b): verify Admin revision and approval workflow
 |---|---|---|
 | **UI-5** | **Done** | Cross-role responsive, accessibility, and visual consistency QA |
 
-**UI-5 complete (2026-07-15).** See `docs/design/UI_5_FINAL_UI_QA.md`.
+**UI-5 complete (2026-07-15).** See `docs/archive/qa/UI_5_FINAL_UI_QA.md`.
 
 ### Goals
 
@@ -466,7 +466,7 @@ test(ui-4b): verify Admin revision and approval workflow
 ```
 src/app/external/dashboard/page.tsx
 src/components/layout/PlaceholderPage.tsx
-docs/design/UI_5_FINAL_UI_QA.md
+docs/archive/qa/UI_5_FINAL_UI_QA.md
 ```
 
 ### Testing checklist
