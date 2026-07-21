@@ -39,6 +39,7 @@ function mapRpcError(message: string): string {
     "This portfolio is locked.",
     "This portfolio is not awaiting submission.",
     "A confirmed studio booking is required before submission.",
+    "Physical studio check-in is required before submission.",
     "Portfolio title is required.",
     "Portfolio title must be between 3 and 150 characters.",
     "Enter a valid HTTP or HTTPS portfolio link.",

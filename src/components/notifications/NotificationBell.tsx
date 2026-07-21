@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bell } from "lucide-react";
+import { Bell, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import type { NotificationItem } from "@/types/notification";
 
 type NotificationBellProps = {
@@ -17,12 +18,21 @@ type NotificationBellProps = {
   inboxHref: string;
 };
 
-export function NotificationBell({ items, unreadCount, inboxHref }: NotificationBellProps) {
+export function NotificationBell({
+  items,
+  unreadCount,
+  inboxHref,
+}: NotificationBellProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" size="icon-sm" className="relative" aria-label={`${unreadCount} unread notifications`} />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="relative"
+            aria-label={`${unreadCount} unread notifications`}
+          />
         }
       >
         <Bell aria-hidden="true" />
@@ -38,15 +48,48 @@ export function NotificationBell({ items, unreadCount, inboxHref }: Notification
         {items.length === 0 ? (
           <p className="px-2 py-4 text-sm text-text-muted">No notifications yet.</p>
         ) : (
-          items.slice(0, 5).map((item) => (
-            <DropdownMenuItem key={item.id} render={<Link href={item.actionUrl ?? inboxHref} />}>
-              <span className="min-w-0">
-                <span className="block truncate font-medium">{item.title}</span>
-                <span className="block line-clamp-2 text-xs text-text-muted">{item.message}</span>
-              </span>
-              {!item.read ? <span className="ml-auto size-2 rounded-full bg-brand-primary" /> : null}
-            </DropdownMenuItem>
-          ))
+          items.slice(0, 5).map((item) => {
+            const update = item.eventType === "admin_update";
+            return (
+              <DropdownMenuItem
+                key={item.id}
+                render={<Link href={item.actionUrl ?? inboxHref} />}
+              >
+                <span
+                  className={cn(
+                    "mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-md",
+                    update
+                      ? "bg-amber-500/15 text-amber-700"
+                      : "bg-brand-primary/10 text-brand-primary"
+                  )}
+                  aria-hidden="true"
+                >
+                  {update ? (
+                    <Megaphone className="size-3.5" />
+                  ) : (
+                    <Bell className="size-3.5" />
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-[10px] font-medium uppercase tracking-wide text-text-subtle">
+                    {update ? "Update" : "Workflow"}
+                  </span>
+                  <span className="block truncate font-medium">{item.title}</span>
+                  <span className="block line-clamp-2 text-xs text-text-muted">
+                    {item.message}
+                  </span>
+                </span>
+                {!item.read ? (
+                  <span
+                    className={cn(
+                      "ml-auto size-2 shrink-0 rounded-full",
+                      update ? "bg-amber-600" : "bg-brand-primary"
+                    )}
+                  />
+                ) : null}
+              </DropdownMenuItem>
+            );
+          })
         )}
         <DropdownMenuSeparator />
         <DropdownMenuItem render={<Link href={inboxHref} />}>
@@ -56,4 +99,3 @@ export function NotificationBell({ items, unreadCount, inboxHref }: Notification
     </DropdownMenu>
   );
 }
-

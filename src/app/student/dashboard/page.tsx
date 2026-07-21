@@ -3,6 +3,7 @@ import {
   StudentDashboardOwnPortfolioSummary,
   TeamPortfolioProgressList,
 } from "@/components/student/Stage3PortfolioPanels";
+import { ProgramStageGuide } from "@/components/shared/ProgramStageGuide";
 import { DashboardMetricCard } from "@/components/layout/DashboardMetricCard";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { SectionHeader } from "@/components/layout/SectionHeader";
@@ -14,10 +15,10 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { getStudentDashboardData } from "@/lib/data/student/dashboard";
 import { formatCurrentStageLabel } from "@/lib/data/student/myStage";
+import { getStudentEcosystemAccess } from "@/lib/data/student/ecosystem";
 import { cn } from "@/lib/utils";
 import { ProgramOverview } from "@/components/student/ProgramOverview";
 import { WhatHappensNow } from "@/components/student/WhatHappensNow";
-import { getStudentEcosystemAccess } from "@/lib/data/student/ecosystem";
 
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" }).format(
@@ -96,8 +97,16 @@ export default async function StudentDashboardPage() {
           ) : data.currentStageNumber === 4 ? (
             <StatusPanel
               variant={data.brandWorks?.date ? "information" : "warning"}
-              title={data.brandWorks?.date ? "Brand Opportunity assigned" : "Brand Opportunity assignment pending"}
-              description={data.brandWorks?.date ? `Your team's Brand Opportunity is scheduled for ${formatDate(data.brandWorks.date)}. Open it to review the private brief and proof requirements.` : "A Brand Opportunity is being assigned to your team. No action is required yet."}
+              title={
+                data.brandWorks?.date
+                  ? "Brand Opportunity assigned"
+                  : "Brand Opportunity assignment pending"
+              }
+              description={
+                data.brandWorks?.date
+                  ? `Your team's Brand Opportunity is scheduled for ${formatDate(data.brandWorks.date)}. Open it to review the private brief and proof requirements.`
+                  : "A Brand Opportunity is being assigned to your team. No action is required yet."
+              }
               action={
                 <Link
                   href="/student/brand-opportunity"
@@ -109,19 +118,37 @@ export default async function StudentDashboardPage() {
                 </Link>
               }
             />
-          ) : (data.currentStageNumber ?? 0) > 4 ? (
-            <StatusPanel
-              variant={ecosystemAccess.status === "granted" ? "success" : "information"}
-              title={ecosystemAccess.status === "granted" ? "Final review complete" : "Stage 5 · Under Review"}
-              description={ecosystemAccess.status === "granted" ? "Your ecosystem access is active." : "Your Brand Opportunity proof is approved. Admin must complete the separate final review before ecosystem access opens."}
-              action={
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    href="/student/ecosystem"
-                    className={cn(buttonVariants({ size: "sm" }))}
-                  >
-                    {ecosystemAccess.status === "granted" ? "Enter the Ecosystem" : "View final review"}
-                  </Link>
+          ) : (data.currentStageNumber ?? 0) >= 5 ? (
+            ecosystemAccess.status === "granted" ? (
+              <StatusPanel
+                variant="success"
+                title="Ecosystem access approved"
+                description="IncluHub has approved your onboarding. You can now enter the ecosystem."
+                action={
+                  <div className="flex flex-wrap gap-2">
+                    <Link
+                      href="/student/ecosystem"
+                      className={cn(buttonVariants({ size: "sm" }))}
+                    >
+                      Enter the Ecosystem
+                    </Link>
+                    <Link
+                      href="/student/my-stage"
+                      className={cn(
+                        buttonVariants({ variant: "outline", size: "sm" })
+                      )}
+                    >
+                      View stage journey
+                    </Link>
+                  </div>
+                }
+              />
+            ) : (
+              <StatusPanel
+                variant="information"
+                title="Stage 5 — under review"
+                description="Your portfolio and sessions are under review. IncluHub Admin will notify you if and when you are selected into the ecosystem. Celebration and Enter Ecosystem appear only after Admin grants access."
+                action={
                   <Link
                     href="/student/my-stage"
                     className={cn(
@@ -130,9 +157,9 @@ export default async function StudentDashboardPage() {
                   >
                     View stage journey
                   </Link>
-                </div>
-              }
-            />
+                }
+              />
+            )
           ) : (
             <StatusPanel
               variant="information"
@@ -151,6 +178,8 @@ export default async function StudentDashboardPage() {
             />
           )}
 
+          <ProgramStageGuide currentStage={data.currentStageNumber} />
+
           <section className="flex flex-wrap gap-2">
             <Link
               href="/student/my-team"
@@ -166,10 +195,30 @@ export default async function StudentDashboardPage() {
             </Link>
           </section>
           <WhatHappensNow
-            title={data.currentStageNumber === 3 ? "Continue your active portfolio" : data.currentStageNumber === 4 ? "Review your Brand Opportunity status" : data.currentStageNumber === 5 ? "Follow the final review" : "Follow your stage journey"}
-            description={data.currentStageNumber === 3 ? "Open the portfolio workspace to share availability, book, check in, submit, or respond to review feedback." : "Your stage page explains who must act next and what will unlock the following stage."}
-            actionLabel={data.currentStageNumber === 3 ? "Open portfolio workspace" : "View my stage"}
-            actionHref={data.currentStageNumber === 3 ? "/student/portfolio" : "/student/my-stage"}
+            title={
+              data.currentStageNumber === 3
+                ? "Continue your active portfolio"
+                : data.currentStageNumber === 4
+                  ? "Review your Brand Opportunity status"
+                  : data.currentStageNumber === 5
+                    ? "Follow the final review"
+                    : "Follow your stage journey"
+            }
+            description={
+              data.currentStageNumber === 3
+                ? "Open the portfolio workspace to share availability, book, check in, submit, or respond to review feedback."
+                : "Your stage page explains who must act next and what will unlock the following stage."
+            }
+            actionLabel={
+              data.currentStageNumber === 3
+                ? "Open portfolio workspace"
+                : "View my stage"
+            }
+            actionHref={
+              data.currentStageNumber === 3
+                ? "/student/portfolio"
+                : "/student/my-stage"
+            }
           />
         </>
       ) : null}

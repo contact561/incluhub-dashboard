@@ -128,6 +128,9 @@ export function PortfolioCard({
         <div className="mt-4">
           <ConfirmedBookingCard
             booking={portfolio.booking}
+            showCheckinHint={
+              portfolio.workflowStatus === "awaiting_studio_checkin" && isLeader
+            }
             showSubmissionHint={
               portfolio.workflowStatus === "awaiting_submission" && isLeader
             }
@@ -145,10 +148,13 @@ export function PortfolioCard({
         <div className="mt-4">
           <StatusPanel
             variant="information"
-            title="Waiting on portfolio leader"
+            title="When can you support this shoot?"
             description={getAssistantWaitingMessage(portfolio.portfolioType)}
           />
-          <AssistantAvailabilityForm portfolioOutputId={portfolio.id} />
+          <AssistantAvailabilityForm
+            portfolioOutputId={portfolio.id}
+            leaderPortfolioType={portfolio.portfolioType}
+          />
         </div>
       ) : null}
 
@@ -160,8 +166,8 @@ export function PortfolioCard({
         <div className="mt-4">
           <StatusPanel
             variant="information"
-            title="Waiting for physical check-in"
-            description={`The ${STUDENT_CATEGORY_LABELS[portfolio.portfolioType]} leader must scan the temporary Admin QR at the studio before submission opens.`}
+            title="Waiting for studio check-in"
+            description={`The ${STUDENT_CATEGORY_LABELS[portfolio.portfolioType]} leader must scan the booking QR at the studio before their submission unlocks.`}
           />
         </div>
       ) : null}

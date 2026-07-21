@@ -1,5 +1,24 @@
 # Implementation Progress
 
+## Stage 3 authoritative QR + notifications + Stage 5 review message
+
+**Status:** Implemented on `feat/local-dev` (migrations + UI). Apply in order: `014` → `015` (or `021` if `018`–`020` were already applied without `015`) → `018` → `019` → `020`; keep `017` Stage 5 approval if not already applied.
+
+**Date:** 2026-07-21
+
+### Scope delivered
+
+- Stage 3 book → `awaiting_studio_checkin` → Admin booking QR → authenticated leader scan = physical verify → `awaiting_submission`; submit requires `physically_verified`.
+- Hard availability gate: both assistants must share timings before the leader can book; leader notified when both are ready; booking fans out to teammates and mapped educators.
+- Admin broadcast Updates (`all_students` / `all_educators` / `everyone`) with `event_type = admin_update` and distinct inbox styling.
+- Stage 5 under-review messaging (no confetti) until per-student ecosystem grant.
+
+### Verify
+
+Run `supabase/scripts/verify_stage3_qr_workflow.sql` after applying migrations.
+
+---
+
 ## Package F — Release Readiness
 
 **Status:** Passed locally with Package G deployment gates documented.

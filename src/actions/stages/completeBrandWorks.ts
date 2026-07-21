@@ -66,6 +66,7 @@ export async function completeBrandWorksAction(
   revalidatePath("/educator/my-teams");
 
   return {
-    success: "Brand Works completed. Stage 5 is now completed for the team.",
+    success:
+      "Brand Works completed. The team is now in Stage 5 under review. Approve each student's ecosystem access when ready.",
   };
 }

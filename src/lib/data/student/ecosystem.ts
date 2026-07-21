@@ -11,15 +11,15 @@ export type StudentEcosystemAccess =
       currentStageNumber: number;
     }
   | {
-      status: "locked";
-      currentStageNumber: number | null;
-    }
-  | {
-      status: "under_review";
+      status: "pending_review";
       studentName: string;
       teamName: string;
       programName: string | null;
-      currentStageNumber: 5;
+      currentStageNumber: number;
+    }
+  | {
+      status: "locked";
+      currentStageNumber: number | null;
     }
   | {
       status: "error";
@@ -40,7 +40,9 @@ export const getStudentEcosystemAccess = cache(
     const supabase = await createClient();
     const { data: student, error: studentError } = await supabase
       .from("students")
-      .select("current_stage_number, current_team_id")
+      .select(
+        "current_stage_number, current_team_id, ecosystem_access_status"
+      )
       .eq("user_id", profile.id)
       .eq("status", "active")
       .maybeSingle();
@@ -99,38 +101,25 @@ export const getStudentEcosystemAccess = cache(
       };
     }
 
-    const { data: stage5, error: stage5Error } = await supabase
-      .from("team_stage_progress")
-      .select("status, admin_approval_status")
-      .eq("team_id", student.current_team_id)
-      .eq("stage_number", 5)
-      .maybeSingle();
+    const programName =
+      (team.programs as { name: string } | null)?.name ?? null;
 
-    if (stage5Error || !stage5) {
-      console.error("[getStudentEcosystemAccess] stage5", stage5Error?.message);
+    if (student.ecosystem_access_status === "granted") {
       return {
-        status: "error",
-        message: "Your final review status could not be verified.",
+        status: "granted",
+        studentName: profile.full_name,
+        teamName: team.team_name,
+        programName,
+        currentStageNumber: currentStageNumber as number,
       };
     }
 
-    const identity = {
+    return {
+      status: "pending_review",
       studentName: profile.full_name,
       teamName: team.team_name,
-      programName: (team.programs as { name: string } | null)?.name ?? null,
-      currentStageNumber: 5 as const,
-    };
-
-    if (
-      stage5.status !== "completed" ||
-      stage5.admin_approval_status !== "approved"
-    ) {
-      return { status: "under_review", ...identity };
-    }
-
-    return {
-      status: "granted",
-      ...identity,
+      programName,
+      currentStageNumber: currentStageNumber as number,
     };
   }
 );

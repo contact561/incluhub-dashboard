@@ -14,13 +14,10 @@ export default async function StudentLayout({
 }) {
   const profile = await requireRole("student");
   const ecosystemAccess = await getStudentEcosystemAccess();
-  const navItems = [
-    ...STUDENT_NAV_ITEMS,
-    ...(ecosystemAccess.status === "granted" ||
-    ecosystemAccess.status === "under_review"
-      ? [STUDENT_ECOSYSTEM_NAV_ITEM]
-      : []),
-  ];
+  const navItems =
+    ecosystemAccess.status === "granted"
+      ? [...STUDENT_NAV_ITEMS, STUDENT_ECOSYSTEM_NAV_ITEM]
+      : STUDENT_NAV_ITEMS;
 
   return (
     <RoleLayout

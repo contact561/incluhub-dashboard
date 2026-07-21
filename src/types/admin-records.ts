@@ -1,5 +1,6 @@
 import type {
   EducatorType,
+  EcosystemAccessStatus,
   ExternalMemberType,
   PaymentStatus,
   StageStatus,
@@ -143,6 +144,7 @@ export type AdminTeamMemberDetail = {
   email: string;
   category: StudentCategory;
   institute: string | null;
+  ecosystemAccessStatus: EcosystemAccessStatus;
   educator: {
     id: string;
     fullName: string;

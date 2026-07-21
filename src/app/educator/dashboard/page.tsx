@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProgramStageGuide } from "@/components/shared/ProgramStageGuide";
 import { EducatorSummaryCards } from "@/components/educator/EducatorSummaryCards";
 import { ReviewCard } from "@/components/educator/ReviewCard";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -93,6 +94,8 @@ export default async function EducatorDashboardPage() {
               </div>
             )}
           </section>
+
+          <ProgramStageGuide />
 
           <section className="flex flex-wrap gap-2">
             <Link

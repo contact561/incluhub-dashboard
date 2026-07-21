@@ -39,11 +39,11 @@ export function StudentQrCheckin() {
   }
 
   return <section className="mt-4 rounded-[var(--radius-control)] border border-brand-primary/30 bg-surface-muted p-4">
-    <h3 className="font-medium text-text-primary">Physical studio check-in</h3>
-    <p className="mt-1 text-sm text-text-muted">When you arrive, ask Admin to display the temporary QR. Scan it from this logged-in leader account and confirm you are physically present.</p>
+    <h3 className="font-medium text-text-primary">Scan the QR code at the studio to unlock portfolio submission</h3>
+    <p className="mt-1 text-sm text-text-muted">Ask Admin to display the booking QR when you arrive. Scan it from this logged-in leader account. Successful scan is your physical check-in — no further Admin approval is required.</p>
     <div className="mt-4 space-y-3">
       <video ref={videoRef} className={cameraActive ? "aspect-video w-full max-w-md rounded-lg bg-black" : "hidden"} muted playsInline />
-      {!token ? <Button type="button" variant="outline" onClick={startScanner}>{cameraActive ? "Scanning…" : "Scan Admin QR"}</Button> : null}
+      {!token ? <Button type="button" onClick={startScanner}>{cameraActive ? "Scanning…" : "Scan the QR code at the studio to unlock portfolio submission"}</Button> : null}
       {cameraError ? <p className="text-sm text-destructive" role="alert">{cameraError}</p> : null}
       {token ? <form action={action} className="space-y-3">
         <input type="hidden" name="qr_token" value={token} />

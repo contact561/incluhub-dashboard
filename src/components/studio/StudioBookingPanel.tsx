@@ -26,7 +26,10 @@ type StudioBookingPanelProps = {
 
 const initialState: BookStudioSlotState = {};
 
-export function StudioBookingPanel({ portfolioOutputId, assistantAvailability }: StudioBookingPanelProps) {
+export function StudioBookingPanel({
+  portfolioOutputId,
+  assistantAvailability,
+}: StudioBookingPanelProps) {
   const router = useRouter();
   const [bookingDate, setBookingDate] = useState(getTodayInAsiaKolkata());
   const [selectedSlot, setSelectedSlot] = useState<StudioSlotCode | null>(null);
@@ -54,15 +57,37 @@ export function StudioBookingPanel({ portfolioOutputId, assistantAvailability }:
   };
 
   const activePendingSlot = isPending ? pendingSlot : null;
+  const assistantsResponded = new Set(
+    assistantAvailability.map((choice) => choice.assistantStudentId)
+  ).size;
+  const bothAssistantsReady = assistantsResponded >= 2;
 
   return (
     <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-muted/40 p-4">
       <h3 className="text-sm font-semibold text-text-primary">Book studio slot</h3>
       <p className="mt-1 text-sm text-text-muted">
-        Review your assistants&apos; preferred timings, then select a live studio slot.
-        Recommendations do not reserve the studio.
+        Wait until both assistants share availability, then choose a live studio
+        slot that fits the team. Their preferences do not reserve the studio.
       </p>
       <AssistantAvailabilitySummary choices={assistantAvailability} />
+
+      {!bothAssistantsReady ? (
+        <div className="mt-4">
+          <StatusPanel
+            variant="warning"
+            title="Waiting for both assistants"
+            description={`${assistantsResponded} of 2 assistants have shared availability. You can book once both teammates respond.`}
+          />
+        </div>
+      ) : (
+        <div className="mt-4">
+          <StatusPanel
+            variant="success"
+            title="Both assistants are ready"
+            description="Review their preferred timings below, then confirm a live studio slot."
+          />
+        </div>
+      )}
 
       <div className="mt-4 space-y-4">
         <div className="space-y-2">
@@ -76,7 +101,7 @@ export function StudioBookingPanel({ portfolioOutputId, assistantAvailability }:
               setBookingDate(event.target.value);
               setSelectedSlot(null);
             }}
-            disabled={isPending}
+            disabled={isPending || !bothAssistantsReady}
             className="min-h-11 w-full max-w-full sm:max-w-xs"
           />
         </div>
@@ -88,7 +113,7 @@ export function StudioBookingPanel({ portfolioOutputId, assistantAvailability }:
             selectedSlot={selectedSlot}
             pendingSlot={activePendingSlot}
             loading={loading}
-            disabled={isPending}
+            disabled={isPending || !bothAssistantsReady}
             onSelect={setSelectedSlot}
           />
         </div>
@@ -113,11 +138,11 @@ export function StudioBookingPanel({ portfolioOutputId, assistantAvailability }:
           />
         ) : null}
 
-        {selectedSlot ? (
+        {selectedSlot && bothAssistantsReady ? (
           <StatusPanel
             variant="warning"
             title="Final booking warning"
-            description="Confirm that this timing works for your team. After booking, physical Admin QR check-in is required before submission opens."
+            description="After booking, scan the QR code at the studio to unlock portfolio submission. Booking alone does not open submission."
           />
         ) : null}
 
@@ -129,7 +154,9 @@ export function StudioBookingPanel({ portfolioOutputId, assistantAvailability }:
           <Button
             type="submit"
             className="min-h-11 w-full sm:w-auto"
-            disabled={isPending || !selectedSlot || loading}
+            disabled={
+              isPending || !selectedSlot || loading || !bothAssistantsReady
+            }
           >
             {isPending ? "Booking…" : "Confirm Booking"}
           </Button>

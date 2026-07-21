@@ -33,7 +33,10 @@ function getRecordStatusIntent(status: string): StatusIntent {
     case "approved":
       return "success";
     case "pending":
+    case "pending_review":
       return "warning";
+    case "granted":
+      return "success";
     case "draft":
       return "info";
     case "inactive":

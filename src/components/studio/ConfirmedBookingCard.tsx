@@ -9,21 +9,25 @@ import type { ConfirmedStudioBooking } from "@/types/studio-booking";
 type ConfirmedBookingCardProps = {
   booking: ConfirmedStudioBooking;
   showSubmissionHint?: boolean;
+  showCheckinHint?: boolean;
 };
 
 export function ConfirmedBookingCard({
   booking,
   showSubmissionHint = false,
+  showCheckinHint = false,
 }: ConfirmedBookingCardProps) {
+  const description = showSubmissionHint
+    ? "Physical check-in is complete. This booking is final. Submit your portfolio from this account."
+    : showCheckinHint
+      ? "This booking is final and cannot be cancelled or rescheduled. Scan the QR code at the studio to unlock portfolio submission."
+      : "This booking is final and cannot be cancelled or rescheduled.";
+
   return (
     <StatusPanel
       variant="success"
       title="Studio booking confirmed"
-      description={
-        showSubmissionHint
-          ? "This booking is final and cannot be cancelled or rescheduled. Portfolio submission is the next step."
-          : "This booking is final and cannot be cancelled or rescheduled."
-      }
+      description={description}
     >
       <dl className="mt-1 space-y-2 text-sm">
         <div>

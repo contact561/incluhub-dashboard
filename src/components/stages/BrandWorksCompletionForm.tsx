@@ -31,9 +31,9 @@ export function BrandWorksCompletionForm({
         Complete Brand Works
       </h2>
       <p className="mt-1 text-xs text-text-muted">
-        Scheduled for {scheduledDateLabel}. Completion atomically finalizes
-        Stage 4, moves the team and active students to Stage 5, and records
-        Stage 5 as completed.
+        Scheduled for {scheduledDateLabel}. Completion finalizes Stage 4 and
+        moves the team to Stage 5 for individual ecosystem review. Students
+        are notified to wait for Admin approval before ecosystem access opens.
       </p>
 
       <form action={formAction} className="mt-4 space-y-3">

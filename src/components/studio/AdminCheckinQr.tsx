@@ -23,14 +23,19 @@ export function AdminCheckinQr({ bookingId }: { bookingId: string }) {
   return <div className="space-y-3">
     <form action={action}>
       <input type="hidden" name="booking_id" value={bookingId} />
-      <Button type="submit" size="sm" disabled={pending}>{pending ? "Generating…" : "Display check-in QR"}</Button>
+      <Button type="submit" size="sm" disabled={pending}>
+        {pending ? "Generating…" : "Display booking QR"}
+      </Button>
     </form>
     {state.error ? <p className="text-sm text-destructive" role="alert">{state.error}</p> : null}
     {image && state.expiresAt ? <div className="rounded-lg border border-border-default bg-white p-3 text-center">
       {/* Generated locally from a short-lived opaque token. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={image} alt="Temporary studio check-in QR" className="mx-auto size-64 max-w-full" />
-      <p className="mt-2 text-xs text-zinc-600">Ask the booked portfolio leader to scan this now. It expires in 60 seconds and can be used once.</p>
+      <p className="mt-2 text-xs text-zinc-600">
+        Ask the booked portfolio leader to scan this from their logged-in account.
+        Successful scan unlocks their portfolio submission. Token expires shortly.
+      </p>
     </div> : null}
   </div>;
 }

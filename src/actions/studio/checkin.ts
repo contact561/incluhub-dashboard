@@ -44,12 +44,20 @@ export async function verifyStudioCheckinAction(
       "Only the current portfolio leader can use this check-in QR.",
       "This booking is not awaiting physical check-in.",
       "This portfolio is not awaiting physical check-in.",
+      "You are not part of this team.",
+      "The team is not currently in Stage 3.",
+      "This portfolio is not the active Stage 3 sequence.",
+      "Your student profile could not be found.",
+      "You do not have permission to perform this action.",
     ].find((message) => error.message.includes(message));
     return { error: known ?? "Studio check-in could not be verified." };
   }
   revalidatePath("/student/portfolio");
   revalidatePath("/admin/studio-schedule");
-  return { success: "Physical check-in verified. Your portfolio submission is now open." };
+  return {
+    success:
+      "Check-in complete. Portfolio submission is unlocked for this leader account.",
+  };
 }
 
 export async function markStudioNoShowAction(formData: FormData) {

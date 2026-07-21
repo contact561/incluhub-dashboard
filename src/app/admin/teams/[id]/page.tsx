@@ -5,6 +5,7 @@ import { getTeamStageDetail } from "@/lib/data/admin/team-stage";
 import { assessTeamJourneyReadiness } from "@/lib/stages/teamJourneyReadiness";
 import { BmsCompletionForm } from "@/components/stages/BmsCompletionForm";
 import { BrandOpportunityAdminPanel } from "@/components/stages/BrandOpportunityAdminPanel";
+import { EcosystemApprovalPanel } from "@/components/stages/EcosystemApprovalPanel";
 import { StageJourneySection } from "@/components/stages/StageJourneySection";
 import { TeamStageTimeline } from "@/components/stages/TeamStageTimeline";
 import {
@@ -179,9 +180,29 @@ export default async function AdminTeamDetailPage({
                 portfolios={stageDetail.portfolios}
               />
               {showBmsForm ? <BmsCompletionForm teamId={team.id} /> : null}
-              {brandError ? <QueryErrorState title="Could not load Brand Opportunity" message={brandError} /> : null}
+              {brandError ? (
+                <QueryErrorState
+                  title="Could not load Brand Opportunity"
+                  message={brandError}
+                />
+              ) : null}
               {!brandError && (team.currentStageNumber ?? 0) >= 4 ? (
-                <BrandOpportunityAdminPanel teamId={team.id} currentStageNumber={team.currentStageNumber} opportunity={opportunity} />
+                <BrandOpportunityAdminPanel
+                  teamId={team.id}
+                  currentStageNumber={team.currentStageNumber}
+                  opportunity={opportunity}
+                />
+              ) : null}
+              {(team.currentStageNumber ?? 0) >= 5 ? (
+                <EcosystemApprovalPanel
+                  teamId={team.id}
+                  students={team.students.map((student) => ({
+                    id: student.id,
+                    fullName: student.fullName,
+                    category: student.category,
+                    ecosystemAccessStatus: student.ecosystemAccessStatus,
+                  }))}
+                />
               ) : null}
             </>
           ) : null}

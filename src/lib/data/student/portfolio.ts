@@ -47,7 +47,7 @@ function lockedReasonForPortfolio(
 export function getAssistantWaitingMessage(
   portfolioType: StudentCategory
 ): string {
-  return `Waiting for the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader to book the studio.`;
+  return `Share when you can support the ${STUDENT_CATEGORY_LABELS[portfolioType]} leader's shoot. The leader can book only after both assistants respond.`;
 }
 
 export function getAssistantSubmissionWaitingMessage(

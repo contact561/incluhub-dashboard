@@ -35,6 +35,8 @@ function mapRpcError(message: string): string {
     "The selected date is in the past.",
     "Invalid studio slot.",
     "This studio slot was just booked by another team. Please select another available slot.",
+    "Both assistants must share availability before you can book the studio.",
+    "Another portfolio on this team is still active. Complete it before booking.",
   ];
 
   const match = knownMessages.find((known) => message.includes(known));
@@ -89,7 +91,7 @@ export async function bookStudioSlotAction(
 
   return {
     success:
-      "Studio booked online. Ask Admin for the temporary check-in QR when you arrive; submission stays locked until you scan and confirm attendance.",
+      "Studio booked. Scan the QR code at the studio to unlock portfolio submission. Submission stays locked until you check in.",
     booking: {
       bookingDate: booking.booking_date,
       slotCode: booking.slot_code,

@@ -10,6 +10,7 @@ import type {
 } from "@/types/admin-records";
 import type {
   EducatorType,
+  EcosystemAccessStatus,
   StageStatus,
   StudentCategory,
 } from "@/types/database";
@@ -121,6 +122,7 @@ export async function getAdminTeamById(
         student_id,
         students!student_id (
           id,
+          ecosystem_access_status,
           profiles!user_id (
             full_name,
             email
@@ -175,6 +177,7 @@ export async function getAdminTeamById(
       member_status: string;
       students: {
         id: string;
+        ecosystem_access_status: EcosystemAccessStatus;
         profiles: { full_name: string; email: string } | null;
         institutes: { name: string } | null;
       } | null;
@@ -208,6 +211,8 @@ export async function getAdminTeamById(
         email: member.students?.profiles?.email ?? "—",
         category: member.student_category,
         institute: member.students?.institutes?.name ?? null,
+        ecosystemAccessStatus:
+          member.students?.ecosystem_access_status ?? "locked",
         educator: educator
           ? {
               id: educator.educators?.id ?? educator.id,

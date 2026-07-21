@@ -6,7 +6,14 @@ function formatDate(value: string) {
 }
 
 export function AssistantAvailabilitySummary({ choices }: { choices: AssistantAvailabilityChoice[] }) {
-  if (choices.length === 0) return <p className="mt-3 text-sm text-text-muted">Your assistants have not shared timings yet. You may wait or book another available slot after checking with them directly.</p>;
+  if (choices.length === 0) {
+    return (
+      <p className="mt-3 text-sm text-text-muted">
+        Your assistants have not shared timings yet. Booking stays locked until
+        both assistants respond.
+      </p>
+    );
+  }
   const counts = new Map<string, number>();
   for (const choice of choices) counts.set(`${choice.bookingDate}:${choice.slotCode}`, (counts.get(`${choice.bookingDate}:${choice.slotCode}`) ?? 0) + 1);
   const sorted = choices.slice().sort((a, b) => (counts.get(`${b.bookingDate}:${b.slotCode}`) ?? 0) - (counts.get(`${a.bookingDate}:${a.slotCode}`) ?? 0) || a.bookingDate.localeCompare(b.bookingDate));

@@ -39,6 +39,8 @@ export type StageStatus =
   | "rejected"
   | "revision_required";
 
+export type EcosystemAccessStatus = "locked" | "pending_review" | "granted";
+
 export type ApprovalStatus =
   | "pending"
   | "approved"
@@ -145,6 +147,9 @@ export interface Student {
   course_end_date: string | null;
   current_team_id: string | null;
   current_stage_number: number | null;
+  ecosystem_access_status: EcosystemAccessStatus;
+  ecosystem_access_granted_at: string | null;
+  ecosystem_access_granted_by: string | null;
   status: "active" | "inactive" | "suspended" | "completed";
   created_by: string;
   created_at: string;
@@ -408,6 +413,7 @@ export interface Notification {
     | "all_students"
     | "all_educators"
     | "all_external"
+    | "everyone"
     | "specific_team"
     | "specific_user";
   priority: "normal" | "high";
@@ -854,6 +860,16 @@ export type Database = {
           current_stage_number: number;
         }[];
       };
+      approve_student_ecosystem_access: {
+        Args: {
+          p_student_id: string;
+        };
+        Returns: {
+          student_id: string;
+          ecosystem_access_status: string;
+          ecosystem_access_granted_at: string;
+        }[];
+      };
       start_team_stage_journey: {
         Args: {
           p_team_id: string;
@@ -902,6 +918,14 @@ export type Database = {
         Returns: boolean;
       };
       mark_all_notifications_read: { Args: Record<string, never>; Returns: number };
+      send_admin_update: {
+        Args: {
+          p_audience: string;
+          p_title: string;
+          p_message: string;
+        };
+        Returns: string;
+      };
       assign_brand_opportunity: {
         Args: {
           p_team_id: string;

@@ -64,15 +64,15 @@ export function getPortfolioWorkflowPresentation(
       };
     case "awaiting_studio_checkin":
       return {
-        title: "Physical studio check-in required",
+        title: "Scan QR at the studio",
         description:
-          "At the studio, scan the temporary QR displayed by Admin. Submission opens only after the portfolio leader confirms attendance.",
+          "Your studio booking is confirmed. Scan the QR code at the studio to unlock portfolio submission. Submission stays locked until you check in.",
       };
     case "awaiting_submission":
       return {
         title: "Ready for portfolio submission",
         description:
-          "Your studio booking is complete. Submit your portfolio link.",
+          "Physical check-in is complete. Submit your portfolio link from this account.",
       };
     case "pending_educator":
       return {

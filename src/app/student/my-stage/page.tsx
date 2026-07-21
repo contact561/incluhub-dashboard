@@ -5,13 +5,13 @@ import { EmptyState, QueryErrorState, StatusPanel } from "@/components/status";
 import { StatusBadge } from "@/components/status/StatusBadge";
 import { buttonVariants } from "@/components/ui/button";
 import { STUDENT_PORTAL_ERRORS } from "@/lib/data/student/activeTeamContext";
+import { getStudentEcosystemAccess } from "@/lib/data/student/ecosystem";
 import {
   formatCurrentStageLabel,
   getStudentMyStagePageData,
 } from "@/lib/data/student/myStage";
 import { cn } from "@/lib/utils";
 import { WhatHappensNow } from "@/components/student/WhatHappensNow";
-import { getStudentEcosystemAccess } from "@/lib/data/student/ecosystem";
 
 type StudentMyStagePageProps = {
   searchParams: Promise<{ ecosystem?: string }>;
@@ -39,7 +39,7 @@ export default async function StudentMyStagePage({
         <StatusPanel
           variant="warning"
           title="Ecosystem access is still locked"
-          description="Complete the Brand Opportunity and final Admin review to open the IncluHub Ecosystem."
+          description="Complete Stage 4 and reach Stage 5. Ecosystem access is granted only if IncluHub Admin selects you."
         />
       ) : null}
 
@@ -52,7 +52,18 @@ export default async function StudentMyStagePage({
 
       {data ? (
         <>
-          <WhatHappensNow title="Complete only the current unlocked stage" description="The timeline below explains completed, active, and locked work. Follow the active stage instructions; IncluHub unlocks the next stage after its required approval." actionLabel={data.currentStageNumber === 3 ? "Open portfolio workspace" : undefined} actionHref={data.currentStageNumber === 3 ? "/student/portfolio" : undefined} />
+          <WhatHappensNow
+            title="Complete only the current unlocked stage"
+            description="The timeline below explains completed, active, and locked work. Follow the active stage instructions; IncluHub unlocks the next stage after its required approval."
+            actionLabel={
+              data.currentStageNumber === 3
+                ? "Open portfolio workspace"
+                : undefined
+            }
+            actionHref={
+              data.currentStageNumber === 3 ? "/student/portfolio" : undefined
+            }
+          />
           <section className="grid gap-4 rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
@@ -106,19 +117,27 @@ export default async function StudentMyStagePage({
           )}
 
           {data.currentStageNumber !== null && data.currentStageNumber >= 5 ? (
-            <StatusPanel
-              variant={ecosystemAccess.status === "granted" ? "success" : "information"}
-              title={ecosystemAccess.status === "granted" ? "Final review complete — your ecosystem is ready" : "Stage 5 · Under Review"}
-              description={ecosystemAccess.status === "granted" ? "Your access is approved. Continue into the IncluHub Ecosystem." : "Admin is completing the separate final review. You will be notified when ecosystem access is approved."}
-              action={
-                <Link
-                  href="/student/ecosystem"
-                  className={cn(buttonVariants({ size: "sm" }))}
-                >
-                  {ecosystemAccess.status === "granted" ? "Enter the Ecosystem" : "View final review"}
-                </Link>
-              }
-            />
+            ecosystemAccess.status === "granted" ? (
+              <StatusPanel
+                variant="success"
+                title="Ecosystem access approved"
+                description="IncluHub has approved your onboarding. Continue into the ecosystem when you are ready."
+                action={
+                  <Link
+                    href="/student/ecosystem"
+                    className={cn(buttonVariants({ size: "sm" }))}
+                  >
+                    Enter the Ecosystem
+                  </Link>
+                }
+              />
+            ) : (
+              <StatusPanel
+                variant="information"
+                title="Stage 5 — under review"
+                description="Your portfolio and sessions are under review. IncluHub Admin will notify you if and when you are selected into the ecosystem. No action is required from you right now."
+              />
+            )
           ) : null}
         </>
       ) : null}
