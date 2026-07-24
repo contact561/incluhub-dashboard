@@ -39,28 +39,64 @@ export function mapLegacyStatusToRegistry(
   return "locked";
 }
 
+export function moodBoardStatusToRegistry(
+  moodStatus: string | null | undefined,
+  bmsCompleted: boolean
+): RegistryStageProgressStatus {
+  if (!bmsCompleted) return "locked";
+  if (moodStatus === "approved") return "completed";
+  if (
+    moodStatus === "pending_review" ||
+    moodStatus === "revision_required"
+  ) {
+    return "in_progress";
+  }
+  return "not_started";
+}
+
+export function portfolioStudioStatusToRegistry(options: {
+  moodApproved: boolean;
+  stage3Status: StageStatus | null | undefined;
+  currentStageNumber: number | null;
+}): RegistryStageProgressStatus {
+  if (!options.moodApproved) return "locked";
+  return mapLegacyStatusToRegistry(
+    options.stage3Status,
+    3,
+    options.currentStageNumber
+  );
+}
+
 export function buildRegistryStageViews(
   definitions: StageDefinition[],
   options: {
     currentStageNumber: number | null;
     /** status by legacy stage_number from team_stage_progress */
     progressByStageNumber?: Record<number, StageStatus>;
+    /** overrides keyed by stage_definitions.code (mood_board / portfolio_studio) */
+    progressByCode?: Partial<Record<string, RegistryStageProgressStatus>>;
   }
 ): RegistryStageView[] {
-  const { currentStageNumber, progressByStageNumber = {} } = options;
+  const {
+    currentStageNumber,
+    progressByStageNumber = {},
+    progressByCode = {},
+  } = options;
 
   return definitions.map((definition) => {
     const legacyStageNumber =
       STAGE_CODE_TO_LEGACY_NUMBER[definition.code] ?? null;
 
+    const override = progressByCode[definition.code];
     const progressStatus =
-      legacyStageNumber == null
+      override ??
+      (legacyStageNumber == null
         ? ("locked" as const)
         : mapLegacyStatusToRegistry(
             progressByStageNumber[legacyStageNumber],
             legacyStageNumber,
             currentStageNumber
-          );
+          ));
 
     return {
       ...definition,

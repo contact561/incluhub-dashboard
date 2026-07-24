@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getAdminTeamById } from "@/lib/data/admin/teams";
+import { getAdminTeamById, getTeamCreateOptions } from "@/lib/data/admin/teams";
 import { getTeamStageDetail } from "@/lib/data/admin/team-stage";
 import { assessTeamJourneyReadiness } from "@/lib/stages/teamJourneyReadiness";
 import { BmsCompletionForm } from "@/components/stages/BmsCompletionForm";
@@ -9,6 +9,7 @@ import { EcosystemApprovalPanel } from "@/components/stages/EcosystemApprovalPan
 import { StageJourneySection } from "@/components/stages/StageJourneySection";
 import { AdaptiveStageTimeline } from "@/components/stages/AdaptiveStageTimeline";
 import { TeamStageTimeline } from "@/components/stages/TeamStageTimeline";
+import { TeamMembershipPanel } from "@/components/admin/TeamMembershipPanel";
 import {
   EDUCATOR_TYPE_LABELS,
   STUDENT_CATEGORY_LABELS,
@@ -21,6 +22,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getBrandOpportunityForTeam } from "@/lib/data/brand-opportunity";
 import { getTeamRegistryTimeline } from "@/lib/data/stages/teamRegistryTimeline";
+import { TEAM_STUDENT_CATEGORIES } from "@/lib/validations/user";
 
 type AdminTeamDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -48,10 +50,12 @@ export default async function AdminTeamDetailPage({
     { team, error },
     { detail: stageDetail, error: stageError },
     { opportunity, error: brandError },
+    { options: teamOptions },
   ] = await Promise.all([
     getAdminTeamById(id),
     getTeamStageDetail(id),
     getBrandOpportunityForTeam(id),
+    getTeamCreateOptions(),
   ]);
 
   if (error) {
@@ -170,6 +174,24 @@ export default async function AdminTeamDetailPage({
           ))}
         </ul>
       </section>
+
+      {team.programId ? (
+        <TeamMembershipPanel
+          teamId={team.id}
+          programId={team.programId}
+          occupied={team.students
+            .filter((student) =>
+              TEAM_STUDENT_CATEGORIES.includes(student.category)
+            )
+            .map((student) => ({
+              studentId: student.id,
+              fullName: student.fullName,
+              category: student.category,
+            }))}
+          availableStudents={teamOptions.students}
+          educators={teamOptions.educators}
+        />
+      ) : null}
 
       {stageError ? (
         <QueryErrorState title="Could not load stage detail" message={stageError} />

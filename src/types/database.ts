@@ -1139,6 +1139,21 @@ export type Database = {
         };
         Returns: string;
       };
+      deassign_team_member: {
+        Args: {
+          p_team_id: string;
+          p_student_id: string;
+        };
+        Returns: boolean;
+      };
+      assign_team_member_slot: {
+        Args: {
+          p_team_id: string;
+          p_student_id: string;
+          p_educator_id: string;
+        };
+        Returns: boolean;
+      };
     };
     Enums: {
       user_role: UserRole;

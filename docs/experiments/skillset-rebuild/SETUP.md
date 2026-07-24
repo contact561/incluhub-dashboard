@@ -14,7 +14,8 @@ In Supabase SQL editor for project `opfmkonwonjzqiqgeeki`, run in order if not y
 
 1. `supabase/migrations/025_skillset_rebuild_foundations.sql` (done if onboarding/roster works)
 2. `supabase/migrations/026_mood_board_submissions.sql` (done if mood board works)
-3. **`supabase/migrations/027_studio_otp_and_rebook_permits.sql`** ← apply next (OTP + rebook)
+3. **`supabase/migrations/027_studio_otp_and_rebook_permits.sql`** (done if OTP/rebook works)
+4. **`supabase/migrations/028_team_member_deassign_assign.sql`** ← apply next (team assign/deassign)
 
 Also apply `023` and `024` if not already on that project.
 

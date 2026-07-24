@@ -44,6 +44,7 @@ project.
 | `025_skillset_rebuild_foundations.sql` | Skillset experiment foundations (onboarding, stage registry, institute roster) |
 | `026_mood_board_submissions.sql` | Mood board submissions + dual educator/admin review RPCs |
 | `027_studio_otp_and_rebook_permits.sql` | Studio OTP check-in + rebook permits; patches book/no-show for shared-DB safety |
+| `028_team_member_deassign_assign.sql` | Admin deassign / assign open studio team slots |
 
 ## Verification (SQL editor)
 

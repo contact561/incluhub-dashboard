@@ -16,7 +16,7 @@
 - [x] Student cannot open educator/admin (proxy role isolation + pending gate)
 - [x] Educator/admin password login retained
 - [ ] Google provider enabled in Supabase project (manual — see SETUP.md)
-- [ ] Migration 025 applied on experiment DB (manual)
+- [x] Migration 025 applied on shared DB (manual)
 
 ## Phase 2 — Institutes / educators
 
@@ -27,13 +27,15 @@
 
 - [x] `stage_definitions` table + seed in migration 025
 - [x] Adaptive timeline on student dashboard
-- [ ] Realtime subscriptions (not yet)
-- [ ] Progress keyed to definition IDs for BMS/mood/studio modules (not yet)
+- [x] Notification bell realtime refresh
+- [x] Progress keyed by definition codes for mood_board / portfolio_studio
 
 ## Phase 3 — Teams + BMS
 
-- [ ] Assign/deassign 3-person team enforced
-- [ ] BMS completion advances progress + notifies
+- [x] Assign creates balanced 3-person team (MUA + hair + photo only)
+- [x] Deassign / assign open slot UI + migration 028
+- [x] BMS completion RPC retained (`complete_bms_session`) + registry status
+- [ ] Apply migration 028 in SQL editor (manual)
 
 ## Phase 4 — Mood board
 
@@ -46,7 +48,7 @@
 - [x] Admin grant rebook allows second book — UI + RPC
 - [x] OTP display + verify unlocks submit — Admin OTP + student Enter OTP
 - [x] Admin sees booking/reiteration clearly — schedule + grant rebook
-- [ ] Apply migration 027 in SQL editor (manual)
+- [x] Apply migration 027 in SQL editor (manual)
 
 ## Phase 6 — Broadcasts
 
@@ -56,5 +58,6 @@
 
 ## Phase 7–8 — Harden / PR
 
-- [ ] tsc, lint, build, e2e happy path green
-- [ ] Experiment PR opened with summary + screenshots
+- [x] tsc / lint / build green locally
+- [x] Experiment PR opened: https://github.com/preetamnaik3-cpu/incluhub-dashboard/pull/1
+- [ ] Screenshots / founder e2e checklist

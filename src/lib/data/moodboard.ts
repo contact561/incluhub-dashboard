@@ -179,3 +179,35 @@ export async function getInstituteMoodBoardQueue(): Promise<{
     error: null,
   };
 }
+
+export async function getTeamMoodBoardSummary(teamId: string): Promise<{
+  latestStatus: string | null;
+  error: string | null;
+}> {
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("mood_board_submissions")
+    .select("status")
+    .eq("team_id", teamId)
+    .order("created_at", { ascending: false })
+    .limit(20);
+
+  if (error) {
+    if (/mood_board_submissions|schema cache/i.test(error.message)) {
+      return { latestStatus: null, error: null };
+    }
+    return { latestStatus: null, error: error.message };
+  }
+
+  const rows = data ?? [];
+  if (rows.some((row) => row.status === "approved")) {
+    return { latestStatus: "approved", error: null };
+  }
+  if (rows.some((row) => row.status === "pending_review")) {
+    return { latestStatus: "pending_review", error: null };
+  }
+  if (rows.some((row) => row.status === "revision_required")) {
+    return { latestStatus: "revision_required", error: null };
+  }
+  return { latestStatus: null, error: null };
+}

@@ -1,7 +1,10 @@
 import { getTeamStageDetail } from "@/lib/data/admin/team-stage";
+import { getTeamMoodBoardSummary } from "@/lib/data/moodboard";
 import { getActiveStageDefinitions } from "@/lib/data/stages/definitions";
 import {
   buildRegistryStageViews,
+  moodBoardStatusToRegistry,
+  portfolioStudioStatusToRegistry,
   type RegistryStageView,
 } from "@/lib/stages/registryProgress";
 import type { StageStatus } from "@/types/database";
@@ -13,9 +16,10 @@ export async function getTeamRegistryTimeline(
   stages: RegistryStageView[];
   error: string | null;
 }> {
-  const [definitionsResult, stageDetailResult] = await Promise.all([
+  const [definitionsResult, stageDetailResult, moodSummary] = await Promise.all([
     getActiveStageDefinitions(),
     getTeamStageDetail(teamId),
+    getTeamMoodBoardSummary(teamId),
   ]);
 
   if (definitionsResult.error) {
@@ -27,11 +31,26 @@ export async function getTeamRegistryTimeline(
     progressByStageNumber[entry.stageNumber] = entry.status;
   }
 
+  const bmsCompleted = progressByStageNumber[2] === "completed";
+  const moodProgress = moodBoardStatusToRegistry(
+    moodSummary.latestStatus,
+    bmsCompleted
+  );
+  const moodApproved = moodProgress === "completed";
+
   return {
     stages: buildRegistryStageViews(definitionsResult.stages, {
       currentStageNumber,
       progressByStageNumber,
+      progressByCode: {
+        mood_board: moodProgress,
+        portfolio_studio: portfolioStudioStatusToRegistry({
+          moodApproved,
+          stage3Status: progressByStageNumber[3],
+          currentStageNumber,
+        }),
+      },
     }),
-    error: stageDetailResult.error,
+    error: stageDetailResult.error ?? moodSummary.error,
   };
 }

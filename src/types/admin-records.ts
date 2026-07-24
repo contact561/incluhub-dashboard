@@ -158,6 +158,7 @@ export type AdminTeamDetail = {
   id: string;
   teamName: string;
   program: string | null;
+  programId: string | null;
   currentStageNumber: number | null;
   stageStatus: StageStatus;
   status: string;
