@@ -51,7 +51,11 @@ function ScheduleCard({ row }: { row: AdminStudioScheduleRow }) {
         </div>
       </dl>
       <div className="mt-4 border-t border-border-default pt-4">
-        <StudioVerificationControls bookingId={row.id} status={row.verificationStatus} />
+        <StudioVerificationControls
+          bookingId={row.id}
+          portfolioOutputId={row.portfolioOutputId}
+          status={row.verificationStatus}
+        />
       </div>
     </article>
   );
@@ -115,7 +119,11 @@ export function StudioScheduleTable({ rows }: StudioScheduleTableProps) {
                   {formatStudioBookedAt(row.bookedAt)}
                 </td>
                 <td className="min-w-72 px-4 py-3 align-top text-text-primary">
-                  <StudioVerificationControls bookingId={row.id} status={row.verificationStatus} />
+                  <StudioVerificationControls
+                    bookingId={row.id}
+                    portfolioOutputId={row.portfolioOutputId}
+                    status={row.verificationStatus}
+                  />
                 </td>
               </tr>
             ))}

@@ -78,7 +78,16 @@ export function assessTeamJourneyReadiness(
       continue;
     }
 
-    const expectedType = categoryToEducatorType[student.category];
+    const expectedType =
+      categoryToEducatorType[
+        student.category as keyof typeof categoryToEducatorType
+      ];
+    if (!expectedType) {
+      issues.push(
+        `${STUDENT_CATEGORY_LABELS[student.category]} is not part of the 3-person studio team`
+      );
+      continue;
+    }
     if (student.educator.educatorType !== expectedType) {
       issues.push("Educator category does not match the student category");
     }

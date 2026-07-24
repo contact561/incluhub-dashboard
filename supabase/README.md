@@ -39,6 +39,11 @@ project.
 | `020_admin_broadcast_updates.sql` | Admin broadcast updates |
 | `021_stage3_qr_prerequisites.sql` | Backfill for 015 tables/RPCs if missing |
 | `022_enable_pgcrypto_for_qr.sql` | `pgcrypto` extension for QR hashing |
+| `023_studio_availability_select_rls.sql` | Fix team reads on assistant availability |
+| `024_fix_create_studio_checkin_qr_ambiguity.sql` | Fix QR generation `booking_id` ambiguity |
+| `025_skillset_rebuild_foundations.sql` | Skillset experiment foundations (onboarding, stage registry, institute roster) |
+| `026_mood_board_submissions.sql` | Mood board submissions + dual educator/admin review RPCs |
+| `027_studio_otp_and_rebook_permits.sql` | Studio OTP check-in + rebook permits; patches book/no-show for shared-DB safety |
 
 ## Verification (SQL editor)
 

@@ -2,6 +2,7 @@ import { logoutAction } from "@/actions/auth/logout";
 import { AppShell } from "@/components/layout/AppShell";
 import { MobileNavigation } from "@/components/layout/MobileNavigation";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { NotificationRealtimeRefresh } from "@/components/notifications/NotificationRealtimeRefresh";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Button } from "@/components/ui/button";
 import type { NavItem } from "@/lib/permissions/roles";
@@ -43,11 +44,14 @@ export async function RoleLayout({
           </p>
           <div className="flex items-center gap-2">
             {profile.role !== "external_member" ? (
-              <NotificationBell
-                items={notifications.items}
-                unreadCount={notifications.unreadCount}
-                inboxHref={inboxHref}
-              />
+              <>
+                <NotificationRealtimeRefresh userId={profile.id} />
+                <NotificationBell
+                  items={notifications.items}
+                  unreadCount={notifications.unreadCount}
+                  inboxHref={inboxHref}
+                />
+              </>
             ) : null}
             <form action={logoutAction}>
               <Button type="submit" variant="outline" size="sm">Sign out</Button>

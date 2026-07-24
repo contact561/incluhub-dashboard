@@ -13,10 +13,31 @@ export const USER_ROLES: UserRole[] = [
   "external_member",
 ];
 
-export const PROFILE_STATUSES = ["active", "inactive", "suspended"] as const;
+export const PROFILE_STATUSES = [
+  "active",
+  "inactive",
+  "suspended",
+  "pending_onboarding",
+] as const;
 export type ProfileStatus = (typeof PROFILE_STATUSES)[number];
 
+/** Statuses Admin may set when creating/editing users. */
+export const ADMIN_ASSIGNABLE_PROFILE_STATUSES = [
+  "active",
+  "inactive",
+  "suspended",
+] as const;
+
+/** Categories Admin may assign when creating accounts (includes fashion designer). */
 export const STUDENT_CATEGORIES: StudentCategory[] = [
+  "makeup_artist",
+  "photographer",
+  "hairstylist",
+  "fashion_designer",
+];
+
+/** Categories allowed in a 3-person studio team. */
+export const TEAM_STUDENT_CATEGORIES: StudentCategory[] = [
   "makeup_artist",
   "photographer",
   "hairstylist",
@@ -99,7 +120,7 @@ export function parseCreateUserFormData(
     return { success: false, error: "Please select a valid role." };
   }
 
-  if (!isOneOf(statusRaw, PROFILE_STATUSES)) {
+  if (!isOneOf(statusRaw, ADMIN_ASSIGNABLE_PROFILE_STATUSES)) {
     return { success: false, error: "Please select a valid status." };
   }
 

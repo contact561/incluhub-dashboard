@@ -8,6 +8,8 @@ const LOGIN_ERRORS: Record<string, string> = {
     "Your account is not active. Please contact IncluHub Admin.",
   auth_callback_failed:
     "Authentication failed. Please try again or contact IncluHub Admin.",
+  google_auth_failed:
+    "Google sign-in could not be started. Check Google provider setup in Supabase, then try again.",
 };
 
 type LoginPageProps = {
@@ -40,7 +42,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </div>
 
         <p className="mb-6 text-center text-sm text-text-muted">
-          Sign in to access your dashboard.
+          Students: Continue with Google. Admin and educators: email sign-in.
         </p>
 
         {queryError ? (
@@ -52,8 +54,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         <LoginForm />
 
         <p className="mt-6 text-center text-sm text-text-muted">
-          Don&apos;t have an account? Please contact your IncluHub
-          Administrator.
+          Educators and admins are created by IncluHub Admin. Students onboard
+          with Google.
         </p>
       </div>
     </div>

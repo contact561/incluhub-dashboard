@@ -32,6 +32,7 @@ function mapRpcError(message: string): string {
     "This portfolio is not awaiting a studio booking.",
     "The team is not currently in Stage 3.",
     "This portfolio already has a studio booking.",
+    "Admin must grant a rebook permit before you can book again.",
     "The selected date is in the past.",
     "Invalid studio slot.",
     "This studio slot was just booked by another team. Please select another available slot.",

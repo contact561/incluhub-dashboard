@@ -20,7 +20,7 @@ import {
   EDUCATOR_TYPES,
   EXTERNAL_MEMBER_TYPES,
   PAYMENT_STATUSES,
-  PROFILE_STATUSES,
+  ADMIN_ASSIGNABLE_PROFILE_STATUSES,
   STUDENT_CATEGORIES,
   USER_ROLES,
   type ProfileStatus,
@@ -138,7 +138,7 @@ export function CreateUserForm({ institutes }: CreateUserFormProps) {
             className={selectClassName}
             defaultValue={"active" satisfies ProfileStatus}
           >
-            {PROFILE_STATUSES.map((value) => (
+            {ADMIN_ASSIGNABLE_PROFILE_STATUSES.map((value) => (
               <option key={value} value={value}>
                 {value.charAt(0).toUpperCase() + value.slice(1)}
               </option>

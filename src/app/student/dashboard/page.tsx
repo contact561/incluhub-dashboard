@@ -3,6 +3,7 @@ import {
   StudentDashboardOwnPortfolioSummary,
   TeamPortfolioProgressList,
 } from "@/components/student/Stage3PortfolioPanels";
+import { AdaptiveStageTimeline } from "@/components/stages/AdaptiveStageTimeline";
 import { ProgramStageGuide } from "@/components/shared/ProgramStageGuide";
 import { DashboardMetricCard } from "@/components/layout/DashboardMetricCard";
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -16,6 +17,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { getStudentDashboardData } from "@/lib/data/student/dashboard";
 import { formatCurrentStageLabel } from "@/lib/data/student/myStage";
 import { getStudentEcosystemAccess } from "@/lib/data/student/ecosystem";
+import { getStudentRegistryTimeline } from "@/lib/data/stages/studentRegistryTimeline";
 import { cn } from "@/lib/utils";
 import { ProgramOverview } from "@/components/student/ProgramOverview";
 import { WhatHappensNow } from "@/components/student/WhatHappensNow";
@@ -27,9 +29,10 @@ function formatDate(value: string): string {
 }
 
 export default async function StudentDashboardPage() {
-  const [{ data, error }, ecosystemAccess] = await Promise.all([
+  const [{ data, error }, ecosystemAccess, registryTimeline] = await Promise.all([
     getStudentDashboardData(),
     getStudentEcosystemAccess(),
+    getStudentRegistryTimeline(),
   ]);
 
   return (
@@ -38,6 +41,22 @@ export default async function StudentDashboardPage() {
         title="Dashboard"
         description="Your current stage, team context, and the next portfolio action."
       />
+
+      <section className="space-y-3">
+        <SectionHeader
+          title="Program timeline"
+          description={
+            registryTimeline.teamName
+              ? `Team ${registryTimeline.teamName} — adaptive modules (team building → BMS → mood board → studio).`
+              : "Adaptive stage modules. Status updates after Admin assigns your team and starts the journey."
+          }
+        />
+        {registryTimeline.error ? (
+          <QueryErrorState message={registryTimeline.error} />
+        ) : (
+          <AdaptiveStageTimeline stages={registryTimeline.stages} />
+        )}
+      </section>
 
       {error ? <QueryErrorState message={error} /> : null}
 

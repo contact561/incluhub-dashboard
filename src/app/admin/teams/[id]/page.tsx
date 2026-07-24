@@ -7,6 +7,7 @@ import { BmsCompletionForm } from "@/components/stages/BmsCompletionForm";
 import { BrandOpportunityAdminPanel } from "@/components/stages/BrandOpportunityAdminPanel";
 import { EcosystemApprovalPanel } from "@/components/stages/EcosystemApprovalPanel";
 import { StageJourneySection } from "@/components/stages/StageJourneySection";
+import { AdaptiveStageTimeline } from "@/components/stages/AdaptiveStageTimeline";
 import { TeamStageTimeline } from "@/components/stages/TeamStageTimeline";
 import {
   EDUCATOR_TYPE_LABELS,
@@ -19,6 +20,7 @@ import { QueryErrorState, StatusBadge } from "@/components/status";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getBrandOpportunityForTeam } from "@/lib/data/brand-opportunity";
+import { getTeamRegistryTimeline } from "@/lib/data/stages/teamRegistryTimeline";
 
 type AdminTeamDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -75,6 +77,11 @@ export default async function AdminTeamDetailPage({
   if (!team) {
     notFound();
   }
+
+  const registryTimeline = await getTeamRegistryTimeline(
+    id,
+    team.currentStageNumber
+  );
 
   const journeyEnrolled = stageDetail?.journeyEnrolled === true;
   const journeyAssessment = assessTeamJourneyReadiness(team, journeyEnrolled);
@@ -172,6 +179,18 @@ export default async function AdminTeamDetailPage({
             teamId={team.id}
             assessment={journeyAssessment}
           />
+
+          <section className="space-y-3">
+            <SectionHeader
+              title="Program modules"
+              description="Registry view (team building → BMS → mood board → studio). Status mirrors live journey RPCs."
+            />
+            {registryTimeline.error ? (
+              <QueryErrorState message={registryTimeline.error} />
+            ) : (
+              <AdaptiveStageTimeline stages={registryTimeline.stages} />
+            )}
+          </section>
 
           {journeyEnrolled && stageDetail ? (
             <>
