@@ -35,7 +35,7 @@
 - [x] Assign creates balanced 3-person team (MUA + hair + photo only)
 - [x] Deassign / assign open slot UI + migration 028
 - [x] BMS completion RPC retained (`complete_bms_session`) + registry status
-- [ ] Apply migration 028 in SQL editor (manual)
+- [x] Apply migration 028 in SQL editor (manual)
 
 ## Phase 4 — Mood board
 
@@ -61,3 +61,12 @@
 - [x] tsc / lint / build green locally
 - [x] Experiment PR opened: https://github.com/preetamnaik3-cpu/incluhub-dashboard/pull/1
 - [ ] Screenshots / founder e2e checklist
+
+## Founder smoke checklist (manual)
+
+1. Admin email login → team detail → deassign / assign open slot
+2. Student Google → onboarding → dashboard timeline
+3. Mood board submit → institute educator review → admin review
+4. Studio book → Admin OTP → student Enter OTP
+5. Admin broadcast → recipient inbox/bell updates
+6. Confirm `master` checkout still works on shared DB
