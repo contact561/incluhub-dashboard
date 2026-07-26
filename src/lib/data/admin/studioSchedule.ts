@@ -18,6 +18,7 @@ export async function getAdminStudioSchedule(
       physically_verified_at,
       no_show_remarks,
       portfolio_outputs!portfolio_output_id (
+        id,
         portfolio_type,
         leader_student_id,
         students!leader_student_id (
@@ -60,6 +61,7 @@ export async function getAdminStudioSchedule(
     physically_verified_at: string | null;
     no_show_remarks: string | null;
     portfolio_outputs: {
+      id: string;
       portfolio_type: StudentCategory;
       students: {
         profiles: { full_name: string } | null;
@@ -81,6 +83,7 @@ export async function getAdminStudioSchedule(
     )
     .map((row) => ({
       id: row.id,
+      portfolioOutputId: row.portfolio_outputs?.id ?? "",
       bookingDate: row.studio_slot_occupancy!.booking_date,
       slotCode: row.studio_slot_occupancy!.slot_code as StudioSlotCode,
       bookedAt: row.booked_at,

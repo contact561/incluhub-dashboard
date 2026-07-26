@@ -45,7 +45,7 @@ function educatorLabel(
   return `${fullName} — ${EDUCATOR_TYPE_LABELS[educatorType]} — ${instituteName}`;
 }
 
-const categoryToEducatorType: Record<StudentCategory, EducatorType> = {
+const categoryToEducatorType: Partial<Record<StudentCategory, EducatorType>> = {
   makeup_artist: "makeup_educator",
   photographer: "photography_educator",
   hairstylist: "hairstyling_educator",
@@ -92,6 +92,9 @@ export function CreateTeamForm({ options }: CreateTeamFormProps) {
       return [];
     }
     const educatorType = categoryToEducatorType[student.category];
+    if (!educatorType) {
+      return [];
+    }
     return options.educators.filter(
       (educator) =>
         educator.instituteId === student.instituteId &&

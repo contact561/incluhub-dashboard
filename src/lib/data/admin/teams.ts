@@ -108,6 +108,7 @@ export async function getAdminTeamById(
       `
       id,
       team_name,
+      program_id,
       current_stage_number,
       stage_status,
       status,
@@ -165,6 +166,7 @@ export async function getAdminTeamById(
   const row = data as {
     id: string;
     team_name: string;
+    program_id: string;
     current_stage_number: number | null;
     stage_status: StageStatus;
     status: string;
@@ -230,6 +232,7 @@ export async function getAdminTeamById(
       id: row.id,
       teamName: row.team_name,
       program: row.programs?.name ?? null,
+      programId: row.program_id ?? null,
       currentStageNumber: row.current_stage_number,
       stageStatus: row.stage_status,
       status: row.status,

@@ -1,12 +1,18 @@
-import { markStudioNoShowAction } from "@/actions/studio/checkin";
+import {
+  grantStudioRebookPermitAction,
+  markStudioNoShowAction,
+} from "@/actions/studio/checkin";
+import { AdminCheckinOtp } from "@/components/studio/AdminCheckinOtp";
 import { AdminCheckinQr } from "@/components/studio/AdminCheckinQr";
 import { Button } from "@/components/ui/button";
 
 export function StudioVerificationControls({
   bookingId,
+  portfolioOutputId,
   status,
 }: {
   bookingId: string;
+  portfolioOutputId: string;
   status: "online_confirmed" | "physically_verified" | "no_show";
 }) {
   if (status === "physically_verified") {
@@ -19,20 +25,34 @@ export function StudioVerificationControls({
 
   if (status === "no_show") {
     return (
-      <p className="text-sm text-text-muted">
-        No-show recorded; the leader can rebook after Admin clears the slot.
-      </p>
+      <div className="space-y-3">
+        <p className="text-sm text-text-muted">
+          No-show recorded. A rebook permit was auto-granted so the leader can
+          book again. Use Grant rebook if they need another extra attempt later.
+        </p>
+        <form action={grantStudioRebookPermitAction} className="space-y-2">
+          <input type="hidden" name="portfolio_output_id" value={portfolioOutputId} />
+          <input
+            type="hidden"
+            name="reason"
+            value="Manual rebook permit from studio schedule"
+          />
+          <Button type="submit" size="sm" variant="outline">
+            Grant another rebook permit
+          </Button>
+        </form>
+      </div>
     );
   }
 
   return (
     <div className="space-y-3">
       <p className="text-sm text-text-muted">
-        Display the booking QR for the authenticated portfolio leader. A
-        successful scan is physical check-in — no further Admin approval is
-        required.
+        Display QR and/or OTP for the authenticated portfolio leader. Successful
+        check-in unlocks submission — no further Admin approval required.
       </p>
       <AdminCheckinQr bookingId={bookingId} />
+      <AdminCheckinOtp bookingId={bookingId} />
       <details className="text-sm">
         <summary className="cursor-pointer text-text-muted">Mark no-show</summary>
         <form action={markStudioNoShowAction} className="mt-2 space-y-2">

@@ -15,7 +15,31 @@ export type UserRole = "admin" | "student" | "educator" | "external_member";
 export type StudentCategory =
   | "makeup_artist"
   | "photographer"
-  | "hairstylist";
+  | "hairstylist"
+  | "fashion_designer";
+
+export type ProfileStatus =
+  | "active"
+  | "inactive"
+  | "suspended"
+  | "pending_onboarding";
+
+export type StageDefinitionType =
+  | "team_formation"
+  | "attendance_session"
+  | "submission"
+  | "studio_booking"
+  | "info_only";
+
+export type StageDefinition = {
+  id: string;
+  code: string;
+  name: string;
+  stage_type: StageDefinitionType;
+  sort_order: number;
+  is_active: boolean;
+  config: Record<string, unknown>;
+};
 
 export type EducatorType =
   | "makeup_educator"
@@ -82,7 +106,7 @@ export interface Profile {
   email: string;
   phone: string | null;
   role: UserRole;
-  status: "active" | "inactive" | "suspended";
+  status: "active" | "inactive" | "suspended" | "pending_onboarding";
   created_by: string | null;
   created_at: string;
   updated_at: string;
@@ -798,6 +822,29 @@ export type Database = {
       brand_work_submissions: TableDef<BrandWorkSubmission>;
       brand_work_submission_files: TableDef<BrandWorkSubmissionFile>;
       activity_logs: TableDef<ActivityLog>;
+      stage_definitions: TableDef<StageDefinition>;
+      mood_board_submissions: TableDef<{
+        id: string;
+        team_id: string;
+        student_id: string;
+        title: string;
+        mood_board_url: string;
+        notes: string | null;
+        version_number: number;
+        status: string;
+        created_by: string;
+        created_at: string;
+        updated_at: string;
+      }>;
+      mood_board_reviews: TableDef<{
+        id: string;
+        submission_id: string;
+        reviewer_role: string;
+        reviewer_user_id: string;
+        decision: string;
+        comments: string | null;
+        created_at: string;
+      }>;
     };
     Views: {
       [_ in never]: never;
@@ -1028,6 +1075,82 @@ export type Database = {
       is_matching_portfolio_leader_educator: {
         Args: {
           p_portfolio_output_id: string;
+        };
+        Returns: boolean;
+      };
+      complete_student_onboarding: {
+        Args: {
+          p_institute_id: string;
+          p_student_category: string;
+          p_full_name: string;
+          p_phone: string | null;
+        };
+        Returns: boolean;
+      };
+      get_educator_institute_students: {
+        Args: Record<string, never>;
+        Returns: {
+          student_id: string;
+          user_id: string;
+          full_name: string;
+          email: string;
+          student_category: StudentCategory;
+          institute_id: string;
+          current_stage_number: number | null;
+          status: string;
+        }[];
+      };
+      submit_mood_board: {
+        Args: {
+          p_title: string;
+          p_mood_board_url: string;
+          p_notes: string | null;
+        };
+        Returns: string;
+      };
+      review_mood_board: {
+        Args: {
+          p_submission_id: string;
+          p_decision: string;
+          p_comments: string | null;
+        };
+        Returns: boolean;
+      };
+      create_studio_checkin_otp: {
+        Args: { p_booking_id: string };
+        Returns: {
+          booking_id: string;
+          otp_code: string;
+          expires_at: string;
+        }[];
+      };
+      verify_studio_checkin_otp: {
+        Args: { p_otp_code: string };
+        Returns: {
+          booking_id: string;
+          portfolio_output_id: string;
+          verified_at: string;
+        }[];
+      };
+      grant_studio_rebook_permit: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_reason: string | null;
+        };
+        Returns: string;
+      };
+      deassign_team_member: {
+        Args: {
+          p_team_id: string;
+          p_student_id: string;
+        };
+        Returns: boolean;
+      };
+      assign_team_member_slot: {
+        Args: {
+          p_team_id: string;
+          p_student_id: string;
+          p_educator_id: string;
         };
         Returns: boolean;
       };

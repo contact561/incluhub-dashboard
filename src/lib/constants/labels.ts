@@ -24,6 +24,7 @@ export const STUDENT_CATEGORY_LABELS: Record<StudentCategory, string> = {
   makeup_artist: "Makeup Artist",
   photographer: "Photographer",
   hairstylist: "Hairstylist",
+  fashion_designer: "Fashion Designer",
 };
 
 export const EDUCATOR_TYPE_LABELS: Record<EducatorType, string> = {

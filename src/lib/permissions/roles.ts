@@ -59,6 +59,7 @@ export const STUDENT_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/student/dashboard" },
   { label: "My Team", href: "/student/my-team" },
   { label: "My Stage", href: "/student/my-stage" },
+  { label: "Mood Board", href: "/student/mood-board" },
   { label: "Portfolio", href: "/student/portfolio" },
   { label: "Brand Opportunity", href: "/student/brand-opportunity" },
   { label: "Notifications", href: "/student/notifications" },

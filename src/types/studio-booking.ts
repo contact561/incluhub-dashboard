@@ -76,6 +76,7 @@ export type StudentPortfolioResult = {
 
 export type AdminStudioScheduleRow = {
   id: string;
+  portfolioOutputId: string;
   bookingDate: string;
   slotCode: StudioSlotCode;
   bookedAt: string;

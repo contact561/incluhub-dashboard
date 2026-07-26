@@ -13,6 +13,12 @@ delivery reports live under `archive/`.
 | [PROJECT_RULES.md](PROJECT_RULES.md) | MVP constraints and engineering rules |
 | [IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md) | What is built, migration notes, changelog |
 
+## Experiments
+
+| Doc | Purpose |
+|-----|---------|
+| [experiments/skillset-rebuild/README.md](experiments/skillset-rebuild/README.md) | Skillset rebuild experiment (PRD, ADRs, schema) on branch `experiment/skillset-rebuild` |
+
 ## Product and architecture (active)
 
 | Doc | Purpose |
