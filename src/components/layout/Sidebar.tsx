@@ -11,7 +11,7 @@ type SidebarProps = {
 
 export function Sidebar({ title, navItems }: SidebarProps) {
   return (
-    <aside className="hidden w-64 shrink-0 flex-col border-r border-border-default bg-surface-card md:flex">
+    <aside className="hidden w-64 shrink-0 flex-col border-r border-t-2 border-border-default border-t-brand-gold bg-surface-card md:flex">
       <div className="border-b border-border-default px-4 py-4">
         <div className="flex items-center gap-3">
           <Image

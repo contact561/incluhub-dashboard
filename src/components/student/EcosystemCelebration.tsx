@@ -34,7 +34,7 @@ export function EcosystemCelebration({
   const firstName = studentName.trim().split(/\s+/)[0] || "there";
 
   return (
-    <section className="relative isolate min-h-[calc(100dvh-8rem)] overflow-hidden rounded-[var(--radius-card)] border border-border-default bg-[radial-gradient(circle_at_top,#fff_0%,#fbf4f5_42%,#f5e9ec_100%)] px-4 py-10 sm:px-8 sm:py-14">
+    <section className="relative isolate min-h-[calc(100dvh-8rem)] overflow-hidden rounded-[var(--radius-card)] border border-border-default bg-[radial-gradient(circle_at_top,var(--surface-card)_0%,var(--brand-gold-soft)_45%,var(--surface-page)_100%)] px-4 py-10 sm:px-8 sm:py-14">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 overflow-hidden"

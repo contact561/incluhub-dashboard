@@ -21,7 +21,7 @@ export function PublicAuthCard({
         aria-hidden="true"
       />
 
-      <section className="relative w-full max-w-sm rounded-card border border-border-default bg-surface-card p-6 shadow-md sm:p-8">
+      <section className="relative w-full max-w-sm rounded-card border border-border-default border-t-[3px] border-t-brand-gold bg-surface-card p-6 shadow-md sm:p-8">
         <header className="mb-6 text-center">
           <Image
             src="/brand/incluhub-logo.svg"
@@ -32,7 +32,7 @@ export function PublicAuthCard({
             priority
             unoptimized
           />
-          <p className="mt-3 text-label font-semibold tracking-wide text-brand-primary">
+          <p className="mt-3 text-label font-semibold tracking-[0.16em] text-brand-gold-strong">
             IncluHub
           </p>
           <h1 className="mt-1 text-page-title text-text-primary">{title}</h1>

@@ -5,9 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
-  IncluHub UI-1A — Brand tokens + typography foundation
-  Direction B: Modern Education SaaS
-  Primary: Burgundy #6B1F2A
+  IncluHub black / white / gold UI branch
+  White-first surfaces · black text and actions · gold aesthetic accents
 */
 
 @theme inline {
@@ -41,6 +40,9 @@
   --color-brand-primary-hover: var(--brand-primary-hover);
   --color-brand-primary-soft: var(--brand-primary-soft);
   --color-brand-primary-foreground: var(--brand-primary-foreground);
+  --color-brand-gold: var(--brand-gold);
+  --color-brand-gold-strong: var(--brand-gold-strong);
+  --color-brand-gold-soft: var(--brand-gold-soft);
 
   /* Surfaces */
   --color-surface-page: var(--surface-page);
@@ -130,26 +132,29 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 
-  /* ——— Brand (approved) ——— */
-  --brand-primary: #6b1f2a;
-  --brand-primary-hover: #571923;
-  --brand-primary-soft: #f5e9ec;
+  /* ——— Brand: black actions + gold aesthetic accents ——— */
+  --brand-primary: #111111;
+  --brand-primary-hover: #2b2b2b;
+  --brand-primary-soft: #f8f3e3;
   --brand-primary-foreground: #ffffff;
+  --brand-gold: #c6a15b;
+  --brand-gold-strong: #765a16;
+  --brand-gold-soft: #fbf7eb;
 
   /* ——— Surfaces ——— */
-  --surface-page: #f8f6f5;
+  --surface-page: #fafaf8;
   --surface-card: #ffffff;
-  --surface-muted: #f1edec;
-  --surface-inset: #f1edec;
+  --surface-muted: #f5f4ef;
+  --surface-inset: #f8f6ee;
 
   /* ——— Text ——— */
-  --text-primary: #241f20;
-  --text-muted: #71686a;
-  --text-subtle: #9a9294;
+  --text-primary: #111111;
+  --text-muted: #525252;
+  --text-subtle: #737373;
 
   /* ——— Borders ——— */
-  --border-default: #e3dcdd;
-  --border-strong: #c9c0c1;
+  --border-default: #e8e5dc;
+  --border-strong: #c8b77a;
 
   /* ——— Status (semantic — not burgundy) ——— */
   --status-success: #2f6b4f;
@@ -169,11 +174,11 @@
 
   /* ——— Elevation (tokens only) ——— */
   --elevation-none: none;
-  --elevation-sm: 0 1px 2px 0 rgb(36 31 32 / 0.05);
+  --elevation-sm: 0 1px 2px 0 rgb(17 17 17 / 0.05);
   --elevation-md:
-    0 4px 6px -1px rgb(36 31 32 / 0.08), 0 2px 4px -2px rgb(36 31 32 / 0.05);
+    0 4px 6px -1px rgb(17 17 17 / 0.08), 0 2px 4px -2px rgb(17 17 17 / 0.05);
   --elevation-lg:
-    0 10px 15px -3px rgb(36 31 32 / 0.08), 0 4px 6px -4px rgb(36 31 32 / 0.05);
+    0 10px 15px -3px rgb(17 17 17 / 0.08), 0 4px 6px -4px rgb(17 17 17 / 0.05);
 
   /* ——— Typography scale (CSS vars for documentation / future use) ——— */
   --type-display-size: 2rem;
@@ -212,28 +217,28 @@
   --muted: var(--surface-muted);
   --muted-foreground: var(--text-muted);
   --accent: var(--brand-primary-soft);
-  --accent-foreground: var(--brand-primary);
+  --accent-foreground: var(--text-primary);
   --destructive: var(--status-danger);
   --border: var(--border-default);
   --input: var(--border-default);
-  --ring: var(--brand-primary);
+  --ring: var(--brand-gold-strong);
 
-  /* Charts — neutral warm scale (unchanged role) */
-  --chart-1: #6b1f2a;
-  --chart-2: #71686a;
-  --chart-3: #9a9294;
-  --chart-4: #c9c0c1;
-  --chart-5: #e3dcdd;
+  /* Charts — gold, black, and neutral hierarchy */
+  --chart-1: #765a16;
+  --chart-2: #111111;
+  --chart-3: #737373;
+  --chart-4: #c6a15b;
+  --chart-5: #e8e5dc;
 
   /* Sidebar — aligned to brand surfaces (components adopt in UI-1B) */
   --sidebar: var(--surface-muted);
   --sidebar-foreground: var(--text-primary);
   --sidebar-primary: var(--brand-primary);
   --sidebar-primary-foreground: var(--brand-primary-foreground);
-  --sidebar-accent: var(--brand-primary-soft);
-  --sidebar-accent-foreground: var(--brand-primary);
+  --sidebar-accent: var(--brand-gold-soft);
+  --sidebar-accent-foreground: var(--text-primary);
   --sidebar-border: var(--border-default);
-  --sidebar-ring: var(--brand-primary);
+  --sidebar-ring: var(--brand-gold-strong);
 }
 
 /* Dark mode deferred — preserve structure only; no theme switch in UI-1A */
@@ -294,7 +299,7 @@
   }
 
   ::selection {
-    background-color: var(--brand-primary-soft);
+    background-color: var(--brand-gold-soft);
     color: var(--text-primary);
   }
 }
@@ -323,7 +328,7 @@
   width: 0.5rem;
   height: 0.85rem;
   border-radius: 0.125rem;
-  background: var(--brand-primary);
+  background: var(--brand-gold);
   opacity: 0;
   animation-name: ecosystem-confetti-fall;
   animation-timing-function: cubic-bezier(0.2, 0.65, 0.4, 1);
@@ -332,20 +337,21 @@
 }
 
 .ecosystem-confetti-piece:nth-child(5n + 2) {
-  background: #d97706;
+  background: var(--text-primary);
 }
 
 .ecosystem-confetti-piece:nth-child(5n + 3) {
-  background: #15803d;
+  background: #ead48f;
   border-radius: 999px;
 }
 
 .ecosystem-confetti-piece:nth-child(5n + 4) {
-  background: #7c3aed;
+  background: var(--brand-gold-strong);
 }
 
 .ecosystem-confetti-piece:nth-child(5n + 5) {
-  background: #db2777;
+  background: var(--surface-card);
+  border: 1px solid var(--brand-gold);
   border-radius: 999px;
 }
 

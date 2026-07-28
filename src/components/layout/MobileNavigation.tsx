@@ -35,7 +35,7 @@ export function MobileNavigation({
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="flex h-14 items-center gap-3 border-b border-border-default bg-surface-card px-3 md:hidden">
+    <header className="flex h-14 items-center gap-3 border-b-2 border-brand-gold bg-surface-card px-3 md:hidden">
       <Image
         src="/brand/incluhub-logo.svg"
         alt="IncluHub"

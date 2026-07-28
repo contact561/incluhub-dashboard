@@ -40,7 +40,7 @@ export function PortalNavList({
               "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-surface-card",
               touchFriendly ? "min-h-11 py-2.5" : "min-h-10 py-2",
               active
-                ? "border-l-4 border-brand-primary bg-brand-primary-soft font-medium text-brand-primary"
+                ? "border-l-4 border-brand-gold bg-brand-gold-soft font-medium text-text-primary"
                 : "border-l-4 border-transparent text-text-muted hover:bg-surface-muted hover:text-text-primary"
             )}
           >

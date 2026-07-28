@@ -40,6 +40,7 @@ Never commit `.env.local`.
 |--------|---------|
 | `master` | Current supported application, including migrations `001`–`022` |
 | `codex/local-setup-ci` | Local CI/CD and browser-test setup awaiting review |
+| `codex/black-white-gold-ui` | White-first, black-and-gold UI exploration built on the local-dev branch |
 | `experiment/skillset-rebuild` | Experimental work; not the production baseline |
 
 ```bash
@@ -101,6 +102,7 @@ Database checks (Supabase SQL editor):
 | Local development | [docs/runbooks/LOCAL_DEVELOPMENT.md](docs/runbooks/LOCAL_DEVELOPMENT.md) |
 | Browser testing | [docs/runbooks/BROWSER_TESTING.md](docs/runbooks/BROWSER_TESTING.md) |
 | CI/CD setup | [docs/runbooks/CI_CD.md](docs/runbooks/CI_CD.md) |
+| Black/white/gold UI theme | [docs/design/BLACK_WHITE_GOLD_THEME.md](docs/design/BLACK_WHITE_GOLD_THEME.md) |
 | Dev scripts | [scripts/README.md](scripts/README.md) |
 | Database / migrations | [supabase/README.md](supabase/README.md) |
 | MVP rules | [docs/PROJECT_RULES.md](docs/PROJECT_RULES.md) |

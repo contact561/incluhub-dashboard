@@ -8,7 +8,7 @@ export default function RootPage() {
         className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-brand-primary-soft to-transparent"
         aria-hidden="true"
       />
-      <section className="relative w-full max-w-xl rounded-card border border-border-default bg-surface-card p-8 text-center shadow-md sm:p-12">
+      <section className="relative w-full max-w-xl rounded-card border border-border-default border-t-[3px] border-t-brand-gold bg-surface-card p-8 text-center shadow-md sm:p-12">
         <Image
           src="/brand/incluhub-logo.svg"
           alt="IncluHub"
@@ -18,7 +18,7 @@ export default function RootPage() {
           priority
           unoptimized
         />
-        <p className="mt-4 text-label font-semibold tracking-wide text-brand-primary">
+        <p className="mt-4 text-label font-semibold tracking-[0.16em] text-brand-gold-strong">
           IncluHub
         </p>
         <h1 className="mt-2 text-display text-text-primary">
