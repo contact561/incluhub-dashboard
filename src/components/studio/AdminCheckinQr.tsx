@@ -7,18 +7,27 @@ import { Button } from "@/components/ui/button";
 
 export function AdminCheckinQr({ bookingId }: { bookingId: string }) {
   const [state, action, pending] = useActionState<CheckinQrState, FormData>(createStudioCheckinQrAction, {});
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<{ token: string; url: string } | null>(null);
 
   useEffect(() => {
     let active = true;
-    if (!state.token) { setImage(null); return; }
+    if (!state.token) return;
+    const token = state.token;
+
     QRCode.toDataURL(JSON.stringify({ type: "incluhub-studio-checkin", token: state.token }), {
       width: 320,
       margin: 2,
       errorCorrectionLevel: "M",
-    }).then((url) => { if (active) setImage(url); }).catch(() => { if (active) setImage(null); });
+    }).then((url) => {
+      if (active) setImage({ token, url });
+    }).catch(() => {
+      if (active) setImage(null);
+    });
+
     return () => { active = false; };
   }, [state.token]);
+
+  const imageUrl = image && image.token === state.token ? image.url : null;
 
   return <div className="space-y-3">
     <form action={action}>
@@ -28,10 +37,10 @@ export function AdminCheckinQr({ bookingId }: { bookingId: string }) {
       </Button>
     </form>
     {state.error ? <p className="text-sm text-destructive" role="alert">{state.error}</p> : null}
-    {image && state.expiresAt ? <div className="rounded-lg border border-border-default bg-white p-3 text-center">
+    {imageUrl && state.expiresAt ? <div className="rounded-lg border border-border-default bg-white p-3 text-center">
       {/* Generated locally from a short-lived opaque token. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image} alt="Temporary studio check-in QR" className="mx-auto size-64 max-w-full" />
+      <img src={imageUrl} alt="Temporary studio check-in QR" className="mx-auto size-64 max-w-full" />
       <p className="mt-2 text-xs text-zinc-600">
         Ask the booked portfolio leader to scan this from their logged-in account.
         Successful scan unlocks their portfolio submission. Token expires shortly.

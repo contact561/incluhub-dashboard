@@ -10,6 +10,7 @@ delivery reports live under `archive/`.
 | [../README.md](../README.md) | Clone, env, run, and verify the app |
 | [runbooks/NEW_DEVELOPER_SETUP.md](runbooks/NEW_DEVELOPER_SETUP.md) | First-time setup checklist |
 | [runbooks/LOCAL_DEVELOPMENT.md](runbooks/LOCAL_DEVELOPMENT.md) | Day-to-day dev, branches, and test data |
+| [runbooks/BROWSER_TESTING.md](runbooks/BROWSER_TESTING.md) | Playwright public and role-boundary tests |
 | [PROJECT_RULES.md](PROJECT_RULES.md) | MVP constraints and engineering rules |
 | [IMPLEMENTATION_PROGRESS.md](IMPLEMENTATION_PROGRESS.md) | What is built, migration notes, changelog |
 
@@ -31,6 +32,7 @@ delivery reports live under `archive/`.
 | [audits/FEATURE_REGISTRY.md](audits/FEATURE_REGISTRY.md) | Feature-to-code map |
 | [audits/ROUTE_REGISTRY.md](audits/ROUTE_REGISTRY.md) | App routes by role |
 | [audits/DEPLOYMENT_READINESS.md](audits/DEPLOYMENT_READINESS.md) | Deployment gates |
+| [releases/PRODUCTION_READINESS_CURRENT.md](releases/PRODUCTION_READINESS_CURRENT.md) | Current verified readiness and blockers |
 | [releases/PACKAGE_F_RELEASE_READINESS.md](releases/PACKAGE_F_RELEASE_READINESS.md) | Package F release checklist |
 
 ## Design (active)
@@ -52,8 +54,7 @@ See [../scripts/README.md](../scripts/README.md) for Node seed/reset/QA utilitie
 
 | Branch track | Migrations |
 |--------------|------------|
-| Package F (`master`) | `001`–`013` |
-| Founder workflows (`feat/local-dev`) | `014`–`022` (notifications, Stage 3 QR, Stage 5) |
+| Current supported baseline (`master`) | `001`–`022` |
 
 ## Archive (historical — not primary onboarding)
 

@@ -38,11 +38,12 @@ Never commit `.env.local`.
 
 | Branch | Use for |
 |--------|---------|
-| `master` | Package F baseline (migrations `001`–`013`) |
-| `feat/local-dev` | Current founder workflows (migrations `014`–`022`) |
+| `master` | Current supported application, including migrations `001`–`022` |
+| `codex/local-setup-ci` | Local CI/CD and browser-test setup awaiting review |
+| `experiment/skillset-rebuild` | Experimental work; not the production baseline |
 
 ```bash
-git checkout feat/local-dev   # active development
+git checkout master
 ```
 
 ### 4. Apply database schema
@@ -50,8 +51,9 @@ git checkout feat/local-dev   # active development
 Apply SQL migrations in order from `supabase/migrations/` in the Supabase SQL
 editor (or your migration pipeline):
 
-- **Package F:** `001` → `013`
-- **Founder / local-dev:** also `014` → `022`
+- Apply `001` → `022` to a new empty environment.
+- For an existing environment, reconcile the Supabase migration ledger before
+  running `supabase db push`; do not blindly replay migrations.
 
 See [supabase/README.md](supabase/README.md) and [docs/README.md](docs/README.md).
 For detailed workflows see [docs/runbooks/LOCAL_DEVELOPMENT.md](docs/runbooks/LOCAL_DEVELOPMENT.md).
@@ -96,6 +98,8 @@ Database checks (Supabase SQL editor):
 | Doc index | [docs/README.md](docs/README.md) |
 | New developer setup | [docs/runbooks/NEW_DEVELOPER_SETUP.md](docs/runbooks/NEW_DEVELOPER_SETUP.md) |
 | Local development | [docs/runbooks/LOCAL_DEVELOPMENT.md](docs/runbooks/LOCAL_DEVELOPMENT.md) |
+| Browser testing | [docs/runbooks/BROWSER_TESTING.md](docs/runbooks/BROWSER_TESTING.md) |
+| CI/CD setup | [docs/runbooks/CI_CD.md](docs/runbooks/CI_CD.md) |
 | Dev scripts | [scripts/README.md](scripts/README.md) |
 | Database / migrations | [supabase/README.md](supabase/README.md) |
 | MVP rules | [docs/PROJECT_RULES.md](docs/PROJECT_RULES.md) |
@@ -105,6 +109,7 @@ Database checks (Supabase SQL editor):
 
 ## Current status
 
-Package F (Stages 1–4 portfolio and studio flows) is on `master`. Founder
-workflows on `feat/local-dev` add in-app notifications, Stage 3 QR check-in,
-admin broadcast updates, and Stage 5 ecosystem review messaging.
+Package F and the founder workflows are on `master`, including portfolio and
+studio flows, in-app notifications, Stage 3 QR check-in, Admin broadcast
+updates, Brand Works, and Stage 5 ecosystem review messaging. See the current
+production-readiness report before deploying.

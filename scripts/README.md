@@ -35,6 +35,9 @@ node scripts/reset/purge-keep-admin-only.mjs --confirm-purge
 # Stage 3 smoke (after fixture setup)
 node scripts/qa/smoke/stage3-smoke-fixture-setup.mjs --confirm-fixture
 node scripts/qa/smoke/stage3-workflow-smoke.mjs --confirm-stage3-smoke
+
+# Create dedicated Playwright role accounts (non-production only)
+npm run test:e2e:accounts:setup -- --confirm-e2e-accounts
 ```
 
 ## Fixture scripts (UI QA)

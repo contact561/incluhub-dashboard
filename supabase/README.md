@@ -19,14 +19,13 @@ supabase/
 
 | Track | Branch | Migrations |
 |-------|--------|------------|
-| Package F baseline | `master` | `001` → `013` |
-| Founder workflows | `feat/local-dev` | `014` → `022` |
+| Current supported baseline | `master` | `001` → `022` |
 
 Apply migrations in the Supabase SQL editor (or your CI migration pipeline) in
 numeric order. Policies in `policies/` should match the migration set on your
 project.
 
-### Founder workflow migrations (`feat/local-dev`)
+### Founder workflow migrations (included on `master`)
 
 | File | Feature |
 |------|---------|
@@ -49,7 +48,7 @@ supabase/scripts/verify/verify_package_e1.sql
 supabase/scripts/verify/verify_package_e1_rpc.sql   # ends with ROLLBACK
 ```
 
-Stage 3 (`feat/local-dev`):
+Stage 3:
 
 ```text
 supabase/scripts/verify/verify_stage3_tables.sql
