@@ -108,17 +108,17 @@ export function AdminPortfolioReviewDetailView({
           )}
         </section>
 
-        {detail.adminReviewEntryPath === "educator_approved" ? (
+        {detail.adminReviewEntryPath === "direct_submission" ? (
           <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:p-5">
             <SectionHeader
-              title="Educator review (current version)"
+              title="Admin review path"
               as="h2"
               compact
             />
             {educatorReview ? (
               <div className="mt-2 rounded-[var(--radius-card)] border border-border-default bg-surface-muted/50 px-4 py-3">
                 <p className="text-sm font-medium text-text-primary">
-                  Approved by {educatorReview.reviewerName}
+                  Educator note by {educatorReview.reviewerName}
                 </p>
                 <p className="mt-1 text-xs text-text-subtle">
                   v{educatorReview.versionNumber} ·{" "}
@@ -133,8 +133,8 @@ export function AdminPortfolioReviewDetailView({
             ) : (
               <StatusPanel
                 variant="warning"
-                title="Educator approval record missing"
-                description="Educator approval record is missing for the current version."
+                title="Direct Admin review"
+                description="This submission came directly to Admin. Educator approval is not required."
               />
             )}
           </section>
@@ -167,8 +167,7 @@ export function AdminPortfolioReviewDetailView({
               )}
             </div>
             <p className="mt-3 text-sm text-text-muted">
-              Revised submission returned to Admin. No new Educator approval is
-              required for this version.
+              Revised submission returned directly to Admin.
             </p>
           </section>
         ) : null}
@@ -208,7 +207,7 @@ export function AdminPortfolioReviewDetailView({
             description={
               detail.workflowStatus === "pending_admin"
                 ? detail.adminReviewEntryPath === "invalid"
-                  ? "This portfolio cannot be reviewed because neither Educator approval nor a valid Admin-routed resubmission path was found."
+                  ? "This portfolio cannot be reviewed because its current submission path is invalid."
                   : submission
                     ? "This portfolio cannot be reviewed right now."
                     : "This portfolio is missing a submission and cannot be reviewed yet."

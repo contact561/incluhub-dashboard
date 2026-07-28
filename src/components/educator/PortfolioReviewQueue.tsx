@@ -18,6 +18,7 @@ export function PortfolioReviewQueue({ items }: PortfolioReviewQueueProps) {
           leaderName={item.leaderName}
           versionNumber={item.versionNumber}
           submittedAt={item.submittedAt}
+          itemType={item.itemType}
         />
       ))}
     </div>

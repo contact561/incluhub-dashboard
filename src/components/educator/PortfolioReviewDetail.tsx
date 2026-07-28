@@ -22,6 +22,7 @@ export function PortfolioReviewDetailView({
   detail,
 }: PortfolioReviewDetailProps) {
   const submission = detail.latestSubmission;
+  const moodboard = detail.latestMoodboard;
   const disciplineLabel = STUDENT_CATEGORY_LABELS[detail.portfolioType];
 
   return (
@@ -94,32 +95,89 @@ export function PortfolioReviewDetailView({
           )}
         </section>
 
+        <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:p-5">
+          <SectionHeader
+            title="Latest moodboard"
+            description="Moodboards are approved only by IncluHub Admin."
+            as="h2"
+            compact
+          />
+          {moodboard ? (
+            <div className="mt-3 space-y-2 text-sm">
+              <p className="font-medium text-text-primary">
+                {moodboard.title} · Version {moodboard.versionNumber}
+              </p>
+              <a
+                href={moodboard.moodboardUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block break-all text-text-primary underline underline-offset-2"
+              >
+                Open moodboard
+              </a>
+              {moodboard.notes ? (
+                <p className="whitespace-pre-wrap text-text-muted">
+                  {moodboard.notes}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-text-muted">
+              No moodboard has been submitted yet.
+            </p>
+          )}
+        </section>
+
         <ReviewHistory history={detail.history} />
+
+        {detail.comments.length > 0 ? (
+          <section className="rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:p-5">
+            <SectionHeader
+              title="Educator comments"
+              description="Monitoring notes visible to the team and Admin."
+              as="h2"
+              compact
+            />
+            <div className="mt-3 space-y-3">
+              {detail.comments.map((comment) => (
+                <article
+                  key={comment.id}
+                  className="border-l-2 border-brand-gold pl-3"
+                >
+                  <p className="whitespace-pre-wrap text-sm text-text-primary">
+                    {comment.body}
+                  </p>
+                  <p className="mt-1 text-xs text-text-muted">
+                    {comment.authorName} · {formatSubmittedAt(comment.createdAt)}
+                  </p>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
       </div>
 
       <div className="space-y-4">
-        {detail.canReview && submission ? (
+        {detail.canComment ? (
           <ActionPanel
-            title="Your decision"
-            description="Approve to send this portfolio to Admin review, or request a revision with clear feedback for the portfolio leader."
+            title="Add a monitoring comment"
+            description="Educator comments are advisory. Only IncluHub Admin can approve or request a revision."
           >
             <EducatorReviewForm
+              teamId={detail.teamId}
               portfolioOutputId={detail.portfolioId}
-              submissionId={submission.submissionId}
+              moodboardSubmissionId={moodboard?.submissionId ?? null}
+              portfolioSubmissionId={submission?.submissionId ?? null}
             />
           </ActionPanel>
         ) : (
           <StatusPanel
             variant="information"
             title={
-              detail.workflowStatus === "pending_educator"
-                ? "Review unavailable"
-                : "Not awaiting educator review"
+              "Nothing to comment on yet"
             }
             description={
-              detail.workflowStatus === "pending_educator"
-                ? "This portfolio is missing a submission and cannot be reviewed yet."
-                : "This portfolio is no longer awaiting educator review."
+              "A moodboard or portfolio submission will appear here when the student uploads it."
             }
           />
         )}

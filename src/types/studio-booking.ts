@@ -44,6 +44,26 @@ export type StudentPortfolioCard = {
   sequenceOrder: number;
   portfolioType: StudentCategory;
   workflowStatus: PortfolioWorkflowStatus;
+  moodboardStatus:
+    | "not_submitted"
+    | "pending_admin"
+    | "revision_required"
+    | "approved";
+  moodboard: {
+    id: string;
+    versionNumber: number;
+    title: string;
+    moodboardUrl: string;
+    notes: string | null;
+    submittedAt: string;
+    reviewComments: string | null;
+  } | null;
+  educatorComments: {
+    id: string;
+    authorName: string;
+    body: string;
+    createdAt: string;
+  }[];
   leaderStudentId: string;
   leaderName: string;
   participants: PortfolioParticipantView[];
@@ -81,8 +101,10 @@ export type AdminStudioScheduleRow = {
   bookedAt: string;
   teamName: string;
   programName: string | null;
-  portfolioType: StudentCategory;
+  bookingType: "portfolio" | "personal";
+  portfolioType: StudentCategory | null;
   leaderName: string;
+  purpose: string | null;
   verificationStatus: "online_confirmed" | "physically_verified" | "no_show";
   physicallyVerifiedAt: string | null;
   noShowRemarks: string | null;
@@ -90,6 +112,29 @@ export type AdminStudioScheduleRow = {
 
 export type AdminStudioScheduleResult = {
   rows: AdminStudioScheduleRow[];
+  error: string | null;
+};
+
+export type PersonalStudioBookingView = {
+  id: string;
+  bookingDate: string;
+  slotCode: StudioSlotCode;
+  purpose: string;
+  bookedAt: string;
+  verificationStatus: "online_confirmed" | "physically_verified" | "no_show";
+  physicallyVerifiedAt: string | null;
+};
+
+export type PersonalStudioPageData = {
+  studentId: string;
+  totalCredits: number;
+  usedCredits: number;
+  remainingCredits: number;
+  bookings: PersonalStudioBookingView[];
+};
+
+export type PersonalStudioResult = {
+  data: PersonalStudioPageData | null;
   error: string | null;
 };
 

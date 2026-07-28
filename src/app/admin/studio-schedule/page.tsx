@@ -21,7 +21,7 @@ export default async function AdminStudioSchedulePage({
     <div className="space-y-6">
       <PageHeader
         title="Studio Schedule"
-        description="Manage physical QR check-in for online studio bookings. Submission opens only after the booked leader scans and confirms attendance."
+        description="Generate real-time OTPs for portfolio and personal studio bookings. Portfolio submission opens only after the booked student confirms attendance."
         metadata={
           error ? undefined : (
             <span>
@@ -82,7 +82,7 @@ export default async function AdminStudioSchedulePage({
               description={
                 date
                   ? "No confirmed bookings were found for the selected date."
-                  : "Confirmed studio bookings will appear here after leaders book slots."
+                  : "Confirmed portfolio and personal studio bookings will appear here."
               }
             />
           </div>

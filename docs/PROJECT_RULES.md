@@ -1,253 +1,110 @@
-# IncluHub Education Management Dashboard — Project Rules
+# IncluHub Dashboard — Project Rules
+
+## Product and MVP
 
-## Product Goal
+IncluHub is a stage-based education and creative-workflow dashboard. The MVP
+manages students, educators, teams, stages, moodboards, studio bookings,
+portfolios, brand work, notifications, and final ecosystem access.
 
-Build an MVP dashboard for IncluHub to manage creative institute students through a structured post-academic support program.
-
-The system should help IncluHub Admin manage:
-
-- Students
-- Educators
-- External members
-- Teams
-- Stage progress
-- Portfolio submissions
-- Brand/project exposure
-- Final ecosystem/application unlock
-
-This is not a normal school ERP.  
-This is a stage-based program workflow dashboard.
-
----
-
-## Tech Stack
-
-- Frontend: Next.js with TypeScript
-- UI: Tailwind CSS + shadcn/ui
-- Backend: Next.js Server Actions / Route Handlers
-- Database: Supabase Postgres
-- Auth: Supabase Auth
-- Storage: Supabase Storage only if needed
-- Hosting: Vercel
-
----
-
-## MVP Roles
-
-The MVP has only these roles:
-
-1. admin
-2. student
-3. educator
-4. external_member
-
-Do not add Institute Admin in MVP.
-
----
-
-## Authentication Rules
-
-- No public signup
-- No role selection during login
-- No Google login in MVP
-- Only Admin can create accounts
-- User role must come from the `profiles` table
-- After login, redirect user based on database role
-
-Role redirects:
-
-- admin → `/admin/dashboard`
-- student → `/student/dashboard`
-- educator → `/educator/dashboard`
-- external_member → `/external/dashboard`
-
----
-
-## Student Categories
-
-Every student must belong to one category:
-
-- makeup_artist
-- photographer
-- hairstylist
-
-Admin selects this while creating the student account.
-
----
-
-## Educator Types
-
-Educators belong to one type:
-
-- makeup_educator
-- photography_educator
-- hairstyling_educator
-
-Educator can only approve work related to their category and assigned teams.
-
----
-
-## External Member Types
-
-External members can be:
-
-- model
-- creative_director
-- photographer
-- brand_mentor
-- shoot_mentor
-- other
-
-External members can only see assigned project/team details.
-
----
-
-## Team Rule
-
-Each team should contain:
-
-- 1 makeup_artist student
-- 1 photographer student
-- 1 hairstylist student
-
-These three students may come from different institutes.
-
-A team belongs to one IncluHub Program / Batch (not one shared institute).
-Each student keeps their own `institute_id` and is mapped to a matching educator from that same institute.
-
-A student can be in only one active team at a time in MVP.
-
----
-
-## Stage Flow
-
-MVP stages:
-
-0. Onboarding
-1. Team Assignment
-2. BMS Session
-3. Portfolio Submission
-4. Brand / Creative Project
-5. Ecosystem / Application Unlock
-
----
-
-## Stage Approval Rules
-
-Stage 0: Admin only  
-Stage 1: Admin only  
-Stage 2: Admin only  
-Stage 3: Admin + relevant educator approval  
-Stage 4: Admin + educator approval  
-Stage 5: Unlock only after Stage 4 approvals
-
-Educators do not approve Stage 1.  
-They only receive confirmation that their student joined a team.
-
----
-
-## Portfolio Rule
-
-In Stage 3, each team creates 3 portfolio outputs:
-
-1. Makeup portfolio
-2. Photography portfolio
-3. Hairstyling portfolio
-
-Each student contributes to 3 portfolios:
-
-- 1 as leader
-- 2 as assistant
-
-Approval rule:
-
-- Makeup portfolio → Makeup educator + Admin
-- Photography portfolio → Photography educator + Admin
-- Hairstyling portfolio → Hairstyling educator + Admin
-
-Stage 4 unlocks only after all 3 portfolios are approved by both required approvers.
-
----
-
-## Project Rule
-
-In Stage 4:
-
-- Admin creates project
-- Admin assigns external member
-- Students view project details
-- External member views assigned team/project only
-- Educator approves project completion
-- Admin gives final approval
-
-Stage 5 unlocks only after educator + admin approval.
-
----
-
-## Permission Rules
-
-Admin can:
-
-- Create users
-- Create teams
-- Assign educators
-- Assign external members
-- Move stages
-- Approve portfolios
-- Approve projects
-- Send notifications
-- View activity logs
-
-Student can:
-
-- View own profile
-- View own team
-- View current stage
-- Submit own portfolio leader work
-- View notifications
-
-Educator can:
-
-- View assigned students
-- View assigned teams
-- Approve assigned category portfolio work
-- Approve assigned project completion
-- View notifications
-
-External member can:
-
-- View assigned project
-- View assigned team basics
-- View notifications
-
----
-
-## Security Rules
-
-- Never trust frontend-only protection
-- Check permissions in server actions
-- Use Supabase RLS for sensitive tables
-- Never expose `SUPABASE_SERVICE_ROLE_KEY` to browser
-- Students must not see unrelated teams
-- Educators must not see unrelated teams
-- External members must not see unrelated projects
-- Stage unlock must happen only through controlled server logic
-
----
-
-## Do Not Build in MVP
-
-Do not build:
-
-- Payment gateway
-- WhatsApp automation
-- AI grading
-- CRM
-- Marketplace
-- Mobile app
-- Certificate automation
-- Advanced analytics
-- Public signup
-- Complex external dashboard
-
-Only keep `payment_status` as a manual admin field.
+Do not add payments, WhatsApp automation, AI features, CRM, a marketplace, a
+mobile app, certificate automation, advanced analytics, or public signup.
+
+## Technology
+
+- Next.js and TypeScript
+- Tailwind CSS and shadcn/ui
+- Next.js Server Actions / Route Handlers
+- Supabase Postgres and Supabase Auth
+- Vercel hosting
+
+## Authentication and security
+
+- There is no public signup and no role selector on login.
+- Admin creates every user.
+- Roles come only from the `profiles` table.
+- Protected actions must be checked server-side and protected by RLS.
+- `SUPABASE_SERVICE_ROLE_KEY` must never reach browser code.
+- Login redirects: Admin `/admin/dashboard`, Student `/student/dashboard`,
+  Educator `/educator/dashboard`, External Member `/external/dashboard`.
+
+## Roles
+
+- **Admin:** creates users and teams, controls stages, reviews moodboards and
+  portfolios, generates studio OTPs, grants ecosystem access, and sends
+  notifications.
+- **Student:** sees their team and stage, submits leader moodboards and
+  portfolios, books eligible shoots, enters studio OTPs, and reads comments.
+- **Educator:** monitors only assigned teams and students and adds advisory
+  comments. Educators never approve, reject, or request revision.
+- **External member:** sees only assigned project and team information.
+
+Students use one category: `makeup_artist`, `photographer`, or `hairstylist`.
+Educators use the corresponding educator type.
+
+## Team rule
+
+An active team has exactly one student from each student category. A team
+belongs to one Program / Batch; each student retains their institute and
+matching educator. A student belongs to only one active team in the MVP.
+
+## Stage flow and approvals
+
+0. Onboarding — Admin only
+1. Team Assignment — Admin only
+2. BMS Session — Admin only
+3. Portfolio Submission — Admin only
+4. Brand / Creative Project — Admin only
+5. Ecosystem / Application Access — Admin grants access after Stage 4
+
+Educators receive updates, monitor progress, and comment. Their comments never
+change or block workflow state.
+
+## Stage 3 portfolio flow
+
+Each team completes three sequential portfolio outputs:
+
+1. Photography
+2. Makeup
+3. Hairstyling
+
+For every output, one student is leader and the other two are assistants. The
+required order is:
+
+1. Leader submits a moodboard.
+2. Admin approves it or requests revision.
+3. After moodboard approval, assistants share availability and the leader books
+   one live studio slot.
+4. At the booked time, Admin generates a six-digit OTP valid for five minutes.
+5. The booked student enters the OTP, which unlocks portfolio upload.
+6. The leader uploads the portfolio.
+7. Student sees: “Your moodboard and portfolio are under review. Please wait
+   for an update from the IncluHub Manager by email or phone regarding
+   selection for a brand or the ecosystem.”
+8. Educators may comment; Admin alone approves or requests revision.
+
+The next portfolio unlocks only after Admin approves the current one. Stage 4
+unlocks after Admin approves all three.
+
+## Studio booking entitlement
+
+- The three Stage 3 portfolios provide three team bookings.
+- After Admin grants Stage 5 ecosystem access, each student receives exactly
+  two individual personal-shoot credits.
+- A three-student team therefore receives nine shoots overall: three team
+  shoots plus six individual shoots.
+- Personal credits cannot be transferred between students.
+- All studio attendance uses Admin-generated OTP, not QR.
+
+## Stage 4 and Stage 5
+
+Admin controls Brand Works completion. Educators can monitor and comment but do
+not approve it. Stage 5 access is an Admin selection decision and does not
+guarantee placement, paid work, an internship, or a brand opportunity.
+
+## Implementation discipline
+
+- Complete only the currently requested module.
+- Preserve server-side authorization for every mutation.
+- Keep destructive test resets explicitly gated.
+- Schema changes must be additive migrations committed with the application
+  changes that use them.

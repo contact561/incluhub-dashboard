@@ -101,7 +101,7 @@ const ACCOUNT_SPECS = [
     studentCategory: "photographer",
     educatorType: null,
     team: "TEST TEAM ALPHA",
-    expectedState: "Team Alpha Photography leader; pending_educator",
+    expectedState: "Team Alpha Photography leader; pending_admin",
   },
   {
     key: "photoStudent2",
@@ -134,7 +134,7 @@ const ACCOUNT_SPECS = [
     studentCategory: "makeup_artist",
     educatorType: null,
     team: "TEST TEAM BETA",
-    expectedState: "Team Beta Makeup pending_educator",
+    expectedState: "Team Beta Makeup pending_admin",
   },
   {
     key: "hairStudent1",
@@ -173,6 +173,11 @@ const BACKUP_TABLES = [
   "team_educators",
   "team_stage_progress",
   "studio_bookings",
+  "moodboard_submissions",
+  "moodboard_reviews",
+  "workflow_comments",
+  "personal_shoot_entitlements",
+  "personal_studio_bookings",
   "portfolio_outputs",
   "portfolio_submissions",
   "portfolio_reviews",
@@ -184,6 +189,12 @@ const DELETE_STEPS = [
   { table: "project_approvals", label: "project_approvals" },
   { table: "project_assignments", label: "project_assignments" },
   { table: "projects", label: "projects" },
+  { table: "studio_checkin_otps", label: "studio_checkin_otps" },
+  { table: "workflow_comments", label: "workflow_comments" },
+  { table: "moodboard_reviews", label: "moodboard_reviews" },
+  { table: "moodboard_submissions", label: "moodboard_submissions" },
+  { table: "personal_studio_bookings", label: "personal_studio_bookings" },
+  { table: "personal_shoot_entitlements", label: "personal_shoot_entitlements" },
   { table: "portfolio_reviews", label: "portfolio_reviews" },
   { table: "portfolio_submissions", label: "portfolio_submissions" },
   { table: "studio_bookings", label: "studio_bookings" },
@@ -378,8 +389,8 @@ function printDryRunSummary(projectRef, counts) {
   console.log("Will create after reset:");
   console.log("  10 auth accounts (1 admin, 3 educators, 6 students)");
   console.log("  3 institutes, 1 multi-institute program, 2 cross-institute teams");
-  console.log("  Team Alpha → Photography pending_educator (v1 submission, no reviews)");
-  console.log("  Team Beta  → Photography completed, Makeup pending_educator");
+  console.log("  Team Alpha → Photography pending_admin (v1 submission, no reviews)");
+  console.log("  Team Beta  → Photography completed, Makeup pending_admin");
   console.log("");
   console.log("Seed workflow dates (Asia/Kolkata):");
   console.log(`  bmsSessionDate (complete_bms_session): ${getYesterdayInAsiaKolkata()}`);
@@ -719,6 +730,18 @@ async function seedEnvironment(admin, anonClient, password) {
     notes,
     slotCode
   ) {
+    // Fixture setup bypasses the interactive form while preserving the
+    // migration 023 rule that booking requires an approved moodboard.
+    const { error: moodboardApprovalError } = await admin
+      .from("portfolio_outputs")
+      .update({ moodboard_status: "approved" })
+      .eq("id", portfolioId);
+    if (moodboardApprovalError) {
+      throw new Error(
+        `Moodboard fixture approval failed for ${teamName}: ${moodboardApprovalError.message}`
+      );
+    }
+
     for (const assistantEmail of assistantEmails) {
       const assistantClient = createAuthClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -766,7 +789,7 @@ async function seedEnvironment(admin, anonClient, password) {
       }
     );
 
-    // The production workflow requires an in-person, time-windowed QR scan.
+    // The production workflow requires an in-person, time-windowed OTP.
     // A deterministic seed cannot rely on the reset running during a booked
     // slot, so record the equivalent verified state with the service client.
     const { data: booking, error: bookingLookupError } = await admin
@@ -839,7 +862,7 @@ async function seedEnvironment(admin, anonClient, password) {
     ],
     alphaPhotoPortfolio.id,
     "Team Alpha Photography Portfolio",
-    "Initial Photography submission for Educator approval testing.",
+    "Initial Photography submission for Admin review testing.",
     "slot_09_12"
   );
 
@@ -866,29 +889,7 @@ async function seedEnvironment(admin, anonClient, password) {
 
   const betaPhotoSubmission = await getLatestSubmission(admin, betaPhotoPortfolio.id);
 
-  logStep("Team Beta Photography educator approval…");
-  const photoEducatorClient = createAuthClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
-  await signIn(
-    photoEducatorClient,
-    ACCOUNT_SPECS.find((a) => a.key === "photoEducator").email,
-    password
-  );
-  await rpcCall(
-    photoEducatorClient,
-    "review_portfolio_as_educator",
-    {
-      p_portfolio_output_id: betaPhotoPortfolio.id,
-      p_submission_id: betaPhotoSubmission.id,
-      p_decision: "approved",
-      p_comments: null,
-    },
-    { teamName: "TEST TEAM BETA", label: "review_portfolio_as_educator" }
-  );
-  await photoEducatorClient.auth.signOut();
-
+  logStep("Team Beta Photography direct Admin review…");
   logStep("Team Beta Photography admin approval…");
   const adminClient = createAuthClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -897,14 +898,14 @@ async function seedEnvironment(admin, anonClient, password) {
   await signIn(adminClient, adminSpec.email, password);
   await rpcCall(
     adminClient,
-    "review_portfolio_as_admin",
+    "review_portfolio_admin_only",
     {
       p_portfolio_output_id: betaPhotoPortfolio.id,
       p_submission_id: betaPhotoSubmission.id,
       p_decision: "approved",
       p_comments: null,
     },
-    { teamName: "TEST TEAM BETA", label: "review_portfolio_as_admin" }
+    { teamName: "TEST TEAM BETA", label: "review_portfolio_admin_only" }
   );
   await adminClient.auth.signOut();
 
@@ -925,7 +926,7 @@ async function seedEnvironment(admin, anonClient, password) {
     ],
     betaMakeupPortfolio.id,
     "Team Beta Makeup Portfolio",
-    "Makeup submission for Educator approval testing.",
+    "Makeup submission for Admin review testing.",
     "slot_15_18"
   );
 
@@ -1068,12 +1069,12 @@ async function verifyFinalState(admin, ctx) {
     return portfolio;
   }
 
-  await assertPortfolio("alpha", 1, "pending_educator");
+  await assertPortfolio("alpha", 1, "pending_admin");
   await assertPortfolio("alpha", 2, "locked");
   await assertPortfolio("alpha", 3, "locked");
 
   await assertPortfolio("beta", 1, "completed");
-  await assertPortfolio("beta", 2, "pending_educator");
+  await assertPortfolio("beta", 2, "pending_admin");
   await assertPortfolio("beta", 3, "locked");
 
   for (const teamKey of ["alpha", "beta"]) {
@@ -1100,7 +1101,6 @@ async function verifyFinalState(admin, ctx) {
       [
         "awaiting_booking",
         "awaiting_submission",
-        "pending_educator",
         "pending_admin",
         "revision_required",
       ].includes(row.workflow_status)
@@ -1139,10 +1139,10 @@ async function verifyFinalState(admin, ctx) {
     .from("portfolio_outputs")
     .select("id")
     .in("leader_student_id", hairStudentIds)
-    .eq("workflow_status", "pending_educator");
+    .eq("workflow_status", "pending_admin");
   if (hairPendingError) throw new Error(hairPendingError.message);
   assertCondition(
-    "Hairstyling Educator has zero pending reviews",
+    "Hairstyling portfolios have zero pending Admin reviews",
     (hairPending ?? []).length === 0,
     `got ${(hairPending ?? []).length}`
   );

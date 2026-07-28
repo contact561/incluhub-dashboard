@@ -29,10 +29,12 @@ function ScheduleCard({ row }: { row: AdminStudioScheduleRow }) {
         </div>
         <div>
           <dt className="text-xs uppercase tracking-wide text-text-subtle">
-            Portfolio
+            Booking
           </dt>
           <dd className="mt-0.5 text-text-primary">
-            {STUDENT_CATEGORY_LABELS[row.portfolioType]}
+            {row.bookingType === "personal"
+              ? "Personal shoot"
+              : STUDENT_CATEGORY_LABELS[row.portfolioType!]}
           </dd>
         </div>
         <div>
@@ -50,8 +52,15 @@ function ScheduleCard({ row }: { row: AdminStudioScheduleRow }) {
           </dd>
         </div>
       </dl>
+      {row.purpose ? (
+        <p className="mt-3 text-sm text-text-muted">{row.purpose}</p>
+      ) : null}
       <div className="mt-4 border-t border-border-default pt-4">
-        <StudioVerificationControls bookingId={row.id} status={row.verificationStatus} />
+        <StudioVerificationControls
+          bookingId={row.id}
+          bookingType={row.bookingType}
+          status={row.verificationStatus}
+        />
       </div>
     </article>
   );
@@ -83,7 +92,7 @@ export function StudioScheduleTable({ rows }: StudioScheduleTableProps) {
                 Program
               </th>
               <th className="px-4 py-3 text-left font-medium text-text-muted">
-                Portfolio
+                Booking
               </th>
               <th className="px-4 py-3 text-left font-medium text-text-muted">
                 Leader
@@ -108,14 +117,20 @@ export function StudioScheduleTable({ rows }: StudioScheduleTableProps) {
                   {row.programName ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-text-primary">
-                  {STUDENT_CATEGORY_LABELS[row.portfolioType]}
+                  {row.bookingType === "personal"
+                    ? "Personal shoot"
+                    : STUDENT_CATEGORY_LABELS[row.portfolioType!]}
                 </td>
                 <td className="px-4 py-3 text-text-primary">{row.leaderName}</td>
                 <td className="px-4 py-3 text-text-primary">
                   {formatStudioBookedAt(row.bookedAt)}
                 </td>
                 <td className="min-w-72 px-4 py-3 align-top text-text-primary">
-                  <StudioVerificationControls bookingId={row.id} status={row.verificationStatus} />
+                  <StudioVerificationControls
+                    bookingId={row.id}
+                    bookingType={row.bookingType}
+                    status={row.verificationStatus}
+                  />
                 </td>
               </tr>
             ))}

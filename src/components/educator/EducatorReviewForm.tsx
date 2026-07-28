@@ -1,150 +1,87 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
-  reviewPortfolioAsEducatorAction,
-  type ReviewPortfolioAsEducatorState,
-} from "@/actions/portfolio/reviewPortfolioAsEducator";
+  addEducatorWorkflowCommentAction,
+  type WorkflowCommentState,
+} from "@/actions/portfolio/comments";
+import { StatusPanel } from "@/components/status";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { StatusPanel } from "@/components/status";
 
-type EducatorReviewFormProps = {
-  portfolioOutputId: string;
-  submissionId: string;
-};
-
-const initialState: ReviewPortfolioAsEducatorState = {};
-
-/**
- * Existing review action form — fields, validation, and server action unchanged.
- * Visual tokens only.
- */
 export function EducatorReviewForm({
+  teamId,
   portfolioOutputId,
-  submissionId,
-}: EducatorReviewFormProps) {
+  moodboardSubmissionId,
+  portfolioSubmissionId,
+}: {
+  teamId: string;
+  portfolioOutputId: string;
+  moodboardSubmissionId: string | null;
+  portfolioSubmissionId: string | null;
+}) {
   const router = useRouter();
-  const [decision, setDecision] = useState<"approved" | "revision_required">(
-    "approved"
-  );
-  const [clientError, setClientError] = useState<string | null>(null);
-  const [state, formAction, isPending] = useActionState(
-    reviewPortfolioAsEducatorAction,
-    initialState
-  );
+  const [state, action, pending] = useActionState<
+    WorkflowCommentState,
+    FormData
+  >(addEducatorWorkflowCommentAction, {});
 
   useEffect(() => {
-    if (state.success) {
-      router.refresh();
-    }
+    if (state.success) router.refresh();
   }, [state.success, router]);
 
   return (
-    <form
-      action={formAction}
-      className="space-y-4"
-      onSubmit={(event) => {
-        setClientError(null);
-        if (decision === "approved") {
-          const confirmed = window.confirm(
-            "Approve this portfolio and send it to Admin review?"
-          );
-          if (!confirmed) {
-            event.preventDefault();
-          }
-          return;
-        }
-
-        const form = event.currentTarget;
-        const comments = new FormData(form).get("comments");
-        if (typeof comments !== "string" || !comments.trim()) {
-          event.preventDefault();
-          setClientError("Revision comments are required.");
-        }
-      }}
-    >
+    <form action={action} className="space-y-4">
+      <input type="hidden" name="team_id" value={teamId} />
       <input
         type="hidden"
         name="portfolio_output_id"
         value={portfolioOutputId}
       />
-      <input type="hidden" name="submission_id" value={submissionId} />
-      <input type="hidden" name="decision" value={decision} />
-
-      <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-text-primary">
-          Decision
-        </legend>
-        <label className="flex items-center gap-2 text-sm text-text-primary">
-          <input
-            type="radio"
-            name="decision_ui"
-            checked={decision === "approved"}
-            onChange={() => setDecision("approved")}
-            disabled={isPending}
-            className="size-4 accent-[var(--brand-primary)]"
-          />
-          Approve
-        </label>
-        <label className="flex items-center gap-2 text-sm text-text-primary">
-          <input
-            type="radio"
-            name="decision_ui"
-            checked={decision === "revision_required"}
-            onChange={() => setDecision("revision_required")}
-            disabled={isPending}
-            className="size-4 accent-[var(--brand-primary)]"
-          />
-          Request revision
-        </label>
-      </fieldset>
-
+      <input
+        type="hidden"
+        name="moodboard_submission_id"
+        value={moodboardSubmissionId ?? ""}
+      />
+      <input
+        type="hidden"
+        name="portfolio_submission_id"
+        value={portfolioSubmissionId ?? ""}
+      />
       <div className="space-y-2">
-        <Label htmlFor="comments">
-          Comments
-          {decision === "revision_required" ? " (required)" : " (optional)"}
-        </Label>
+        <Label htmlFor="educator-comment">Monitoring comment</Label>
         <Textarea
-          id="comments"
-          name="comments"
-          rows={4}
+          id="educator-comment"
+          name="body"
+          rows={5}
+          minLength={1}
           maxLength={2000}
-          disabled={isPending}
-          className="w-full"
-          placeholder={
-            decision === "revision_required"
-              ? "Explain what the leader should revise"
-              : "Optional note for the Admin"
-          }
+          required
+          disabled={pending}
+          placeholder="Add an observation, suggestion or progress note. This does not approve or block the workflow."
         />
-        <p className="text-xs text-text-subtle">Maximum 2000 characters.</p>
+        <p className="text-xs text-text-subtle">
+          Visible to the assigned team and IncluHub Admin.
+        </p>
       </div>
-
-      {clientError || state.error ? (
+      {state.error ? (
         <StatusPanel
           variant="danger"
-          title="Could not submit review"
-          description={clientError ?? state.error}
+          title="Comment not posted"
+          description={state.error}
         />
       ) : null}
-
       {state.success ? (
         <StatusPanel
           variant="success"
-          title="Review recorded"
+          title="Comment posted"
           description={state.success}
         />
       ) : null}
-
-      <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-        {isPending
-          ? "Submitting…"
-          : decision === "approved"
-            ? "Approve portfolio"
-            : "Request revision"}
+      <Button type="submit" disabled={pending}>
+        {pending ? "Posting…" : "Post monitoring comment"}
       </Button>
     </form>
   );

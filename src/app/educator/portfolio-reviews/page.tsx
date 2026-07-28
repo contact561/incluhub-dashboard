@@ -9,8 +9,8 @@ export default async function EducatorPortfolioReviewsPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Portfolio Reviews"
-        description="Portfolios awaiting your review for students mapped to you as the portfolio leader educator."
+        title="Portfolio Monitoring"
+        description="View assigned team moodboards and portfolios, then add non-blocking comments. Only Admin makes decisions."
         metadata={
           error ? undefined : (
             <span>
@@ -29,8 +29,8 @@ export default async function EducatorPortfolioReviewsPage() {
 
       {!error && items.length === 0 ? (
         <EmptyState
-          title="No pending portfolio reviews"
-          description="When a mapped portfolio leader submits work, it will appear in this queue."
+          title="No workflow submissions yet"
+          description="Moodboards and portfolios from assigned teams will appear here."
         />
       ) : null}
 

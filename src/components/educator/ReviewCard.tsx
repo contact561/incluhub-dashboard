@@ -13,6 +13,7 @@ export type ReviewCardProps = {
   leaderName: string;
   versionNumber: number;
   submittedAt: string;
+  itemType?: "moodboard" | "portfolio";
   /**
    * Queue items are pending educator review by eligibility.
    * Optional override only when a caller already has a workflow status.
@@ -40,7 +41,8 @@ export function ReviewCard({
   leaderName,
   versionNumber,
   submittedAt,
-  workflowStatus = "pending_educator",
+  workflowStatus = "pending_admin",
+  itemType = "portfolio",
   className,
 }: ReviewCardProps) {
   return (
@@ -61,7 +63,8 @@ export function ReviewCard({
           {STUDENT_CATEGORY_LABELS[portfolioType]} · {teamName}
         </p>
         <p className="text-sm text-text-subtle">
-          Student: {leaderName} · Version {versionNumber} ·{" "}
+          {itemType === "moodboard" ? "Moodboard" : "Portfolio"} · Student:{" "}
+          {leaderName} · Version {versionNumber} ·{" "}
           {formatSubmittedAt(submittedAt)}
         </p>
       </div>
@@ -69,7 +72,7 @@ export function ReviewCard({
         href={`/educator/portfolio-reviews/${portfolioId}`}
         className={cn(buttonVariants({ size: "sm" }), "shrink-0 self-start sm:self-center")}
       >
-        Open Review
+        Open monitoring
       </Link>
     </article>
   );

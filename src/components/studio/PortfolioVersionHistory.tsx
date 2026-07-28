@@ -67,7 +67,7 @@ export function PortfolioVersionHistory({
         <dl className="space-y-2 rounded-[var(--radius-control)] border border-border-default bg-surface-muted/50 p-3 text-sm">
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-text-subtle">
-              Educator review
+              Legacy educator review
             </dt>
             <dd className="mt-0.5 text-text-primary">{educator.label}</dd>
             {educator.comments ? (

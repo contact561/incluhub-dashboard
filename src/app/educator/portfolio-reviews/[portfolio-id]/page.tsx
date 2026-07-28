@@ -30,8 +30,8 @@ export default async function EducatorPortfolioReviewDetailPage({
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Portfolio Review"
-        description="Review the latest submission and record your educator decision."
+        title="Portfolio Monitoring"
+        description="View the latest moodboard and portfolio, then leave an advisory comment for the team and Admin."
         secondaryActions={
           <Link
             href="/educator/portfolio-reviews"

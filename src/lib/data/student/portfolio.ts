@@ -133,6 +133,7 @@ export async function getStudentStage3PortfolioContext(): Promise<{
           sequence_order,
           portfolio_type,
           workflow_status,
+          moodboard_status,
           leader_student_id,
           revision_return_to
         `
@@ -214,11 +215,143 @@ export async function getStudentStage3PortfolioContext(): Promise<{
     sequence_order: number | null;
     portfolio_type: StudentCategory;
     workflow_status: PortfolioWorkflowStatus | null;
+    moodboard_status:
+      | "not_submitted"
+      | "pending_admin"
+      | "revision_required"
+      | "approved";
     leader_student_id: string;
     revision_return_to: PortfolioRevisionRoute | null;
   }>;
 
   const portfolioIds = portfolioRows.map((row) => row.id);
+
+  const [moodboardsResult, commentsResult] =
+    portfolioIds.length > 0
+      ? await Promise.all([
+          supabase
+            .from("moodboard_submissions")
+            .select(
+              "id, portfolio_output_id, version_number, title, moodboard_url, notes, created_at"
+            )
+            .in("portfolio_output_id", portfolioIds)
+            .order("version_number", { ascending: true }),
+          supabase
+            .from("workflow_comments")
+            .select(
+              "id, portfolio_output_id, author_user_id, body, created_at"
+            )
+            .in("portfolio_output_id", portfolioIds)
+            .order("created_at", { ascending: true }),
+        ])
+      : [
+          { data: [], error: null },
+          { data: [], error: null },
+        ];
+
+  if (moodboardsResult.error || commentsResult.error) {
+    const message =
+      moodboardsResult.error?.message ??
+      commentsResult.error?.message ??
+      "Could not load workflow details.";
+    return {
+      data: null,
+      error: /moodboard_submissions|workflow_comments/i.test(message)
+        ? "The latest workflow database migration has not been applied."
+        : message,
+    };
+  }
+
+  const moodboardRows = (moodboardsResult.data ?? []) as Array<{
+    id: string;
+    portfolio_output_id: string;
+    version_number: number;
+    title: string;
+    moodboard_url: string;
+    notes: string | null;
+    created_at: string;
+  }>;
+  const moodboardIds = moodboardRows.map((row) => row.id);
+  const { data: moodboardReviewsData, error: moodboardReviewsError } =
+    moodboardIds.length > 0
+      ? await supabase
+          .from("moodboard_reviews")
+          .select("moodboard_submission_id, comments")
+          .in("moodboard_submission_id", moodboardIds)
+      : { data: [], error: null };
+
+  if (moodboardReviewsError) {
+    return { data: null, error: moodboardReviewsError.message };
+  }
+
+  const commentRows = (commentsResult.data ?? []) as Array<{
+    id: string;
+    portfolio_output_id: string | null;
+    author_user_id: string;
+    body: string;
+    created_at: string;
+  }>;
+  const commentAuthorIds = Array.from(
+    new Set(commentRows.map((row) => row.author_user_id))
+  );
+  const { data: commentAuthorsData, error: commentAuthorsError } =
+    commentAuthorIds.length > 0
+      ? await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", commentAuthorIds)
+      : { data: [], error: null };
+  if (commentAuthorsError) {
+    return { data: null, error: commentAuthorsError.message };
+  }
+
+  const commentAuthorNameById = new Map(
+    ((commentAuthorsData ?? []) as Array<{ id: string; full_name: string }>).map(
+      (profileRow) => [profileRow.id, profileRow.full_name] as const
+    )
+  );
+  const reviewCommentsByMoodboardId = new Map(
+    (
+      (moodboardReviewsData ?? []) as Array<{
+        moodboard_submission_id: string;
+        comments: string | null;
+      }>
+    ).map((review) => [review.moodboard_submission_id, review.comments] as const)
+  );
+  const moodboardByPortfolio = new Map<
+    string,
+    StudentPortfolioCard["moodboard"]
+  >();
+  for (const row of moodboardRows) {
+    const existing = moodboardByPortfolio.get(row.portfolio_output_id);
+    if (existing && existing.versionNumber > row.version_number) continue;
+    moodboardByPortfolio.set(row.portfolio_output_id, {
+      id: row.id,
+      versionNumber: row.version_number,
+      title: row.title,
+      moodboardUrl: row.moodboard_url,
+      notes: row.notes,
+      submittedAt: row.created_at,
+      reviewComments: reviewCommentsByMoodboardId.get(row.id) ?? null,
+    });
+  }
+
+  const commentsByPortfolio = new Map<
+    string,
+    StudentPortfolioCard["educatorComments"]
+  >();
+  for (const row of commentRows) {
+    if (!row.portfolio_output_id) continue;
+    const comments = commentsByPortfolio.get(row.portfolio_output_id) ?? [];
+    comments.push({
+      id: row.id,
+      authorName:
+        commentAuthorNameById.get(row.author_user_id) ?? "Assigned educator",
+      body: row.body,
+      createdAt: row.created_at,
+    });
+    commentsByPortfolio.set(row.portfolio_output_id, comments);
+  }
 
   const { data: submissionsData, error: submissionsError } =
     portfolioIds.length > 0
@@ -418,6 +551,9 @@ export async function getStudentStage3PortfolioContext(): Promise<{
         sequenceOrder: row.sequence_order as number,
         portfolioType: row.portfolio_type,
         workflowStatus: row.workflow_status as PortfolioWorkflowStatus,
+        moodboardStatus: row.moodboard_status,
+        moodboard: moodboardByPortfolio.get(row.id) ?? null,
+        educatorComments: commentsByPortfolio.get(row.id) ?? [],
         leaderStudentId: row.leader_student_id,
         leaderName: leader?.name ?? "—",
         participants: participantsByPortfolio.get(row.id) ?? [],

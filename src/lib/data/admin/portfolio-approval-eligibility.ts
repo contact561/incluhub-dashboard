@@ -49,24 +49,6 @@ export function resolveAdminReviewEligibility(
     submissions.map((submission) => [submission.version_number, submission] as const)
   );
 
-  const latestReviews = reviewsBySubmissionId.get(latest.id) ?? [];
-  const educatorReview =
-    latestReviews.find(
-      (review) =>
-        review.reviewer_stage === "educator" && review.decision === "approved"
-    ) ?? null;
-
-  if (educatorReview) {
-    return {
-      adminReviewEntryPath: "educator_approved",
-      latestSubmissionHasEducatorApproval: true,
-      enteredFromAdminRevision: false,
-      educatorReview,
-      previousAdminRevisionReview: null,
-      previousSubmissionVersion: null,
-    };
-  }
-
   if (latest.version_number > 1) {
     const previousVersion = latest.version_number - 1;
     const previousSubmission = submissionByVersion.get(previousVersion);
@@ -97,7 +79,7 @@ export function resolveAdminReviewEligibility(
   }
 
   return {
-    adminReviewEntryPath: "invalid",
+    adminReviewEntryPath: "direct_submission",
     latestSubmissionHasEducatorApproval: false,
     enteredFromAdminRevision: false,
     educatorReview: null,
@@ -114,8 +96,7 @@ export function canAdminReviewPortfolio(
   return (
     workflowStatus === "pending_admin" &&
     hasLatestSubmission &&
-    (entryPath === "educator_approved" ||
-      entryPath === "admin_revision_resubmission")
+    entryPath !== "invalid"
   );
 }
 

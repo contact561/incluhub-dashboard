@@ -157,7 +157,7 @@ export async function submitPortfolioAction(
 
   return {
     success:
-      "Portfolio submitted successfully. It is now waiting for educator review.",
+      "Your moodboard and portfolio are under review. Please wait for an update from the IncluHub Manager regarding selection for Brand or Ecosystem opportunities. You may be contacted by email or phone.",
     submission: {
       submissionId: submission.submission_id,
       title: submission.title,

@@ -20,7 +20,7 @@ export function ConfirmedBookingCard({
   const description = showSubmissionHint
     ? "Physical check-in is complete. This booking is final. Submit your portfolio from this account."
     : showCheckinHint
-      ? "This booking is final and cannot be cancelled or rescheduled. Scan the QR code at the studio to unlock portfolio submission."
+      ? "This booking is final and cannot be cancelled or rescheduled. Enter the Admin-generated OTP at the studio to unlock portfolio submission."
       : "This booking is final and cannot be cancelled or rescheduled.";
 
   return (

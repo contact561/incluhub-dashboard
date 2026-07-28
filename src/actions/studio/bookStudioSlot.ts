@@ -36,6 +36,7 @@ function mapRpcError(message: string): string {
     "Invalid studio slot.",
     "This studio slot was just booked by another team. Please select another available slot.",
     "Both assistants must share availability before you can book the studio.",
+    "Admin must approve the moodboard before studio booking.",
     "Another portfolio on this team is still active. Complete it before booking.",
   ];
 
@@ -91,7 +92,7 @@ export async function bookStudioSlotAction(
 
   return {
     success:
-      "Studio booked. Scan the QR code at the studio to unlock portfolio submission. Submission stays locked until you check in.",
+      "Studio booked. Ask Admin to generate the booking OTP when you arrive. Portfolio submission stays locked until you enter the valid OTP.",
     booking: {
       bookingDate: booking.booking_date,
       slotCode: booking.slot_code,

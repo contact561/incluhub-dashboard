@@ -38,6 +38,7 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { label: "Teams", href: "/admin/teams" },
   { label: "Stages", href: "/admin/stages" },
   { label: "Studio Schedule", href: "/admin/studio-schedule" },
+  { label: "Moodboard Approvals", href: "/admin/moodboards" },
   { label: "Portfolio Approvals", href: "/admin/portfolio-approvals" },
   {
     label: "Project Approvals",
@@ -69,11 +70,16 @@ export const STUDENT_ECOSYSTEM_NAV_ITEM: NavItem = {
   href: "/student/ecosystem",
 };
 
+export const STUDENT_PERSONAL_STUDIO_NAV_ITEM: NavItem = {
+  label: "Personal Studio",
+  href: "/student/studio",
+};
+
 export const EDUCATOR_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/educator/dashboard" },
   { label: "My Teams", href: "/educator/my-teams" },
   { label: "My Students", href: "/educator/my-students" },
-  { label: "Portfolio Reviews", href: "/educator/portfolio-reviews" },
+  { label: "Portfolio Monitoring", href: "/educator/portfolio-reviews" },
   { label: "Notifications", href: "/educator/notifications" },
 ];
 

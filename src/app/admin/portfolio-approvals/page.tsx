@@ -10,7 +10,7 @@ export default async function AdminPortfolioApprovalsPage() {
     <div className="space-y-6">
       <PageHeader
         title="Portfolio Approvals"
-        description="Review educator-approved portfolios awaiting Admin decision."
+        description="Approve student portfolios or request a revision. Educator approval is not required."
         metadata={
           error ? undefined : (
             <span>
@@ -30,7 +30,7 @@ export default async function AdminPortfolioApprovalsPage() {
       {!error && items.length === 0 ? (
         <EmptyState
           title="No pending portfolio approvals"
-          description="When an educator approves a portfolio, it will appear here for Admin review."
+          description="Student portfolio submissions will appear here for Admin review."
         />
       ) : null}
 

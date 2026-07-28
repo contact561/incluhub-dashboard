@@ -23,7 +23,7 @@ const COMMENTS_MAX = 2000;
 function mapRpcError(message: string): string {
   const migrationMissing =
     /could not find the function/i.test(message) ||
-    /function .*review_portfolio_as_admin.* does not exist/i.test(message);
+    /function .*review_portfolio_admin_only.* does not exist/i.test(message);
 
   if (migrationMissing) {
     return "The required database migration has not been applied.";
@@ -31,11 +31,10 @@ function mapRpcError(message: string): string {
 
   const knownMessages = [
     "You do not have permission to perform this action.",
-    "This portfolio is not awaiting admin review.",
+    "This portfolio is not awaiting Admin review.",
     "This submission does not belong to the portfolio.",
     "Only the latest portfolio submission can be reviewed.",
-    "This portfolio submission has already been reviewed by an admin.",
-    "Educator approval is required before admin review.",
+    "This portfolio submission has already been reviewed by Admin.",
     "Revision comments are required.",
     "Comments cannot exceed 2000 characters.",
     "The portfolio submission could not be completed.",
@@ -96,7 +95,7 @@ export async function reviewPortfolioAsAdminAction(
 
   const supabase = await createClient();
 
-  const { data, error } = await supabase.rpc("review_portfolio_as_admin", {
+  const { data, error } = await supabase.rpc("review_portfolio_admin_only", {
     p_portfolio_output_id: portfolioOutputId.trim(),
     p_submission_id: submissionId.trim(),
     p_decision: decisionRaw,

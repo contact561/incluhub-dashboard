@@ -260,6 +260,11 @@ export interface PortfolioOutput {
   notes: string | null;
   sequence_order: number | null;
   workflow_status: PortfolioWorkflowStatus | null;
+  moodboard_status:
+    | "not_submitted"
+    | "pending_admin"
+    | "revision_required"
+    | "approved";
   /** Non-null only when workflow_status = revision_required. */
   revision_return_to: PortfolioRevisionRoute | null;
   status: ApprovalStatus;
@@ -321,6 +326,77 @@ export interface StudioCheckinToken {
   generated_at: string;
   used_at: string | null;
   used_by: string | null;
+}
+
+export interface MoodboardSubmission {
+  id: string;
+  portfolio_output_id: string;
+  version_number: number;
+  title: string;
+  moodboard_url: string;
+  notes: string | null;
+  submitted_by_student_id: string;
+  created_by: string;
+  created_at: string;
+}
+
+export interface MoodboardReview {
+  id: string;
+  moodboard_submission_id: string;
+  reviewer_user_id: string;
+  decision: "approved" | "revision_required";
+  comments: string | null;
+  created_by: string;
+  created_at: string;
+}
+
+export interface WorkflowComment {
+  id: string;
+  team_id: string;
+  portfolio_output_id: string | null;
+  moodboard_submission_id: string | null;
+  portfolio_submission_id: string | null;
+  author_user_id: string;
+  body: string;
+  created_at: string;
+}
+
+export interface PersonalShootEntitlement {
+  student_id: string;
+  total_credits: number;
+  used_credits: number;
+  unlocked_at: string;
+  granted_by: string | null;
+  updated_at: string;
+}
+
+export interface PersonalStudioBooking {
+  id: string;
+  student_id: string;
+  team_id: string;
+  occupancy_id: string;
+  purpose: string;
+  verification_status: "online_confirmed" | "physically_verified" | "no_show";
+  physically_verified_at: string | null;
+  physically_verified_by: string | null;
+  no_show_at: string | null;
+  no_show_by: string | null;
+  no_show_remarks: string | null;
+  created_by: string;
+  booked_at: string;
+}
+
+export interface StudioCheckinOtp {
+  id: string;
+  booking_type: "portfolio" | "personal";
+  booking_id: string;
+  otp_hash: string;
+  expires_at: string;
+  failed_attempts: number;
+  used_at: string | null;
+  generated_by: string;
+  used_by: string | null;
+  created_at: string;
 }
 
 export interface PortfolioApproval {
@@ -703,6 +779,9 @@ export type Database = {
       >;
       portfolio_outputs: TableDef<PortfolioOutput>;
       portfolio_participants: TableDef<PortfolioParticipant>;
+      moodboard_submissions: TableDef<MoodboardSubmission>;
+      moodboard_reviews: TableDef<MoodboardReview>;
+      workflow_comments: TableDef<WorkflowComment>;
       portfolio_submissions: TableDef<
         PortfolioSubmission,
         [
@@ -729,6 +808,9 @@ export type Database = {
       studio_slot_occupancy: TableDef<StudioSlotOccupancy>;
       studio_availability_responses: TableDef<StudioAvailabilityResponse>;
       studio_checkin_tokens: TableDef<StudioCheckinToken>;
+      studio_checkin_otps: TableDef<StudioCheckinOtp>;
+      personal_shoot_entitlements: TableDef<PersonalShootEntitlement>;
+      personal_studio_bookings: TableDef<PersonalStudioBooking>;
       studio_bookings: TableDef<
         StudioBooking,
         [
@@ -1005,6 +1087,90 @@ export type Database = {
           workflow_status: string;
           next_portfolio_output_id: string | null;
           team_stage_number: number;
+        }[];
+      };
+      review_portfolio_admin_only: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_submission_id: string;
+          p_decision: string;
+          p_comments: string | null;
+        };
+        Returns: {
+          portfolio_output_id: string;
+          submission_id: string;
+          review_id: string;
+          decision: string;
+          workflow_status: string;
+          next_portfolio_output_id: string | null;
+          team_stage_number: number;
+        }[];
+      };
+      submit_moodboard: {
+        Args: {
+          p_portfolio_output_id: string;
+          p_title: string;
+          p_moodboard_url: string;
+          p_notes: string | null;
+        };
+        Returns: {
+          moodboard_submission_id: string;
+          version_number: number;
+          moodboard_status: string;
+          submitted_at: string;
+        }[];
+      };
+      review_moodboard_as_admin: {
+        Args: {
+          p_moodboard_submission_id: string;
+          p_decision: string;
+          p_comments: string | null;
+        };
+        Returns: {
+          moodboard_submission_id: string;
+          portfolio_output_id: string;
+          decision: string;
+          moodboard_status: string;
+        }[];
+      };
+      add_educator_workflow_comment: {
+        Args: {
+          p_team_id: string;
+          p_portfolio_output_id: string | null;
+          p_moodboard_submission_id: string | null;
+          p_portfolio_submission_id: string | null;
+          p_body: string;
+        };
+        Returns: string;
+      };
+      book_personal_studio_slot: {
+        Args: {
+          p_booking_date: string;
+          p_slot_code: string;
+          p_purpose: string;
+        };
+        Returns: {
+          booking_id: string;
+          booking_date: string;
+          slot_code: string;
+          booked_at: string;
+          credits_remaining: number;
+        }[];
+      };
+      generate_studio_checkin_otp: {
+        Args: { p_booking_type: string; p_booking_id: string };
+        Returns: { otp_code: string; expires_at: string }[];
+      };
+      verify_studio_checkin_otp: {
+        Args: {
+          p_booking_type: string;
+          p_booking_id: string;
+          p_otp_code: string;
+        };
+        Returns: {
+          verified: boolean;
+          message: string;
+          verified_at: string | null;
         }[];
       };
       resubmit_portfolio: {

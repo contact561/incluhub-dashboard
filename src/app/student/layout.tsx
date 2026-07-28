@@ -5,6 +5,7 @@ import {
   ROLE_LABELS,
   STUDENT_ECOSYSTEM_NAV_ITEM,
   STUDENT_NAV_ITEMS,
+  STUDENT_PERSONAL_STUDIO_NAV_ITEM,
 } from "@/lib/permissions/roles";
 
 export default async function StudentLayout({
@@ -16,7 +17,11 @@ export default async function StudentLayout({
   const ecosystemAccess = await getStudentEcosystemAccess();
   const navItems =
     ecosystemAccess.status === "granted"
-      ? [...STUDENT_NAV_ITEMS, STUDENT_ECOSYSTEM_NAV_ITEM]
+      ? [
+          ...STUDENT_NAV_ITEMS,
+          STUDENT_PERSONAL_STUDIO_NAV_ITEM,
+          STUDENT_ECOSYSTEM_NAV_ITEM,
+        ]
       : STUDENT_NAV_ITEMS;
 
   return (

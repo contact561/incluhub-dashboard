@@ -1,504 +1,96 @@
-# Phase 2: Role-Based User Flow Document
+# IncluHub Current User Flows
 
-## IncluHub Education Management Dashboard
+This document reflects the current MVP workflow. `docs/PROJECT_RULES.md` is the
+authoritative product and security reference.
 
----
-
-## 1. Phase
-
-**Current Phase:** Phase 2 — User Flow Planning
-
-Phase 1 is now locked. The product is a stage-based program workflow dashboard for managing creative students, educators, external members, and IncluHub Admin approvals.
-
----
-
-## 2. Final User Roles
-
-| Role                     | Purpose                                                                                     |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| IncluHub Admin / Manager | Controls account creation, team creation, stages, approvals, notifications, and assignments |
-| Student                  | Completes assigned stage tasks and portfolio submissions                                    |
-| Educator                 | Views assigned students and approves portfolio/project stages where required                |
-| External Member / Other  | Views only assigned project/team details                                                    |
-| Institute Admin          | Not included in MVP                                                                         |
-
----
-
-## 3. Main System Flow
+## Authentication
 
 ```text
-Admin creates users
-↓
-Admin assigns roles
-↓
-Admin creates student teams
-↓
-Students move through stage-based program
-↓
-Students submit required work
-↓
-Educators approve only required portfolio/project stages
-↓
-Admin gives final approval
-↓
-Next stage unlocks
+Admin creates account
+→ User signs in without selecting a role
+→ Server reads the active profiles row
+→ User is sent to the matching role portal
 ```
 
----
+There is no public signup.
 
-## 4. Admin User Flow
+## Admin
 
-### 4.1 Admin Login Flow
+Admin creates users, programs, teams, and stage records. Admin sees the
+moodboard queue, portfolio queue, combined studio schedule, and notifications.
+Admin is the only role that can:
+
+- approve or request revision on moodboards;
+- approve or request revision on portfolios;
+- complete controlled stages;
+- generate a studio attendance OTP;
+- grant Stage 5 ecosystem access.
+
+## Student
+
+Students can see only their own permitted team and workflow data. During Stage
+3, portfolio outputs are completed sequentially:
 
 ```text
-Admin opens login page
-↓
-Enters email and password
-↓
-System checks role from database
-↓
-Role = admin
-↓
-Admin dashboard opens
+Submit moodboard
+→ Admin approves moodboard
+→ assistants share availability
+→ leader books studio
+→ Admin generates real-time six-digit OTP at the slot
+→ booked student enters OTP
+→ leader uploads portfolio
+→ Admin reviews
+→ approve unlocks next portfolio / revision returns to same leader
 ```
 
-### Admin Dashboard Shows
+After upload, the student is told that the moodboard and portfolio are under
+review and to wait for the IncluHub Manager’s email or phone update about brand
+or ecosystem selection.
 
-* Total students
-* Pending students
-* Active teams
-* Teams by stage
-* Pending portfolio approvals
-* Pending educator approvals
-* External member assignments
-* Notifications sent
-* Recent activity logs
+## Educator
 
----
+Educators see only assigned students and teams. They can view stage status,
+moodboards, portfolio versions, and review history. They can add advisory
+comments visible to students and Admin.
 
-### 4.2 Admin Creates User
+Educators cannot approve, reject, request revision, move a stage, create users,
+assign members, generate OTPs, or send global notifications.
 
-```text
-Admin goes to User Management
-↓
-Clicks Create User
-↓
-Adds name, email, phone
-↓
-Selects role
-↓
-If student, selects category
-↓
-System sends invite/password setup
-↓
-User account becomes active
-```
+## External member
 
-### Role Options
+External members see only explicitly assigned project and team information.
+They do not approve stages in the MVP.
 
-* Student
-* Educator
-* External Member
-* Admin
+## Stage sequence
 
-### Student Category Options
+| Stage | Name | Decision owner |
+| --- | --- | --- |
+| 0 | Onboarding | Admin |
+| 1 | Team Assignment | Admin |
+| 2 | BMS Session | Admin |
+| 3 | Moodboards, studio shoots, portfolios | Admin |
+| 4 | Brand / Creative Project | Admin |
+| 5 | Ecosystem / Application Access | Admin |
 
-* Makeup Artist
-* Photographer
-* Hairstylist
+## Nine-shoot allocation
 
----
+One three-person team receives:
 
-## 5. Student User Flow
+- three sequential Stage 3 team portfolio bookings; and
+- two personal studio credits per student after Admin grants Stage 5 access.
 
-### 5.1 Student Login Flow
+That is `3 + (3 × 2) = 9` studio shoots for the team overall. Each personal
+booking belongs to the student who owns the credit.
 
-```text
-Student opens login page
-↓
-Enters email and password
-↓
-System checks role from database
-↓
-Role = student
-↓
-Student dashboard opens
-```
+## OTP attendance
 
-### Student Dashboard Shows
+Admin can generate the OTP only from 30 minutes before a booked slot until that
+slot ends. The code is valid for five minutes, is stored only as a hash, and
+allows five failed attempts. A successful portfolio OTP unlocks upload; a
+successful personal-shoot OTP confirms that student’s attendance.
 
-* Current stage
-* Assigned team
-* Team members
-* Tasks to complete
-* Portfolio submission area
-* Locked future stages
-* Notifications
+## Notifications
 
----
-
-### 5.2 Student Stage Access Rule
-
-A student can only interact with the current unlocked stage.
-
-Example:
-
-```text
-Student is in Stage 2
-↓
-Stage 3, Stage 4, and Stage 5 are visible but locked
-↓
-Student cannot submit anything in locked stages
-```
-
----
-
-## 6. Educator User Flow
-
-### 6.1 Educator Login Flow
-
-```text
-Educator opens login page
-↓
-Enters email and password
-↓
-System checks role from database
-↓
-Role = educator
-↓
-Educator dashboard opens
-```
-
-### Educator Dashboard Shows
-
-* Assigned students
-* Assigned student teams
-* Stage status
-* Team assignment updates
-* Portfolio approval requests
-* Project approval requests
-* Notifications
-
----
-
-### 6.2 Educator Permission Rule
-
-Educator is mostly read-only with limited approval power.
-
-Educator can:
-
-* View assigned students
-* View assigned teams
-* View stage progress
-* View portfolio submissions
-* Approve/reject Stage 3 portfolio work
-* Approve/reject Stage 4 project completion
-
-Educator cannot:
-
-* Create users
-* Create teams
-* Move stages directly
-* Assign external members
-* Send global notifications
-* View unrelated students
-
----
-
-## 7. External Member User Flow
-
-### 7.1 External Member Login Flow
-
-```text
-External member opens login page
-↓
-Enters email and password
-↓
-System checks role from database
-↓
-Role = external_member
-↓
-External dashboard opens
-```
-
-### External Dashboard Shows
-
-* Assigned team
-* Project or shoot details
-* Student team members
-* Date/time/location if added
-* Instructions
-* Notifications
-
-External member cannot approve stages in MVP.
-
----
-
-## 8. Stage-Based Flow
-
-### Stage 0: Onboarding
-
-**Purpose:** Student account is created and activated.
-
-```text
-Admin creates student account
-↓
-Admin selects student category
-↓
-Student receives invite
-↓
-Student logs in
-↓
-Student becomes available for team creation
-```
-
-| Role           | Approval |
-| -------------- | -------- |
-| IncluHub Admin | Yes      |
-| Educator       | No       |
-
----
-
-### Stage 1: Team Assignment
-
-**Purpose:** Create a creative team with one student from each category. Students may belong to different institutes as long as they are enrolled in the same Program / Batch.
-
-```text
-Admin selects Program / Batch
-↓
-Admin selects one enrolled student from each category
-↓
-Admin maps each student to a matching educator from that student's institute
-↓
-Team is created and shares one stage workflow
-↓
-Students receive team update
-↓
-Educators receive confirmation update
-↓
-Stage 1 is marked complete by Admin
-```
-
-**Educator Rule:** Educators do not approve Stage 1. They only receive a confirmation notification.
-
-Example notification:
-```text
-Your photography student has been assigned to Team A with one makeup artist and one hairstylist.
-```
-
-| Role           | Approval |
-| -------------- | -------- |
-| IncluHub Admin | Yes      |
-| Educator       | No       |
-
----
-
-### Stage 2: BMS Session
-
-**Purpose:** Track whether the team/student attended the BMS session.
-
-```text
-Team attends BMS session
-↓
-Admin marks BMS completed
-↓
-Students receive stage completion update
-↓
-Educators can view the completion
-↓
-Stage 3 unlocks
-```
-
-| Role           | Approval |
-| -------------- | -------- |
-| IncluHub Admin | Yes      |
-| Educator       | No       |
-
----
-
-### Stage 3: Portfolio Submission
-
-**Purpose:** Each student must complete portfolio work before the team moves to project/brand exposure.
-
-#### Portfolio Output Logic
-
-For one team, the system creates 3 main portfolio records:
-
-| Portfolio Output      | Leader        | Assistants                   | Educator Approval    |
-| --------------------- | ------------- | ---------------------------- | -------------------- |
-| Makeup Portfolio      | Makeup Artist | Photographer + Hairstylist   | Makeup Educator      |
-| Photography Portfolio | Photographer  | Makeup Artist + Hairstylist  | Photography Educator |
-| Hairstyling Portfolio | Hairstylist   | Makeup Artist + Photographer | Hairstyling Educator |
-
-Each student contributes to 3 portfolios: 1 as leader, 2 as assistant.
-
-Each portfolio output requires:
-
-* Portfolio title
-* Portfolio type
-* Leader student
-* Assistant students
-* Portfolio link/file
-* Student notes
-* Educator approval status
-* Admin approval status
-
-#### Stage 3 Approval Flow
-
-```text
-Student submits portfolio
-↓
-Relevant educator reviews portfolio
-↓
-Educator approves or rejects
-↓
-IncluHub Admin reviews portfolio
-↓
-Admin approves or rejects
-↓
-All 3 portfolio outputs must be approved
-↓
-Stage 4 unlocks
-```
-
-| Portfolio Type        | Educator Required    | Admin Required |
-| --------------------- | -------------------- | -------------- |
-| Makeup Portfolio      | Makeup Educator      | IncluHub Admin |
-| Photography Portfolio | Photography Educator | IncluHub Admin |
-| Hairstyling Portfolio | Hairstyling Educator | IncluHub Admin |
-
-#### Stage 3 Unlock Rule
-
-Team moves to Stage 4 only when:
-
-```text
-Makeup portfolio approved
-+
-Photography portfolio approved
-+
-Hairstyling portfolio approved
-+
-All relevant educator approvals completed
-+
-IncluHub Admin approval completed
-```
-
----
-
-### Stage 4: Brand / Creative Project
-
-**Purpose:** Team works on a real or simulated creative project with external members.
-
-```text
-Admin assigns external member
-↓
-Team sees project details
-↓
-External member sees assigned team
-↓
-Team completes project
-↓
-Educator reviews project completion
-↓
-Admin reviews project completion
-↓
-Stage 5 unlocks
-```
-
-| Role           | Approval |
-| -------------- | -------- |
-| IncluHub Admin | Yes      |
-| Educator       | Yes      |
-
----
-
-### Stage 5: Ecosystem / Application Unlock
-
-**Purpose:** Final opportunity/application section unlocks after all required stages are completed.
-
-```text
-Stage 4 completed
-↓
-Educator approval completed
-↓
-Admin approval completed
-↓
-Stage 5 unlocks
-↓
-Student/team can access final application/opportunity section
-```
-
-Important rule:
-
-**Stage 5 unlock does not guarantee work, placement, income, internship, or brand opportunity. It only means the student/team is eligible to apply or be considered.**
-
----
-
-## 9. Notification Flow
-
-### Admin Broadcast Notification
-
-```text
-Admin creates notification
-↓
-Selects audience
-↓
-Notification appears in user bell
-↓
-User opens notification
-↓
-System marks it as read
-```
-
-### Audience Options
-
-* All students
-* All educators
-* All external members
-* Specific team
-* Specific student
-* Specific educator
-* Specific external member
-
----
-
-## 10. Approval Status Flow
-
-Each approval has one of these statuses:
-
-| Status             | Meaning                               |
-| ------------------ | ------------------------------------- |
-| pending            | Waiting for review                    |
-| approved           | Approved by required person           |
-| rejected           | Rejected with reason                  |
-| revision_required  | Student/team must update and resubmit |
-
----
-
-## 11. Error States
-
-| Situation                                         | System Response                                                          |
-| ------------------------------------------------- | ------------------------------------------------------------------------ |
-| Student tries to access locked stage              | Show "This stage is locked until previous stage approval is completed."  |
-| Educator tries to approve unrelated team          | Block access                                                             |
-| Student submits incomplete portfolio              | Show required field error                                                |
-| Only educator approves but admin has not approved | Keep stage locked                                                        |
-| Only admin approves but educator has not approved | Keep stage locked                                                        |
-| External member tries to view unrelated team      | Block access                                                             |
-| User tries to login without account               | Show invalid login or contact admin message                              |
-
----
-
-## 12. Final Phase 2 Output
-
-The MVP user flow is now clear:
-
-1. Admin creates accounts.
-2. Admin creates teams.
-3. Educators receive team assignment updates.
-4. Students move through locked stages.
-5. Stage 3 requires portfolio-wise educator + admin approval.
-6. Stage 4 requires educator + admin approval.
-7. Stage 5 unlocks only after required approvals.
-8. External members only see assigned project/team details.
-9. Notifications support communication across roles.
+The MVP uses in-app notifications for workflow updates. Email and phone in the
+under-review message describe the Manager’s later human follow-up; this does
+not add automated email, phone, or WhatsApp functionality.

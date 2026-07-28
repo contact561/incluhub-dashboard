@@ -21,7 +21,7 @@ export function EducatorSummaryCards({ summary }: EducatorSummaryCardsProps) {
         compact
       />
       <DashboardMetricCard
-        label="Awaiting review"
+        label="Items monitored"
         value={summary.awaitingReviewCount}
         href="/educator/portfolio-reviews"
         statusIntent={
@@ -30,7 +30,7 @@ export function EducatorSummaryCards({ summary }: EducatorSummaryCardsProps) {
         compact
       />
       <DashboardMetricCard
-        label="Reviews completed"
+        label="Comments posted"
         value={summary.reviewsCompletedCount}
         compact
       />

@@ -22,6 +22,7 @@ export type EducatorPendingReviewPreview = {
   leaderName: string;
   versionNumber: number;
   submittedAt: string;
+  itemType: "moodboard" | "portfolio";
 };
 
 export type EducatorDashboardData = {
@@ -73,6 +74,7 @@ export type EducatorReviewQueueItem = {
   leaderName: string;
   versionNumber: number;
   submittedAt: string;
+  itemType: "moodboard" | "portfolio";
 };
 
 export type EducatorReviewHistoryItem = {
@@ -92,7 +94,15 @@ export type EducatorReviewDetail = {
   workflowStatus: PortfolioWorkflowStatus;
   leaderStudentId: string;
   leaderName: string;
-  canReview: boolean;
+  canComment: boolean;
+  latestMoodboard: {
+    submissionId: string;
+    title: string;
+    moodboardUrl: string;
+    notes: string | null;
+    versionNumber: number;
+    submittedAt: string;
+  } | null;
   latestSubmission: {
     submissionId: string;
     title: string;
@@ -102,4 +112,10 @@ export type EducatorReviewDetail = {
     submittedAt: string;
   } | null;
   history: EducatorReviewHistoryItem[];
+  comments: {
+    id: string;
+    authorName: string;
+    body: string;
+    createdAt: string;
+  }[];
 };

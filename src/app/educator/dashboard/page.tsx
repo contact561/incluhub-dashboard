@@ -16,7 +16,7 @@ export default async function EducatorDashboardPage() {
     <div className="space-y-6">
       <PageHeader
         title="Dashboard"
-        description="Review assigned teams, students, and portfolios waiting for your decision."
+        description="Monitor assigned team moodboards and portfolios, then add advisory comments visible to students and Admin."
       />
 
       {error ? <QueryErrorState message={error} /> : null}
@@ -28,28 +28,28 @@ export default async function EducatorDashboardPage() {
           {data.summary.awaitingReviewCount > 0 ? (
             <StatusPanel
               variant="warning"
-              title={`${data.summary.awaitingReviewCount} portfolio${data.summary.awaitingReviewCount === 1 ? "" : "s"} awaiting your review`}
-              description="Open the review queue to approve or request revision on pending submissions."
+              title={`${data.summary.awaitingReviewCount} workflow item${data.summary.awaitingReviewCount === 1 ? "" : "s"} available to monitor`}
+              description="Open monitoring to view moodboards and portfolios or leave a comment."
               action={
                 <Link
                   href="/educator/portfolio-reviews"
                   className={cn(buttonVariants({ size: "sm" }))}
                 >
-                  Open portfolio reviews
+                  Open portfolio monitoring
                 </Link>
               }
             />
           ) : (
             <StatusPanel
               variant="information"
-              title="No portfolios awaiting review"
-              description="When a mapped student submits a portfolio, it will appear in your review queue."
+              title="No submissions to monitor"
+              description="Assigned team moodboards and portfolios will appear here."
               action={
                 <Link
                   href="/educator/portfolio-reviews"
                   className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
                 >
-                  View review queue
+                  View monitoring
                 </Link>
               }
             />
@@ -57,8 +57,8 @@ export default async function EducatorDashboardPage() {
 
           <section>
             <SectionHeader
-              title="Awaiting your review"
-              description="Recent submissions ready for educator decision."
+              title="Recent workflow activity"
+              description="Recent moodboards and portfolios from assigned teams."
               count={data.pendingPreviews.length}
               action={
                 <Link
@@ -89,6 +89,7 @@ export default async function EducatorDashboardPage() {
                     leaderName={item.leaderName}
                     versionNumber={item.versionNumber}
                     submittedAt={item.submittedAt}
+                    itemType={item.itemType}
                   />
                 ))}
               </div>

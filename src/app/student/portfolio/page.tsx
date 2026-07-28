@@ -35,7 +35,7 @@ export default async function StudentPortfolioPage() {
 
       {data ? (
         <>
-          <WhatHappensNow title="Follow the active portfolio card" description="Assistants share suitable timings first. The leader books a live slot, scans Admin's QR at the studio, uploads a public Google Drive link, and responds to Educator or Admin feedback if requested." />
+          <WhatHappensNow title="Follow the active portfolio card" description="Submit a moodboard for Admin approval. After approval, assistants share timings, the leader books a live slot, enters Admin's OTP at the studio, uploads the portfolio, and responds to Admin revision feedback if requested." />
           <section className="grid gap-4 rounded-[var(--radius-card)] border border-border-default bg-surface-card p-4 sm:grid-cols-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">

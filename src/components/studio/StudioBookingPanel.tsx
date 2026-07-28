@@ -142,7 +142,7 @@ export function StudioBookingPanel({
           <StatusPanel
             variant="warning"
             title="Final booking warning"
-            description="After booking, scan the QR code at the studio to unlock portfolio submission. Booking alone does not open submission."
+            description="After booking, enter the Admin-generated OTP at the studio to unlock portfolio submission. Booking alone does not open submission."
           />
         ) : null}
 

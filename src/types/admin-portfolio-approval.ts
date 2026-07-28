@@ -7,7 +7,7 @@ import type {
 } from "@/types/database";
 
 export type AdminReviewEntryPath =
-  | "educator_approved"
+  | "direct_submission"
   | "admin_revision_resubmission"
   | "invalid";
 

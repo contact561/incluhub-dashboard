@@ -1,10 +1,7 @@
 import {
   getEducatorContext,
-  isMatchingPortfolioLeader,
-  loadPortfoliosForMappedLeaders,
   loadTeamRecord,
 } from "@/lib/data/educator/context";
-import { logEducatorLoaderError } from "@/lib/data/educator/loader-errors";
 import { createClient } from "@/lib/supabase/server";
 import type {
   EducatorReviewDetail,
@@ -18,9 +15,6 @@ import type {
   StudentCategory,
 } from "@/types/database";
 
-const QUEUE_LOADER = "getEducatorReviewQueue";
-const DETAIL_LOADER = "getEducatorReviewDetail";
-
 type SubmissionRow = {
   id: string;
   portfolio_output_id: string;
@@ -31,84 +25,124 @@ type SubmissionRow = {
   created_at: string;
 };
 
+type MoodboardRow = {
+  id: string;
+  portfolio_output_id: string;
+  version_number: number;
+  title: string;
+  moodboard_url: string;
+  notes: string | null;
+  created_at: string;
+};
+
 export async function getEducatorReviewQueue(): Promise<{
   items: EducatorReviewQueueItem[];
   error: string | null;
 }> {
-  const { context, error: contextError } = await getEducatorContext();
-  if (contextError) {
-    return { items: [], error: contextError };
-  }
+  const { context, error } = await getEducatorContext();
+  if (error) return { items: [], error };
   if (!context) {
     return { items: [], error: "Your educator profile could not be found." };
   }
-
-  const { portfolios, error: portfolioError } = await loadPortfoliosForMappedLeaders(
-    context,
-    { workflowStatus: "pending_educator" }
-  );
-  if (portfolioError) {
-    logEducatorLoaderError(QUEUE_LOADER, portfolioError);
-    return { items: [], error: portfolioError };
-  }
-
-  const awaiting = portfolios.filter(
-    (p) => p.workflowStatus === "pending_educator"
-  );
-
-  if (awaiting.length === 0) {
-    return { items: [], error: null };
-  }
+  if (context.mappedTeamIds.length === 0) return { items: [], error: null };
 
   const supabase = await createClient();
-  const { data: submissions, error: submissionError } = await supabase
-    .from("portfolio_submissions")
+  const { data: portfolioData, error: portfolioError } = await supabase
+    .from("portfolio_outputs")
     .select(
-      "id, portfolio_output_id, version_number, title, portfolio_url, notes, created_at"
+      "id, team_id, leader_student_id, portfolio_type, workflow_status"
     )
-    .in(
-      "portfolio_output_id",
-      awaiting.map((p) => p.id)
-    )
-    .order("version_number", { ascending: false });
+    .in("team_id", context.mappedTeamIds)
+    .neq("workflow_status", "locked");
+  if (portfolioError) return { items: [], error: portfolioError.message };
 
-  if (submissionError) {
-    logEducatorLoaderError(QUEUE_LOADER, submissionError.message);
-    return { items: [], error: submissionError.message };
+  const portfolios = (portfolioData ?? []) as Array<{
+    id: string;
+    team_id: string;
+    leader_student_id: string;
+    portfolio_type: StudentCategory;
+    workflow_status: PortfolioWorkflowStatus;
+  }>;
+  if (portfolios.length === 0) return { items: [], error: null };
+
+  const ids = portfolios.map((portfolio) => portfolio.id);
+  const [submissionResult, moodboardResult] = await Promise.all([
+    supabase
+      .from("portfolio_submissions")
+      .select(
+        "id, portfolio_output_id, version_number, title, portfolio_url, notes, created_at"
+      )
+      .in("portfolio_output_id", ids)
+      .order("version_number", { ascending: false }),
+    supabase
+      .from("moodboard_submissions")
+      .select(
+        "id, portfolio_output_id, version_number, title, moodboard_url, notes, created_at"
+      )
+      .in("portfolio_output_id", ids)
+      .order("version_number", { ascending: false }),
+  ]);
+
+  const loadError =
+    submissionResult.error?.message ?? moodboardResult.error?.message ?? null;
+  if (loadError) {
+    return {
+      items: [],
+      error: /moodboard_submissions/i.test(loadError)
+        ? "The latest workflow database migration has not been applied."
+        : loadError,
+    };
   }
 
-  const latestByPortfolio = new Map<string, SubmissionRow>();
-  for (const row of (submissions ?? []) as SubmissionRow[]) {
-    if (!latestByPortfolio.has(row.portfolio_output_id)) {
-      latestByPortfolio.set(row.portfolio_output_id, row);
+  const latestSubmission = new Map<string, SubmissionRow>();
+  for (const row of (submissionResult.data ?? []) as SubmissionRow[]) {
+    if (!latestSubmission.has(row.portfolio_output_id)) {
+      latestSubmission.set(row.portfolio_output_id, row);
+    }
+  }
+  const latestMoodboard = new Map<string, MoodboardRow>();
+  for (const row of (moodboardResult.data ?? []) as MoodboardRow[]) {
+    if (!latestMoodboard.has(row.portfolio_output_id)) {
+      latestMoodboard.set(row.portfolio_output_id, row);
     }
   }
 
-  const leaderNameByStudent = new Map(
-    context.mappings.map((m) => [m.studentId, m.studentName] as const)
-  );
   const teamNameById = new Map(
-    context.mappings.map((m) => [m.teamId, m.teamName] as const)
+    context.mappings.map((mapping) => [
+      mapping.teamId,
+      mapping.teamName,
+    ] as const)
+  );
+  const leaderNameById = new Map(
+    context.mappings.map((mapping) => [
+      mapping.studentId,
+      mapping.studentName,
+    ] as const)
   );
 
-  const items = awaiting
-    .map((portfolio) => {
-      const submission = latestByPortfolio.get(portfolio.id);
-      if (!submission) return null;
+  const items = portfolios
+    .map((portfolio): EducatorReviewQueueItem | null => {
+      const portfolioSubmission = latestSubmission.get(portfolio.id);
+      const moodboardSubmission = latestMoodboard.get(portfolio.id);
+      const item = portfolioSubmission ?? moodboardSubmission;
+      if (!item) return null;
       return {
         portfolioId: portfolio.id,
-        title: submission.title,
-        portfolioType: portfolio.portfolioType,
-        teamName: teamNameById.get(portfolio.teamId) ?? "—",
-        leaderName: leaderNameByStudent.get(portfolio.leaderStudentId) ?? "—",
-        versionNumber: submission.version_number,
-        submittedAt: submission.created_at,
+        title: item.title,
+        portfolioType: portfolio.portfolio_type,
+        teamName: teamNameById.get(portfolio.team_id) ?? "—",
+        leaderName:
+          leaderNameById.get(portfolio.leader_student_id) ?? "Team student",
+        versionNumber: item.version_number,
+        submittedAt: item.created_at,
+        itemType: portfolioSubmission ? "portfolio" : "moodboard",
       };
     })
-    .filter((row): row is EducatorReviewQueueItem => row !== null)
+    .filter((item): item is EducatorReviewQueueItem => item !== null)
     .sort(
       (a, b) =>
-        new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+        new Date(b.submittedAt).getTime() -
+        new Date(a.submittedAt).getTime()
     );
 
   return { items, error: null };
@@ -121,10 +155,8 @@ export async function getEducatorReviewDetail(
   notFound: boolean;
   error: string | null;
 }> {
-  const { context, error: contextError } = await getEducatorContext();
-  if (contextError) {
-    return { detail: null, notFound: false, error: contextError };
-  }
+  const { context, error } = await getEducatorContext();
+  if (error) return { detail: null, notFound: false, error };
   if (!context) {
     return {
       detail: null,
@@ -134,93 +166,97 @@ export async function getEducatorReviewDetail(
   }
 
   const supabase = await createClient();
-  const { data: portfolio, error: portfolioError } = await supabase
+  const { data: portfolioData, error: portfolioError } = await supabase
     .from("portfolio_outputs")
     .select(
-      `
-      id,
-      team_id,
-      leader_student_id,
-      portfolio_type,
-      workflow_status
-    `
+      "id, team_id, leader_student_id, portfolio_type, workflow_status"
     )
     .eq("id", portfolioId)
     .maybeSingle();
-
   if (portfolioError) {
-    logEducatorLoaderError(DETAIL_LOADER, portfolioError.message);
     return { detail: null, notFound: false, error: portfolioError.message };
   }
+  if (!portfolioData) return { detail: null, notFound: true, error: null };
 
-  if (!portfolio) {
-    return { detail: null, notFound: true, error: null };
-  }
-
-  const row = portfolio as {
+  const portfolio = portfolioData as {
     id: string;
     team_id: string;
     leader_student_id: string;
     portfolio_type: StudentCategory;
     workflow_status: PortfolioWorkflowStatus | null;
   };
-
-  const { team, error: teamError } = await loadTeamRecord(row.team_id);
-  if (teamError) {
-    return { detail: null, notFound: false, error: teamError };
-  }
-
   if (
-    !row.workflow_status ||
-    team?.status !== "active" ||
-    !isMatchingPortfolioLeader(context, row.team_id, row.leader_student_id)
+    !portfolio.workflow_status ||
+    !context.mappedTeamIds.includes(portfolio.team_id)
   ) {
     return { detail: null, notFound: true, error: null };
   }
 
-  const leaderMapping = context.mappings.find(
-    (m) => m.teamId === row.team_id && m.studentId === row.leader_student_id
-  );
-
-  const { data: submissions, error: submissionError } = await supabase
-    .from("portfolio_submissions")
-    .select(
-      "id, portfolio_output_id, version_number, title, portfolio_url, notes, created_at"
-    )
-    .eq("portfolio_output_id", portfolioId)
-    .order("version_number", { ascending: false });
-
-  if (submissionError) {
-    logEducatorLoaderError(DETAIL_LOADER, submissionError.message);
-    return { detail: null, notFound: false, error: submissionError.message };
+  const { team, error: teamError } = await loadTeamRecord(portfolio.team_id);
+  if (teamError) {
+    return { detail: null, notFound: false, error: teamError };
   }
 
-  const submissionRows = (submissions ?? []) as SubmissionRow[];
-  const latest = submissionRows[0] ?? null;
-  const versionBySubmissionId = new Map(
-    submissionRows.map((s) => [s.id, s.version_number] as const)
-  );
+  const [submissionsResult, moodboardsResult, commentsResult] =
+    await Promise.all([
+      supabase
+        .from("portfolio_submissions")
+        .select(
+          "id, portfolio_output_id, version_number, title, portfolio_url, notes, created_at"
+        )
+        .eq("portfolio_output_id", portfolioId)
+        .order("version_number", { ascending: false }),
+      supabase
+        .from("moodboard_submissions")
+        .select(
+          "id, portfolio_output_id, version_number, title, moodboard_url, notes, created_at"
+        )
+        .eq("portfolio_output_id", portfolioId)
+        .order("version_number", { ascending: false }),
+      supabase
+        .from("workflow_comments")
+        .select("id, author_user_id, body, created_at")
+        .eq("portfolio_output_id", portfolioId)
+        .order("created_at", { ascending: false }),
+    ]);
+
+  const loadError =
+    submissionsResult.error?.message ??
+    moodboardsResult.error?.message ??
+    commentsResult.error?.message ??
+    null;
+  if (loadError) {
+    return { detail: null, notFound: false, error: loadError };
+  }
+
+  const submissions = (submissionsResult.data ?? []) as SubmissionRow[];
+  const moodboards = (moodboardsResult.data ?? []) as MoodboardRow[];
+  const latestSubmission = submissions[0] ?? null;
+  const latestMoodboard = moodboards[0] ?? null;
 
   let history: EducatorReviewHistoryItem[] = [];
-  if (submissionRows.length > 0) {
-    const { data: reviews, error: reviewError } = await supabase
+  if (submissions.length > 0) {
+    const versionBySubmission = new Map(
+      submissions.map((submission) => [
+        submission.id,
+        submission.version_number,
+      ] as const)
+    );
+    const { data: reviewData, error: reviewError } = await supabase
       .from("portfolio_reviews")
       .select(
         "id, portfolio_submission_id, reviewer_stage, decision, comments, created_at"
       )
       .in(
         "portfolio_submission_id",
-        submissionRows.map((s) => s.id)
+        submissions.map((submission) => submission.id)
       )
       .order("created_at", { ascending: false });
-
     if (reviewError) {
-      logEducatorLoaderError(DETAIL_LOADER, reviewError.message);
       return { detail: null, notFound: false, error: reviewError.message };
     }
-
     history = (
-      (reviews ?? []) as Array<{
+      (reviewData ?? []) as Array<{
         id: string;
         portfolio_submission_id: string;
         reviewer_stage: PortfolioReviewerStage;
@@ -235,31 +271,63 @@ export async function getEducatorReviewDetail(
       comments: review.comments,
       createdAt: review.created_at,
       versionNumber:
-        versionBySubmissionId.get(review.portfolio_submission_id) ?? 0,
+        versionBySubmission.get(review.portfolio_submission_id) ?? 0,
     }));
   }
 
+  const leader = context.mappings.find(
+    (mapping) =>
+      mapping.teamId === portfolio.team_id &&
+      mapping.studentId === portfolio.leader_student_id
+  );
+
   return {
     detail: {
-      portfolioId: row.id,
-      teamId: row.team_id,
+      portfolioId: portfolio.id,
+      teamId: portfolio.team_id,
       teamName: team?.team_name ?? "—",
-      portfolioType: row.portfolio_type,
-      workflowStatus: row.workflow_status,
-      leaderStudentId: row.leader_student_id,
-      leaderName: leaderMapping?.studentName ?? "—",
-      canReview: row.workflow_status === "pending_educator" && latest !== null,
-      latestSubmission: latest
+      portfolioType: portfolio.portfolio_type,
+      workflowStatus: portfolio.workflow_status,
+      leaderStudentId: portfolio.leader_student_id,
+      leaderName: leader?.studentName ?? "Team student",
+      canComment: latestMoodboard !== null || latestSubmission !== null,
+      latestMoodboard: latestMoodboard
         ? {
-            submissionId: latest.id,
-            title: latest.title,
-            portfolioUrl: latest.portfolio_url,
-            notes: latest.notes,
-            versionNumber: latest.version_number,
-            submittedAt: latest.created_at,
+            submissionId: latestMoodboard.id,
+            title: latestMoodboard.title,
+            moodboardUrl: latestMoodboard.moodboard_url,
+            notes: latestMoodboard.notes,
+            versionNumber: latestMoodboard.version_number,
+            submittedAt: latestMoodboard.created_at,
+          }
+        : null,
+      latestSubmission: latestSubmission
+        ? {
+            submissionId: latestSubmission.id,
+            title: latestSubmission.title,
+            portfolioUrl: latestSubmission.portfolio_url,
+            notes: latestSubmission.notes,
+            versionNumber: latestSubmission.version_number,
+            submittedAt: latestSubmission.created_at,
           }
         : null,
       history,
+      comments: (
+        (commentsResult.data ?? []) as Array<{
+          id: string;
+          author_user_id: string;
+          body: string;
+          created_at: string;
+        }>
+      ).map((comment) => ({
+        id: comment.id,
+        authorName:
+          comment.author_user_id === context.userId
+            ? "You"
+            : "Assigned educator",
+        body: comment.body,
+        createdAt: comment.created_at,
+      })),
     },
     notFound: false,
     error: null,

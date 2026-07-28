@@ -17,10 +17,8 @@ function formatSubmittedAt(value: string): string {
 }
 
 function renderEntryPathLabel(item: AdminPortfolioApprovalQueueItem): string {
-  if (item.adminReviewEntryPath === "educator_approved") {
-    return item.educatorName
-      ? `Educator approved by ${item.educatorName}`
-      : "Educator approved";
+  if (item.adminReviewEntryPath === "direct_submission") {
+    return "Submitted directly for Admin review";
   }
 
   if (item.adminReviewEntryPath === "admin_revision_resubmission") {

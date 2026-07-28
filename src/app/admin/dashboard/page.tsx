@@ -59,7 +59,7 @@ export default async function AdminDashboardPage() {
             <StatusPanel
               variant="warning"
               title={`${data.pendingCount} portfolio${data.pendingCount === 1 ? "" : "s"} awaiting Admin approval`}
-              description="Educator-approved submissions need your final decision."
+              description="Student submissions need your Admin decision."
               action={
                 <Link
                   href="/admin/portfolio-approvals"
@@ -73,7 +73,7 @@ export default async function AdminDashboardPage() {
             <StatusPanel
               variant="information"
               title="No portfolios awaiting approval"
-              description="When an educator approves a submission, it will appear in your approval queue."
+              description="Student submissions will appear here after upload."
               action={
                 <Link
                   href="/admin/portfolio-approvals"
@@ -90,7 +90,7 @@ export default async function AdminDashboardPage() {
           <section>
             <SectionHeader
               title="Latest pending approvals"
-              description="Most recent educator-approved portfolios."
+              description="Most recent portfolios awaiting your decision."
               count={data.pendingPreviews.length}
               action={
                 <Link

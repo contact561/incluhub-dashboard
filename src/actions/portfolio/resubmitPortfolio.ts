@@ -88,14 +88,10 @@ function validateClientInput(
 }
 
 function successMessage(
-  workflowStatus: string,
+  _workflowStatus: string,
   versionNumber: number
 ): string {
-  if (workflowStatus === "pending_admin") {
-    return `Version ${versionNumber} submitted. Your revised portfolio has returned directly to Admin review.`;
-  }
-
-  return `Version ${versionNumber} submitted. Your portfolio has returned to the Educator for review.`;
+  return `Version ${versionNumber} submitted. Your revised portfolio is now waiting for Admin review.`;
 }
 
 export async function resubmitPortfolioAction(
