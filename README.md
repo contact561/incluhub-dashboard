@@ -52,7 +52,7 @@ git checkout master
 Apply SQL migrations in order from `supabase/migrations/` in the Supabase SQL
 editor (or your migration pipeline):
 
-- Apply `001` → `022` to a new empty environment.
+- Apply `001` through `024` to a new empty environment.
 - For an existing environment, reconcile the Supabase migration ledger before
   running `supabase db push`; do not blindly replay migrations.
 

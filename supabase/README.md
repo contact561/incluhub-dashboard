@@ -19,7 +19,7 @@ supabase/
 
 | Track | Branch | Migrations |
 |-------|--------|------------|
-| Current supported baseline | `master` | `001` → `022` |
+| Current supported baseline | `codex/black-white-gold-ui` | `001` through `024` |
 
 Apply migrations in the Supabase SQL editor (or your CI migration pipeline) in
 numeric order. Policies in `policies/` should match the migration set on your
@@ -38,6 +38,8 @@ project.
 | `020_admin_broadcast_updates.sql` | Admin broadcast updates |
 | `021_stage3_qr_prerequisites.sql` | Backfill for 015 tables/RPCs if missing |
 | `022_enable_pgcrypto_for_qr.sql` | `pgcrypto` extension for QR hashing |
+| `023_admin_review_moodboards_personal_shoots_otp.sql` | Admin-only reviews, moodboards, educator comments, personal shoots, and OTP check-in |
+| `024_grant_service_role_new_workflow_tables.sql` | Server-only operational access for the new workflow tables |
 
 ## Verification (SQL editor)
 
