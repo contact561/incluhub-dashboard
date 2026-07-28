@@ -710,7 +710,42 @@ async function seedEnvironment(admin, anonClient, password) {
 
   await anonClient.auth.signOut();
 
-  async function bookAndSubmit(teamName, studentEmail, portfolioId, title, notes, slotCode) {
+  async function bookAndSubmit(
+    teamName,
+    studentEmail,
+    assistantEmails,
+    portfolioId,
+    title,
+    notes,
+    slotCode
+  ) {
+    for (const assistantEmail of assistantEmails) {
+      const assistantClient = createAuthClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
+      await signIn(assistantClient, assistantEmail, password);
+      await rpcCall(
+        assistantClient,
+        "save_studio_availability",
+        {
+          p_portfolio_output_id: portfolioId,
+          p_slots: [
+            {
+              booking_date: studioBookingDate,
+              slot_code: slotCode,
+            },
+          ],
+        },
+        {
+          teamName,
+          label: "save_studio_availability",
+          dates: `studioBookingDate=${studioBookingDate}, slot=${slotCode}`,
+        }
+      );
+      await assistantClient.auth.signOut();
+    }
+
     const studentClient = createAuthClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -730,6 +765,49 @@ async function seedEnvironment(admin, anonClient, password) {
         dates: `studioBookingDate=${studioBookingDate}, slot=${slotCode}`,
       }
     );
+
+    // The production workflow requires an in-person, time-windowed QR scan.
+    // A deterministic seed cannot rely on the reset running during a booked
+    // slot, so record the equivalent verified state with the service client.
+    const { data: booking, error: bookingLookupError } = await admin
+      .from("studio_bookings")
+      .select("id")
+      .eq("portfolio_output_id", portfolioId)
+      .eq("verification_status", "online_confirmed")
+      .single();
+    if (bookingLookupError) {
+      throw new Error(
+        `Studio booking lookup failed for ${teamName}: ${bookingLookupError.message}`
+      );
+    }
+
+    const leaderSpec = ACCOUNT_SPECS.find((account) => account.email === studentEmail);
+    const verifiedAt = new Date().toISOString();
+    const { error: bookingVerifyError } = await admin
+      .from("studio_bookings")
+      .update({
+        verification_status: "physically_verified",
+        physically_verified_at: verifiedAt,
+        physically_verified_by: ctx.userIds[leaderSpec.key],
+      })
+      .eq("id", booking.id);
+    if (bookingVerifyError) {
+      throw new Error(
+        `Studio booking verification failed for ${teamName}: ${bookingVerifyError.message}`
+      );
+    }
+
+    const { error: portfolioUnlockError } = await admin
+      .from("portfolio_outputs")
+      .update({ workflow_status: "awaiting_submission" })
+      .eq("id", portfolioId)
+      .eq("workflow_status", "awaiting_studio_checkin");
+    if (portfolioUnlockError) {
+      throw new Error(
+        `Portfolio submission unlock failed for ${teamName}: ${portfolioUnlockError.message}`
+      );
+    }
+
     await rpcCall(
       studentClient,
       "submit_portfolio",
@@ -755,6 +833,10 @@ async function seedEnvironment(admin, anonClient, password) {
   await bookAndSubmit(
     "TEST TEAM ALPHA",
     ACCOUNT_SPECS.find((a) => a.key === "photoStudent1").email,
+    [
+      ACCOUNT_SPECS.find((a) => a.key === "makeupStudent1").email,
+      ACCOUNT_SPECS.find((a) => a.key === "hairStudent1").email,
+    ],
     alphaPhotoPortfolio.id,
     "Team Alpha Photography Portfolio",
     "Initial Photography submission for Educator approval testing.",
@@ -772,6 +854,10 @@ async function seedEnvironment(admin, anonClient, password) {
   await bookAndSubmit(
     "TEST TEAM BETA",
     ACCOUNT_SPECS.find((a) => a.key === "photoStudent2").email,
+    [
+      ACCOUNT_SPECS.find((a) => a.key === "makeupStudent2").email,
+      ACCOUNT_SPECS.find((a) => a.key === "hairStudent2").email,
+    ],
     betaPhotoPortfolio.id,
     "Team Beta Photography Portfolio",
     "Photography submission for Team Beta workflow testing.",
@@ -833,6 +919,10 @@ async function seedEnvironment(admin, anonClient, password) {
   await bookAndSubmit(
     "TEST TEAM BETA",
     ACCOUNT_SPECS.find((a) => a.key === "makeupStudent2").email,
+    [
+      ACCOUNT_SPECS.find((a) => a.key === "photoStudent2").email,
+      ACCOUNT_SPECS.find((a) => a.key === "hairStudent2").email,
+    ],
     betaMakeupPortfolio.id,
     "Team Beta Makeup Portfolio",
     "Makeup submission for Educator approval testing.",
