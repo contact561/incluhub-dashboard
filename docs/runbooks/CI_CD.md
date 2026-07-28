@@ -12,6 +12,7 @@ The application gate uses the lockfile and runs:
 
 ```bash
 npm ci
+npm run test:deployment-env
 npm audit --omit=dev --audit-level=high
 npm run typecheck
 npm run lint
@@ -83,6 +84,13 @@ Require reviewers on the `production` GitHub Environment. Run the Vercel
 workflow manually until the first preview and production releases have been
 verified. After that, Vercel's Git integration can provide automatic pull
 request previews and production releases from `master`.
+
+Before building, the Vercel workflow pulls the selected environment and runs
+the deployment validator. It checks that Supabase URLs and JWT roles match the
+expected project reference, application URLs use HTTPS, destructive reset is
+disabled in production, and production has a reviewed ecosystem destination.
+It reports variable names and validation problems but never prints secret
+values.
 
 ## Release order
 

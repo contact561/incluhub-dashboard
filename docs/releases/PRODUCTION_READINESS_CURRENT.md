@@ -24,6 +24,10 @@ with the current worktree.
   - mobile login layout without horizontal overflow.
 - CI, guarded Supabase migration deployment, guarded Vercel deployment, and
   Dependabot configurations exist in the current worktree.
+- Five deployment-environment validation tests pass. The Vercel workflow now
+  rejects mismatched Supabase projects/key roles, unsafe URLs, destructive
+  production reset flags, and missing production ecosystem configuration
+  before it builds.
 
 ## Connected database snapshot
 

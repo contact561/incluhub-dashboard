@@ -13,6 +13,9 @@
     "test:e2e:public": "playwright test tests/e2e/public-access.spec.ts",
     "test:e2e:accounts:setup": "node scripts/fixtures/e2e-role-accounts-setup.mjs",
     "test:e2e:accounts:cleanup": "node scripts/fixtures/e2e-role-accounts-cleanup.mjs",
+    "test:deployment-env": "node --test scripts/ci/deployment-env.test.mjs",
+    "validate:env:preview": "node scripts/ci/validate-deployment-env.mjs preview",
+    "validate:env:production": "node scripts/ci/validate-deployment-env.mjs production",
     "test:release-authz": "node scripts/authz/package-f-authz-check.mjs",
     "test:reset": "node scripts/seed/reset-and-seed-test-environment.mjs"
   },

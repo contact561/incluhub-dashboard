@@ -82,6 +82,7 @@ npm run test:reset -- --confirm-reset
 npm exec tsc -- --noEmit --incremental false
 npm run lint
 npm run build
+npm run test:deployment-env
 npm run test:release-authz
 ```
 
