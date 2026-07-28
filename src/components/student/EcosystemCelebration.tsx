@@ -102,7 +102,7 @@ export function EcosystemCelebration({
         </div>
 
         <div className="mt-9 w-full max-w-md rounded-[var(--radius-card)] border border-white/90 bg-white/80 p-4 shadow-sm backdrop-blur sm:p-5">
-          {config.appUrl ? (
+          {config.appUrl && !config.isPlaceholder ? (
             <a
               href={config.appUrl}
               target="_blank"
@@ -124,8 +124,8 @@ export function EcosystemCelebration({
 
           {config.isPlaceholder ? (
             <p className="mt-3 text-xs leading-5 text-text-subtle">
-              Preview destination: this placeholder link will be replaced when
-              the final application URL is supplied.
+              IncluHub will make the destination available here after the final
+              application URL is configured.
             </p>
           ) : (
             <p className="mt-3 text-xs leading-5 text-text-subtle">

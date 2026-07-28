@@ -69,8 +69,9 @@ complete Stage 0–5 workflow.
   product decision and one authoritative specification.
 - The External Member portal is intentionally non-functional.
 - Admin Project Approvals and Activity Logs remain incomplete surfaces.
-- A real final ecosystem destination must replace or explicitly approve the
-  placeholder configuration.
+- A real final ecosystem destination must still be supplied. Until then, the
+  Stage 5 screen safely withholds the external CTA instead of opening a
+  placeholder or invalid URL.
 
 ## Production blockers
 
