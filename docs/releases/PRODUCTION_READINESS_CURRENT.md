@@ -16,10 +16,11 @@ with the current worktree.
   vulnerabilities.
 - The local application responds successfully.
 - The configured Supabase project is reachable.
-- Seven Playwright checks pass for:
+- Thirty-eight Playwright checks pass for:
   - the IncluHub landing and branded login experience;
   - forgot-password navigation;
-  - unauthenticated redirects for Admin, Student, Educator, and External routes;
+  - unauthenticated redirects across all 35 current Admin, Student, Educator,
+    and External protected route variants;
   - mobile login layout without horizontal overflow.
 - CI, guarded Supabase migration deployment, guarded Vercel deployment, and
   Dependabot configurations exist in the current worktree.

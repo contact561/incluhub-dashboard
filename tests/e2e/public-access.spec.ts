@@ -42,12 +42,45 @@ test.describe("public authentication experience", () => {
     await expect(page.getByRole("link", { name: "Back to login" })).toBeVisible();
   });
 
-  for (const protectedPath of [
+  const protectedPaths = [
     "/admin/dashboard",
+    "/admin/activity-logs",
+    "/admin/educators",
+    "/admin/external-members",
+    "/admin/institutes",
+    "/admin/institutes/create",
+    "/admin/notifications",
+    "/admin/portfolio-approvals",
+    "/admin/portfolio-approvals/test-portfolio-id",
+    "/admin/programs",
+    "/admin/programs/create",
+    "/admin/programs/test-program-id",
+    "/admin/project-approvals",
+    "/admin/stages",
+    "/admin/students",
+    "/admin/studio-schedule",
+    "/admin/teams",
+    "/admin/teams/create",
+    "/admin/teams/test-team-id",
+    "/admin/users",
+    "/admin/users/create",
     "/student/dashboard",
+    "/student/brand-opportunity",
+    "/student/ecosystem",
+    "/student/my-stage",
+    "/student/my-team",
+    "/student/notifications",
+    "/student/portfolio",
     "/educator/dashboard",
+    "/educator/my-students",
+    "/educator/my-teams",
+    "/educator/notifications",
+    "/educator/portfolio-reviews",
+    "/educator/portfolio-reviews/test-portfolio-id",
     "/external/dashboard",
-  ]) {
+  ];
+
+  for (const protectedPath of protectedPaths) {
     test(`unauthenticated access to ${protectedPath} redirects to login`, async ({
       page,
     }) => {
