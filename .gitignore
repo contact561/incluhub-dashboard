@@ -39,6 +39,7 @@ yarn-error.log*
 # local test and development artifacts (never commit)
 TEST_CREDENTIALS.local.md
 /tmp/
+/supabase/.temp/
 
 # vercel
 .vercel

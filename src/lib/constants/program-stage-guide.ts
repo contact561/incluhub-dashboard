@@ -15,7 +15,7 @@ export const PROGRAM_STAGE_GUIDE: ProgramStageGuideEntry[] = [
     educator:
       "No action required. You will be notified when a mapped student is enrolled.",
     incluhub:
-      "Create student accounts, assign categories, and confirm payment or programme eligibility.",
+      "Create student accounts, assign categories, and confirm programme eligibility.",
   },
   {
     stageNumber: 1,
@@ -41,11 +41,11 @@ export const PROGRAM_STAGE_GUIDE: ProgramStageGuideEntry[] = [
     stageNumber: 3,
     title: "Portfolio creation",
     student:
-      "As leader or assistant, book studio slots, submit your portfolio link, and respond to revision feedback when requested.",
+      "Submit the moodboard, book the studio after Admin approval, enter the studio OTP, and upload the portfolio.",
     educator:
-      "Review portfolio submissions for your mapped students — approve or request revision.",
+      "Monitor assigned moodboards and portfolios and add advisory comments visible to students and Admin.",
     incluhub:
-      "Monitor studio schedule, verify submissions, and provide final admin approval where required.",
+      "Approve moodboards, generate attendance OTPs, and approve portfolios or request revision.",
   },
   {
     stageNumber: 4,
@@ -53,7 +53,7 @@ export const PROGRAM_STAGE_GUIDE: ProgramStageGuideEntry[] = [
     student:
       "Attend your team's Brand Works on the scheduled date and follow any instructions shared by IncluHub Admin.",
     educator:
-      "Support your students during Brand Works. No separate educator approval is recorded on this stage.",
+      "Support your students during Brand Works. No educator approval is recorded.",
     incluhub:
       "Schedule and complete Brand Works for the team when Stage 3 portfolios are finished.",
   },
@@ -63,7 +63,7 @@ export const PROGRAM_STAGE_GUIDE: ProgramStageGuideEntry[] = [
     student:
       "Wait while IncluHub reviews your sessions and portfolio work. You will be notified when ecosystem onboarding is approved.",
     educator:
-      "No approval action. Your earlier portfolio reviews form part of the final review.",
+      "No approval action. Continue monitoring assigned students and add comments when useful.",
     incluhub:
       "Review each student's readiness individually and approve ecosystem access when satisfied.",
   },
