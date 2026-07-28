@@ -11,12 +11,13 @@ const LOGIN_ERRORS: Record<string, string> = {
 };
 
 type LoginPageProps = {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; status?: string }>;
 };
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const params = await searchParams;
   const queryError = params.error ? LOGIN_ERRORS[params.error] : undefined;
+  const passwordWasReset = params.status === "password_reset";
 
   return (
     <PublicAuthCard
@@ -32,6 +33,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       {queryError ? (
         <p className="mb-4 text-sm text-destructive" role="alert">
           {queryError}
+        </p>
+      ) : null}
+
+      {passwordWasReset ? (
+        <p className="mb-4 text-sm text-status-success" role="status">
+          Your password was updated. Sign in with your new password.
         </p>
       ) : null}
 

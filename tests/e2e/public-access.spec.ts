@@ -42,6 +42,32 @@ test.describe("public authentication experience", () => {
     await expect(page.getByRole("link", { name: "Back to login" })).toBeVisible();
   });
 
+  test("invalid or expired reset sessions fail safely", async ({ page }) => {
+    await page.goto("/reset-password");
+
+    await expect(
+      page.getByRole("heading", { name: "Choose a new password" })
+    ).toBeVisible();
+    await expect(
+      page.getByText(/reset link is invalid or has expired/i)
+    ).toBeVisible();
+    await expect(
+      page.getByRole("link", { name: "Request a new reset link" })
+    ).toHaveAttribute("href", "/forgot-password");
+    await expect(page.getByLabel("New password")).toHaveCount(0);
+  });
+
+  test("successful password reset returns a clear login state", async ({
+    page,
+  }) => {
+    await page.goto("/login?status=password_reset");
+
+    await expect(
+      page.getByText("Your password was updated. Sign in with your new password.")
+    ).toBeVisible();
+    await expect(page.getByRole("button", { name: "Sign in" })).toBeVisible();
+  });
+
   const protectedPaths = [
     "/admin/dashboard",
     "/admin/activity-logs",

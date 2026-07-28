@@ -11,14 +11,15 @@ with the current worktree.
 
 - `npm run typecheck` passes.
 - `npm run lint` passes with three non-failing third-party parser notices.
-- `npm run build` passes on Next.js 16.2.12 and generates 38 routes.
+- `npm run build` passes on Next.js 16.2.12 and generates 39 routes.
 - `npm audit --omit=dev --audit-level=high` reports zero runtime
   vulnerabilities.
 - The local application responds successfully.
 - The configured Supabase project is reachable.
-- Thirty-eight Playwright checks pass for:
+- Forty Playwright checks pass for:
   - the IncluHub landing and branded login experience;
-  - forgot-password navigation;
+  - forgot-password navigation, safe handling of invalid/expired reset links,
+    and the post-reset login success state;
   - unauthenticated redirects across all 35 current Admin, Student, Educator,
     and External protected route variants;
   - mobile login layout without horizontal overflow.
@@ -57,6 +58,9 @@ complete Stage 0–5 workflow.
   `TEST_ACCOUNT_PASSWORD`.
 - Authenticated Playwright tests for Admin, Student, and Educator therefore
   skip until dedicated non-production credentials are configured.
+- The complete emailed password-recovery journey still requires a staging
+  account and a captured reset email. The callback, update form, server-side
+  password change, logout, and login-success states now exist in code.
 - No current browser evidence proves the complete booking → check-in →
   submission → Educator review → Admin review → revision → Stage 4 → Stage 5
   journey.

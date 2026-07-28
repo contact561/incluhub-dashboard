@@ -99,6 +99,7 @@ export const config = {
   matcher: [
     "/login",
     "/forgot-password",
+    "/reset-password",
     "/admin/:path*",
     "/student/:path*",
     "/educator/:path*",
