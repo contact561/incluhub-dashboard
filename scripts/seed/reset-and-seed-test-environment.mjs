@@ -30,6 +30,8 @@ const CONFIRM_FLAG = "--confirm-reset";
 const confirmReset = process.argv.includes(CONFIRM_FLAG);
 const FRESH_ACCOUNTS_FLAG = "--fresh-accounts";
 const freshAccountsOnly = process.argv.includes(FRESH_ACCOUNTS_FLAG);
+const NEW_IDENTITIES_FLAG = "--new-identities";
+const useNewIdentities = process.argv.includes(NEW_IDENTITIES_FLAG);
 
 const INSTITUTES = [
   {
@@ -161,6 +163,14 @@ const ACCOUNT_SPECS = [
     expectedState: "Team Beta Hairstyling locked",
   },
 ];
+
+const FRESH_ACCOUNT_SPECS = useNewIdentities
+  ? ACCOUNT_SPECS.map((spec) => ({
+      ...spec,
+      email: spec.email.replace("@incluhub.test", ".fresh@incluhub.test"),
+      displayName: `Fresh ${spec.displayName}`,
+    }))
+  : ACCOUNT_SPECS;
 
 const BACKUP_TABLES = [
   "profiles",
@@ -411,7 +421,9 @@ function printDryRunSummary(projectRef, counts) {
   console.log("To execute destructive reset + seed:");
   console.log(
     freshAccountsOnly
-      ? "  npm run test:reset -- --confirm-reset --fresh-accounts"
+      ? `  npm run test:reset -- --confirm-reset --fresh-accounts${
+          useNewIdentities ? " --new-identities" : ""
+        }`
       : "  npm run test:reset -- --confirm-reset"
   );
 }
@@ -960,7 +972,9 @@ async function seedFreshAccounts(admin, password) {
     programId: null,
   };
 
-  const adminSpec = ACCOUNT_SPECS.find((account) => account.key === "admin");
+  const adminSpec = FRESH_ACCOUNT_SPECS.find(
+    (account) => account.key === "admin"
+  );
   logStep("Creating fresh Admin account…");
   ctx.userIds.admin = await createAuthUser(
     admin,
@@ -992,7 +1006,7 @@ async function seedFreshAccounts(admin, password) {
   }
 
   logStep("Creating fresh Stage 0 educators and students…");
-  for (const spec of ACCOUNT_SPECS.filter(
+  for (const spec of FRESH_ACCOUNT_SPECS.filter(
     (account) => account.role !== "admin"
   )) {
     const userId = await createAuthUser(
@@ -1050,8 +1064,8 @@ async function seedFreshAccounts(admin, password) {
   return ctx;
 }
 
-async function verifyLogins(password) {
-  for (const spec of ACCOUNT_SPECS) {
+async function verifyLogins(password, accountSpecs = ACCOUNT_SPECS) {
+  for (const spec of accountSpecs) {
     const client = createAuthClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -1348,7 +1362,7 @@ function buildFreshCredentialMarkdown(password) {
     "| Role | Display name | Email | Expected state |",
     "|------|--------------|-------|----------------|",
   ];
-  for (const spec of ACCOUNT_SPECS) {
+  for (const spec of FRESH_ACCOUNT_SPECS) {
     lines.push(
       `| ${spec.role} | ${spec.displayName} | ${spec.email} | ${freshExpectedState(spec)} |`
     );
@@ -1364,7 +1378,7 @@ function printFreshCredentialTable(password) {
   console.log("");
   console.log("| Role | Display name | Email | Expected state |");
   console.log("|------|--------------|-------|----------------|");
-  for (const spec of ACCOUNT_SPECS) {
+  for (const spec of FRESH_ACCOUNT_SPECS) {
     console.log(
       `| ${spec.role} | ${spec.displayName} | ${spec.email} | ${freshExpectedState(spec)} |`
     );
@@ -1416,6 +1430,12 @@ async function runSafetyChecks() {
   const expectedRef = assertEnv("EXPECTED_SUPABASE_PROJECT_REF");
   const password = assertEnv("TEST_ACCOUNT_PASSWORD");
   const allowDestructive = process.env.ALLOW_DESTRUCTIVE_TEST_RESET;
+
+  if (useNewIdentities && !freshAccountsOnly) {
+    throw new Error(
+      `${NEW_IDENTITIES_FLAG} can only be used together with ${FRESH_ACCOUNTS_FLAG}.`
+    );
+  }
 
   if (allowDestructive !== "true") {
     throw new Error(
@@ -1493,7 +1513,10 @@ async function main() {
     : await seedEnvironment(admin, anonClient, password);
 
   logStep("Verifying logins for all 10 accounts…");
-  await verifyLogins(password);
+  await verifyLogins(
+    password,
+    freshAccountsOnly ? FRESH_ACCOUNT_SPECS : ACCOUNT_SPECS
+  );
 
   logStep("Running final data assertions…");
   if (freshAccountsOnly) {

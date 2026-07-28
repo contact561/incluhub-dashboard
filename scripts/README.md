@@ -23,6 +23,12 @@ npm run test:reset
 # Destructive reset + seed (non-production only)
 npm run test:reset -- --confirm-reset
 
+# Replace every user with a newly named, unassigned Stage 0 account
+npm run test:reset -- --confirm-reset --fresh-accounts --new-identities
+
+# Full Stage 0–5 lifecycle and booking-allocation audit
+node scripts/qa/smoke/full-stage-lifecycle-smoke.mjs
+
 # Package F authz check
 npm run test:release-authz
 
