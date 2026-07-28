@@ -28,6 +28,8 @@ loadEnvConfig(process.cwd());
 
 const CONFIRM_FLAG = "--confirm-reset";
 const confirmReset = process.argv.includes(CONFIRM_FLAG);
+const FRESH_ACCOUNTS_FLAG = "--fresh-accounts";
+const freshAccountsOnly = process.argv.includes(FRESH_ACCOUNTS_FLAG);
 
 const INSTITUTES = [
   {
@@ -194,7 +196,11 @@ const DELETE_STEPS = [
   { table: "moodboard_reviews", label: "moodboard_reviews" },
   { table: "moodboard_submissions", label: "moodboard_submissions" },
   { table: "personal_studio_bookings", label: "personal_studio_bookings" },
-  { table: "personal_shoot_entitlements", label: "personal_shoot_entitlements" },
+  {
+    table: "personal_shoot_entitlements",
+    label: "personal_shoot_entitlements",
+    key: "student_id",
+  },
   { table: "portfolio_reviews", label: "portfolio_reviews" },
   { table: "portfolio_submissions", label: "portfolio_submissions" },
   { table: "studio_bookings", label: "studio_bookings" },
@@ -388,16 +394,26 @@ function printDryRunSummary(projectRef, counts) {
   console.log("");
   console.log("Will create after reset:");
   console.log("  10 auth accounts (1 admin, 3 educators, 6 students)");
-  console.log("  3 institutes, 1 multi-institute program, 2 cross-institute teams");
-  console.log("  Team Alpha → Photography pending_admin (v1 submission, no reviews)");
-  console.log("  Team Beta  → Photography completed, Makeup pending_admin");
-  console.log("");
-  console.log("Seed workflow dates (Asia/Kolkata):");
-  console.log(`  bmsSessionDate (complete_bms_session): ${getYesterdayInAsiaKolkata()}`);
-  console.log(`  studioBookingDate (book_studio_slot):    ${getTodayInAsiaKolkata()}`);
+  if (freshAccountsOnly) {
+    console.log("  3 institutes");
+    console.log("  No programs, teams, stages, bookings, or submissions");
+    console.log("  All six students start unassigned at Stage 0");
+  } else {
+    console.log("  3 institutes, 1 multi-institute program, 2 cross-institute teams");
+    console.log("  Team Alpha → Photography pending_admin (v1 submission, no reviews)");
+    console.log("  Team Beta  → Photography completed, Makeup pending_admin");
+    console.log("");
+    console.log("Seed workflow dates (Asia/Kolkata):");
+    console.log(`  bmsSessionDate (complete_bms_session): ${getYesterdayInAsiaKolkata()}`);
+    console.log(`  studioBookingDate (book_studio_slot):    ${getTodayInAsiaKolkata()}`);
+  }
   console.log("");
   console.log("To execute destructive reset + seed:");
-  console.log("  npm run test:reset -- --confirm-reset");
+  console.log(
+    freshAccountsOnly
+      ? "  npm run test:reset -- --confirm-reset --fresh-accounts"
+      : "  npm run test:reset -- --confirm-reset"
+  );
 }
 
 async function exportBackup(admin, backupPath) {
@@ -432,10 +448,11 @@ async function exportBackup(admin, backupPath) {
 
 async function deleteApplicationData(admin) {
   for (const step of DELETE_STEPS) {
+    const key = step.key ?? "id";
     const { error, count } = await admin
       .from(step.table)
       .delete({ count: "exact" })
-      .neq("id", "00000000-0000-0000-0000-000000000000");
+      .not(key, "is", null);
 
     if (error) {
       if (/Could not find the table|schema cache/i.test(error.message)) {
@@ -933,6 +950,106 @@ async function seedEnvironment(admin, anonClient, password) {
   return ctx;
 }
 
+async function seedFreshAccounts(admin, password) {
+  const ctx = {
+    instituteIds: {},
+    userIds: {},
+    studentIds: {},
+    educatorIds: {},
+    teamIds: {},
+    programId: null,
+  };
+
+  const adminSpec = ACCOUNT_SPECS.find((account) => account.key === "admin");
+  logStep("Creating fresh Admin account…");
+  ctx.userIds.admin = await createAuthUser(
+    admin,
+    adminSpec,
+    password,
+    null
+  );
+
+  logStep("Creating fresh institutes…");
+  for (const institute of INSTITUTES) {
+    const { data, error } = await admin
+      .from("institutes")
+      .insert({
+        name: institute.name,
+        address: institute.address,
+        phone: null,
+        email: `${institute.key}@incluhub.test`,
+        website_or_social: null,
+        authorized_person_name: "Test Authorized Person",
+        status: "active",
+        created_by: ctx.userIds.admin,
+      })
+      .select("id")
+      .single();
+    if (error) {
+      throw new Error(`Institute create failed: ${error.message}`);
+    }
+    ctx.instituteIds[institute.key] = data.id;
+  }
+
+  logStep("Creating fresh Stage 0 educators and students…");
+  for (const spec of ACCOUNT_SPECS.filter(
+    (account) => account.role !== "admin"
+  )) {
+    const userId = await createAuthUser(
+      admin,
+      spec,
+      password,
+      ctx.userIds.admin
+    );
+    ctx.userIds[spec.key] = userId;
+
+    if (spec.role === "student") {
+      const { data, error } = await admin
+        .from("students")
+        .insert({
+          user_id: userId,
+          institute_id: ctx.instituteIds[spec.instituteKey],
+          student_category: spec.studentCategory,
+          payment_status: "not_required",
+          status: "active",
+          current_stage_number: 0,
+          ecosystem_access_status: "locked",
+          created_by: ctx.userIds.admin,
+        })
+        .select("id")
+        .single();
+      if (error) {
+        throw new Error(
+          `Student create failed for ${spec.email}: ${error.message}`
+        );
+      }
+      ctx.studentIds[spec.key] = data.id;
+    }
+
+    if (spec.role === "educator") {
+      const { data, error } = await admin
+        .from("educators")
+        .insert({
+          user_id: userId,
+          institute_id: ctx.instituteIds[spec.instituteKey],
+          educator_type: spec.educatorType,
+          status: "active",
+          created_by: ctx.userIds.admin,
+        })
+        .select("id")
+        .single();
+      if (error) {
+        throw new Error(
+          `Educator create failed for ${spec.email}: ${error.message}`
+        );
+      }
+      ctx.educatorIds[spec.key] = data.id;
+    }
+  }
+
+  return ctx;
+}
+
 async function verifyLogins(password) {
   for (const spec of ACCOUNT_SPECS) {
     const client = createAuthClient(
@@ -1157,6 +1274,103 @@ async function verifyFinalState(admin, ctx) {
   assertCondition("all six students are Stage 3", allStage3);
 }
 
+async function verifyFreshAccountState(admin) {
+  const authUsers = await listAllAuthUsers(admin);
+  assertCondition("fresh auth user count = 10", authUsers.length === 10);
+  assertCondition(
+    "fresh profile count = 10",
+    (await countTable(admin, "profiles")) === 10
+  );
+  assertCondition(
+    "fresh educator count = 3",
+    (await countTable(admin, "educators")) === 3
+  );
+  assertCondition(
+    "fresh student count = 6",
+    (await countTable(admin, "students")) === 6
+  );
+  assertCondition(
+    "fresh institute count = 3",
+    (await countTable(admin, "institutes")) === 3
+  );
+
+  for (const table of [
+    "programs",
+    "teams",
+    "team_members",
+    "team_stage_progress",
+    "portfolio_outputs",
+    "portfolio_submissions",
+    "moodboard_submissions",
+    "studio_bookings",
+    "personal_studio_bookings",
+    "workflow_comments",
+    "notifications",
+  ]) {
+    assertCondition(
+      `fresh ${table} count = 0`,
+      (await countTable(admin, table)) === 0
+    );
+  }
+
+  const { data: students, error } = await admin
+    .from("students")
+    .select(
+      "current_stage_number, current_team_id, ecosystem_access_status, status"
+    );
+  if (error) throw new Error(error.message);
+  assertCondition(
+    "all fresh students are active, unassigned, and at Stage 0",
+    (students ?? []).every(
+      (student) =>
+        student.status === "active" &&
+        student.current_stage_number === 0 &&
+        student.current_team_id === null &&
+        student.ecosystem_access_status === "locked"
+    )
+  );
+}
+
+function freshExpectedState(spec) {
+  if (spec.role === "admin") return "Fresh Admin account";
+  if (spec.role === "educator") return "Fresh educator; no assigned teams";
+  return "Fresh Stage 0 student; no team or program";
+}
+
+function buildFreshCredentialMarkdown(password) {
+  const lines = [
+    "# IncluHub Fresh Test Credentials (local only)",
+    "",
+    "Email is the login username.",
+    "",
+    `Common password: ${password}`,
+    "",
+    "| Role | Display name | Email | Expected state |",
+    "|------|--------------|-------|----------------|",
+  ];
+  for (const spec of ACCOUNT_SPECS) {
+    lines.push(
+      `| ${spec.role} | ${spec.displayName} | ${spec.email} | ${freshExpectedState(spec)} |`
+    );
+  }
+  lines.push("");
+  return lines.join("\n");
+}
+
+function printFreshCredentialTable(password) {
+  console.log("");
+  console.log("=== Fresh test credentials (email is username) ===");
+  console.log(`Common password: ${password}`);
+  console.log("");
+  console.log("| Role | Display name | Email | Expected state |");
+  console.log("|------|--------------|-------|----------------|");
+  for (const spec of ACCOUNT_SPECS) {
+    console.log(
+      `| ${spec.role} | ${spec.displayName} | ${spec.email} | ${freshExpectedState(spec)} |`
+    );
+  }
+}
+
 function buildCredentialMarkdown(password) {
   const lines = [
     "# IncluHub Test Credentials (local only)",
@@ -1269,19 +1483,39 @@ async function main() {
   logStep("Deleting all auth users…");
   await deleteAllAuthUsers(admin);
 
-  logStep("Seeding fixed test environment from zero…");
-  const ctx = await seedEnvironment(admin, anonClient, password);
+  logStep(
+    freshAccountsOnly
+      ? "Creating fresh Stage 0 accounts from zero…"
+      : "Seeding fixed test environment from zero…"
+  );
+  const ctx = freshAccountsOnly
+    ? await seedFreshAccounts(admin, password)
+    : await seedEnvironment(admin, anonClient, password);
 
   logStep("Verifying logins for all 10 accounts…");
   await verifyLogins(password);
 
   logStep("Running final data assertions…");
-  await verifyFinalState(admin, ctx);
+  if (freshAccountsOnly) {
+    await verifyFreshAccountState(admin);
+  } else {
+    await verifyFinalState(admin, ctx);
+  }
 
   const credentialPath = resolve(process.cwd(), "TEST_CREDENTIALS.local.md");
-  await writeFile(credentialPath, buildCredentialMarkdown(password), "utf8");
+  await writeFile(
+    credentialPath,
+    freshAccountsOnly
+      ? buildFreshCredentialMarkdown(password)
+      : buildCredentialMarkdown(password),
+    "utf8"
+  );
 
-  printCredentialTable(password);
+  if (freshAccountsOnly) {
+    printFreshCredentialTable(password);
+  } else {
+    printCredentialTable(password);
+  }
 
   console.log("");
   console.log("Login verification:");
