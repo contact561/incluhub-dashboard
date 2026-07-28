@@ -2,7 +2,7 @@
 
 Playwright provides repeatable browser checks for public authentication,
 all current protected-route redirects, responsive login UI, and authenticated
-role boundaries. The public suite currently contains 40 runnable checks,
+role boundaries. The public suite currently contains 41 runnable checks,
 including 35 protected route variants.
 
 ## Install the browser once

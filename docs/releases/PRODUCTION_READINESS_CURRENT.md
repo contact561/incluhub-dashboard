@@ -16,7 +16,8 @@ with the current worktree.
   vulnerabilities.
 - The local application responds successfully.
 - The configured Supabase project is reachable.
-- Forty Playwright checks pass for:
+- Forty-one Playwright checks pass for:
+  - a no-store application liveness response that exposes no configuration;
   - the IncluHub landing and branded login experience;
   - forgot-password navigation, safe handling of invalid/expired reset links,
     and the post-reset login success state;
@@ -29,6 +30,9 @@ with the current worktree.
   rejects mismatched Supabase projects/key roles, unsafe URLs, destructive
   production reset flags, and missing production ecosystem configuration
   before it builds.
+- The built production server's deep health probe returned HTTP 200 with both
+  the application and configured Supabase Auth dependency marked healthy. The
+  Vercel workflow repeats this probe after every manual deployment.
 
 ## Connected database snapshot
 

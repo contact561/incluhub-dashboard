@@ -1,6 +1,19 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("public authentication experience", () => {
+  test("application health endpoint is available without exposing secrets", async ({
+    request,
+  }) => {
+    const response = await request.get("/api/health");
+
+    expect(response.ok()).toBe(true);
+    expect(response.headers()["cache-control"]).toContain("no-store");
+    expect(await response.json()).toEqual({
+      status: "ok",
+      checks: { application: "ok" },
+    });
+  });
+
   test("root leads to the branded login page", async ({ page }) => {
     await page.goto("/");
 

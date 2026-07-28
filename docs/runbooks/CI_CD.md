@@ -92,6 +92,12 @@ disabled in production, and production has a reviewed ecosystem destination.
 It reports variable names and validation problems but never prints secret
 values.
 
+After deployment, the workflow uses Vercel's authenticated CLI request to call
+`/api/health?check=dependencies`. The release fails unless both the deployed
+Next.js application and its configured Supabase Auth service respond. The
+public `/api/health` liveness response contains status labels only and never
+returns project references, URLs, keys, user data, or upstream error details.
+
 ## Release order
 
 For a release containing database changes:
